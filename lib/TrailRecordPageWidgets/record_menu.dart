@@ -46,7 +46,7 @@ class _RecordMenuState extends State<RecordMenu> {
                 Text(
                   widget.time,
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.scrim,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 32,
                       fontWeight: FontWeight.bold),
                 ),
@@ -54,7 +54,7 @@ class _RecordMenuState extends State<RecordMenu> {
                   LocaleKeys.distance
                       .tr(namedArgs: {'distance': widget.distance}),
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.scrim,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 16,
                       fontWeight: FontWeight.bold),
                 )

@@ -102,7 +102,7 @@ class _PlaceContent extends StatelessWidget {
       required this.onOpenLink});
 
   BoxDecoration _cardDecoration(BuildContext context) => BoxDecoration(
-        color: Theme.of(context).colorScheme.onPrimary,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: [
           BoxShadow(

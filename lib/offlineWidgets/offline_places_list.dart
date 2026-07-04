@@ -55,7 +55,7 @@ class _OfflinePlacesListState extends State<OfflinePlacesList> {
               },
               child: Text(
                 LocaleKeys.cancel.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.scrim),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
             TextButton(
@@ -65,7 +65,7 @@ class _OfflinePlacesListState extends State<OfflinePlacesList> {
               },
               child: Text(
                 LocaleKeys.delete.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.scrim),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ],

@@ -67,7 +67,7 @@ class _MyPlacesState extends State<MyPlaces> {
               },
               child: Text(
                 LocaleKeys.cancel.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.scrim),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
             TextButton(
@@ -77,7 +77,7 @@ class _MyPlacesState extends State<MyPlaces> {
               },
               child: Text(
                 LocaleKeys.delete.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.scrim),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ],
@@ -104,7 +104,7 @@ class _MyPlacesState extends State<MyPlaces> {
               },
               child: Text(
                 LocaleKeys.cancel.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.scrim),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
             TextButton(
@@ -120,7 +120,7 @@ class _MyPlacesState extends State<MyPlaces> {
               },
               child: Text(
                 LocaleKeys.ok.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.scrim),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ],
@@ -154,7 +154,7 @@ class _MyPlacesState extends State<MyPlaces> {
         child: _isLoading
             ? CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.scrim),
+                    Theme.of(context).colorScheme.primary),
               )
             : Column(
                 children: [

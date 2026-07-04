@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memo_places_mobile/Theme/theme_provider.dart';
+import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/home.dart';
 import 'package:memo_places_mobile/services/location_service.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';

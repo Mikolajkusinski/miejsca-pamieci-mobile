@@ -65,3 +65,6 @@ flutter:
     - lib/assets/images/
     - lib/assets/map_styles/
     - lib/assets/markers/
+    # Bundled Manrope so google_fonts never fetches at runtime (offline-safe,
+    # deterministic in tests). File hashes match google_fonts' expectations.
+    - google_fonts/

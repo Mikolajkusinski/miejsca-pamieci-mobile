@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/Theme/theme_provider.dart';
+import 'package:memo_places_mobile/theme/app_theme.dart';
+import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/internet_checker.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
@@ -24,6 +25,7 @@ void main() async {
   }
 
   const sessionStore = SessionStore();
+  final initialThemeMode = await ThemeProvider.loadSavedMode();
 
   runApp(
     EasyLocalization(
@@ -38,7 +40,9 @@ void main() async {
       fallbackLocale: const Locale('en'),
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(
+            create: (_) => ThemeProvider(initialMode: initialThemeMode),
+          ),
           Provider<SessionStore>.value(value: sessionStore),
           Provider<AuthService>(
             create: (_) => CognitoAuthService(sessionStore),
@@ -84,7 +88,9 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      theme: Provider.of<ThemeProvider>(context).themeData,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: context.watch<ThemeProvider>().themeMode,
       home: const InternetChecker(),
     );
   }

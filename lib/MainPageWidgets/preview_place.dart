@@ -95,7 +95,7 @@ class _PreviewPlaceState extends State<PreviewPlace>
                           ? Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.scrim),
+                                    Theme.of(context).colorScheme.primary),
                               ),
                             )
                           : Row(

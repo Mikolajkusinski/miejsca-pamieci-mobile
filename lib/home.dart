@@ -13,8 +13,7 @@ import 'package:memo_places_mobile/Objects/selected_map_object.dart';
 import 'package:memo_places_mobile/Objects/place.dart';
 import 'package:memo_places_mobile/Objects/trail.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/Theme/theme.dart';
-import 'package:memo_places_mobile/Theme/theme_provider.dart';
+import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/api_constants.dart';
 import 'package:memo_places_mobile/custom_exception.dart';
 import 'package:memo_places_mobile/services/data_service.dart';
@@ -100,12 +99,19 @@ class _GoogleMapsState extends State<Home> {
     super.dispose();
   }
 
+  bool get _isDarkMode {
+    final mode = _themeProvider.themeMode;
+    if (mode == ThemeMode.system) {
+      return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+          Brightness.dark;
+    }
+    return mode == ThemeMode.dark;
+  }
+
   Future<void> _loadMapStyle() async {
-    String stylePath =
-        Provider.of<ThemeProvider>(context, listen: false).themeData ==
-                lightTheme
-            ? 'lib/assets/map_styles/light_map_style.json'
-            : 'lib/assets/map_styles/dark_map_style.json';
+    String stylePath = _isDarkMode
+        ? 'lib/assets/map_styles/dark_map_style.json'
+        : 'lib/assets/map_styles/light_map_style.json';
     _mapStyleString =
         await DefaultAssetBundle.of(context).loadString(stylePath);
     setState(() {});
@@ -309,7 +315,7 @@ class _GoogleMapsState extends State<Home> {
           child: _isLoading
               ? CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.scrim),
+                      Theme.of(context).colorScheme.primary),
                 )
               : Stack(
                   children: [
@@ -347,14 +353,14 @@ class _GoogleMapsState extends State<Home> {
                         heroTag: 'toggleTheme',
                         onPressed: () {
                           Provider.of<ThemeProvider>(context, listen: false)
-                              .toggleTheme();
+                              .cycleThemeMode();
                         },
-                        child: Icon(
-                            Provider.of<ThemeProvider>(context, listen: false)
-                                        .themeData ==
-                                    lightTheme
-                                ? Icons.light_mode
-                                : Icons.dark_mode),
+                        child: Icon(switch (
+                            Provider.of<ThemeProvider>(context).themeMode) {
+                          ThemeMode.system => Icons.brightness_auto,
+                          ThemeMode.light => Icons.light_mode,
+                          ThemeMode.dark => Icons.dark_mode,
+                        }),
                       ),
                     ),
                     _isSelectedPlace

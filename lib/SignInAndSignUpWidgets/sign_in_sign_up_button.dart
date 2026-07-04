@@ -20,7 +20,7 @@ class SignInSignUpButton extends StatelessWidget {
           child: Text(
             buttonText,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.surface,
                 fontWeight: FontWeight.bold,
                 fontSize: 18),
           ),

@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:memo_places_mobile/Theme/theme.dart';
-import 'package:memo_places_mobile/Theme/theme_provider.dart';
+import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/TrailRecordPageWidgets/record_menu.dart';
 import 'package:memo_places_mobile/services/location_service.dart';
 import 'package:memo_places_mobile/services/trail_math.dart';
@@ -106,11 +105,15 @@ class _TrailRecordState extends State<TrailRecordPage> {
   }
 
   Future<void> _loadMapStyle() async {
-    String stylePath =
-        Provider.of<ThemeProvider>(context, listen: false).themeData ==
-                lightTheme
-            ? 'lib/assets/map_styles/light_map_style.json'
-            : 'lib/assets/map_styles/dark_map_style.json';
+    final mode =
+        Provider.of<ThemeProvider>(context, listen: false).themeMode;
+    final dark = mode == ThemeMode.system
+        ? WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.dark
+        : mode == ThemeMode.dark;
+    String stylePath = dark
+        ? 'lib/assets/map_styles/dark_map_style.json'
+        : 'lib/assets/map_styles/light_map_style.json';
     _mapStyleString =
         await DefaultAssetBundle.of(context).loadString(stylePath);
     setState(() {});
