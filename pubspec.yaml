@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  amplify_flutter: ^2.6.0
+  amplify_auth_cognito: ^2.6.0
   cupertino_icons: ^1.0.8
   http: ^1.5.0
   google_maps_flutter: ^2.14.0

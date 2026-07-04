@@ -1,5 +1,7 @@
 // DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
 
+// ignore_for_file: constant_identifier_names
+
 abstract class  LocaleKeys {
   static const distance = 'distance';
   static const stop_save = 'stop_save';
@@ -149,5 +151,7 @@ abstract class  LocaleKeys {
   static const permissions_denied = 'permissions_denied';
   static const permissions_permanently_denied = 'permissions_permanently_denied';
   static const refresh = 'refresh';
+  static const session_expired = 'session_expired';
+  static const no_connection_error = 'no_connection_error';
 
 }
