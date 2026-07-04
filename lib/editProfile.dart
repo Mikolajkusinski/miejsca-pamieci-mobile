@@ -1,18 +1,15 @@
-import 'dart:convert';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/customExeption.dart';
 import 'package:memo_places_mobile/formWidgets/customButton.dart';
 import 'package:memo_places_mobile/formWidgets/customTitle.dart';
-import 'package:memo_places_mobile/internetChecker.dart';
+import 'package:memo_places_mobile/services/api_client.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/auth_service.dart';
+import 'package:memo_places_mobile/shared/busy_overlay.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
   final User user;
@@ -38,67 +35,33 @@ class _EditProfileState extends State<EditProfile> {
     super.dispose();
   }
 
-  void _incrementCounter(String key, String value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, value);
-  }
-
+  /// Sends the reset email and stays signed in on this device (the session
+  /// is only replaced once the user completes the reset elsewhere).
   Future<void> _resetPassword() async {
+    final auth = context.read<AuthService>();
     try {
-      var response = await http.get(
-        Uri.parse(ApiConstants.resetPasswordByEmailEndpoint(widget.user.email)),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.remove("user");
-        showSuccesToast(LocaleKeys.link_sent.tr());
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const InternetChecker()),
-          );
-        }
-      } else {
-        throw CustomException(LocaleKeys.alert_error.tr());
-      }
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+      await runWithBusyOverlay(
+          context, () => auth.resetPassword(widget.user.email));
+      if (!mounted) return;
+      showSuccesToast(LocaleKeys.link_sent.tr());
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 
   Future<void> _saveUserData() async {
+    final api = context.read<ApiClient>();
+    final username = _usernameController.text.trim();
     try {
-      var response = await http.put(
-        Uri.parse(ApiConstants.userByIdEndpoint(widget.user.id)),
-        body: jsonEncode({
-          'username': _usernameController.text,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          "JWT": widget.user.token!,
-        },
+      await runWithBusyOverlay(
+        context,
+        () => api.patch('/api/v1/users/me', body: {'username': username}),
       );
-
-      if (response.statusCode == 200) {
-        var userData = jsonDecode(response.body);
-        String refresh = userData["refresh"];
-        User user = User.fromJson(JwtDecoder.decode(refresh));
-        User userWithToken = user.copyWith(jwtToken: refresh);
-        _incrementCounter("user", jsonEncode(userWithToken));
-        showSuccesToast(LocaleKeys.changes_succes_sent.tr());
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const InternetChecker()),
-          );
-        }
-      } else {
-        throw CustomException(LocaleKeys.alert_error.tr());
-      }
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+      if (!mounted) return;
+      showSuccesToast(LocaleKeys.changes_succes_sent.tr());
+      Navigator.pop(context);
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 

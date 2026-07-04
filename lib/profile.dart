@@ -10,9 +10,10 @@ import 'package:memo_places_mobile/editProfile.dart';
 import 'package:memo_places_mobile/internetChecker.dart';
 import 'package:memo_places_mobile/myPlaces.dart';
 import 'package:memo_places_mobile/myTrails.dart';
+import 'package:memo_places_mobile/services/auth_service.dart';
 import 'package:memo_places_mobile/services/dataService.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -22,68 +23,45 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  List<ButtonData> buttonsData = [];
-  late User? _user;
-  late String? token;
+  late final Future<User?> _userFuture = loadUserData();
 
-  Future<void> _clearAccessKeyAndRefresh() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove("user");
-    Navigator.push(
+  Future<void> _signOut() async {
+    // Clears Amplify credentials and the stored session.
+    await context.read<AuthService>().signOut();
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const InternetChecker()),
+      (route) => false,
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    loadUserData().then((value) => _user = value);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _initializeButtonsData();
-  }
-
-  void _initializeButtonsData() {
-    buttonsData = [
-      ButtonData(
-          text: LocaleKeys.edit_profile.tr(), onTap: _redirectToEditProfile),
-      ButtonData(text: LocaleKeys.my_places.tr(), onTap: _redirectToMyPlaces),
-      ButtonData(text: LocaleKeys.my_trails.tr(), onTap: _redirectToMyTrails),
-      ButtonData(text: LocaleKeys.contact_us.tr(), onTap: _redirectToContactUs),
-    ];
-  }
-
-  void _redirectToMyPlaces() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const MyPlaces()),
-    );
-  }
-
-  void _redirectToMyTrails() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const MyTrails()),
-    );
-  }
-
-  void _redirectToContactUs() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ContactUsForm()),
-    );
-  }
-
-  void _redirectToEditProfile() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EditProfile(_user!)),
-    );
-  }
+  List<ButtonData> _buttonsData(User user) => [
+        ButtonData(
+            text: LocaleKeys.edit_profile.tr(),
+            onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditProfile(user)),
+                )),
+        ButtonData(
+            text: LocaleKeys.my_places.tr(),
+            onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyPlaces()),
+                )),
+        ButtonData(
+            text: LocaleKeys.my_trails.tr(),
+            onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyTrails()),
+                )),
+        ButtonData(
+            text: LocaleKeys.contact_us.tr(),
+            onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ContactUsForm()),
+                )),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -92,51 +70,59 @@ class _ProfileState extends State<Profile> {
         automaticallyImplyLeading: false,
         title: Text(LocaleKeys.profile.tr()),
       ),
-      body: FutureBuilder(
-        future: loadUserData(),
+      body: FutureBuilder<User?>(
+        future: _userFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return SingleChildScrollView(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ProfileInfoBox(
-                      username: _user!.username,
-                      email: _user!.email,
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: SizedBox(
-                        height: 450,
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ...buttonsData.map((buttonData) => ProfileButton(
-                                  onTap: buttonData.onTap,
-                                  text: buttonData.text)),
-                              SignInSignUpButton(
-                                  buttonText: LocaleKeys.sign_out.tr(),
-                                  onTap: _clearAccessKeyAndRefresh),
-                              const SizedBox(
-                                height: 20,
-                              )
-                            ]),
-                      ),
-                    ),
-                  ],
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final user = snapshot.data;
+          if (user == null) {
+            // Session vanished (expired / cleared) — back to the entry flow.
+            return Center(
+              child: SignInSignUpButton(
+                buttonText: LocaleKeys.sign_in.tr(),
+                onTap: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const InternetChecker()),
+                  (route) => false,
                 ),
               ),
             );
-          } else {
-            return Scaffold(
-                body: Center(
-                    child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.scrim),
-            )));
           }
+          return SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  ProfileInfoBox(
+                    username: user.username,
+                    email: user.email,
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: SizedBox(
+                      height: 450,
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ..._buttonsData(user).map((buttonData) =>
+                                ProfileButton(
+                                    onTap: buttonData.onTap,
+                                    text: buttonData.text)),
+                            SignInSignUpButton(
+                                buttonText: LocaleKeys.sign_out.tr(),
+                                onTap: _signOut),
+                            const SizedBox(height: 20)
+                          ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );
