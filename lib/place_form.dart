@@ -1,27 +1,25 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/services/dataService.dart';
-import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
 import 'package:memo_places_mobile/Objects/period.dart';
 import 'package:memo_places_mobile/Objects/sortof.dart';
 import 'package:memo_places_mobile/Objects/type.dart';
-import 'package:memo_places_mobile/customExeption.dart';
 import 'package:memo_places_mobile/formWidgets/customButton.dart';
 import 'package:memo_places_mobile/formWidgets/customFormInput.dart';
 import 'package:memo_places_mobile/formWidgets/customTitle.dart';
 import 'package:memo_places_mobile/formWidgets/formPictureSlider.dart';
 import 'package:memo_places_mobile/formWidgets/imageInput.dart';
 import 'package:memo_places_mobile/internetChecker.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/catalog_repository.dart';
+import 'package:memo_places_mobile/services/places_repository.dart';
+import 'package:memo_places_mobile/shared/busy_overlay.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 
 class PlaceForm extends StatefulWidget {
   const PlaceForm(this.position, {super.key});
@@ -38,37 +36,34 @@ class _PlaceFormState extends State<PlaceForm> {
   final TextEditingController _wikiLinkController = TextEditingController();
   final TextEditingController _topicLinkController = TextEditingController();
 
-  late final List<File> _selectedImages = [];
-  late User? _user;
+  final List<File> _selectedImages = [];
   List<Type> _types = [];
   List<Period> _periods = [];
   List<Sortof> _sortofs = [];
-  late String _selectedSortof;
-  late String _selectedPeriod;
-  late String _selectedType;
+  int? _selectedSortof;
+  int? _selectedPeriod;
+  int? _selectedType;
 
   @override
   void initState() {
     super.initState();
-    loadUserData().then((value) => _user = value);
+    _loadCatalogs();
+  }
+
+  Future<void> _loadCatalogs() async {
+    final catalog = context.read<CatalogRepository>();
     try {
-      fetchTypes(context).then((value) {
-        setState(() {
-          _types = value;
-        });
+      final types = await catalog.getTypes();
+      final sortofs = await catalog.getSortofs();
+      final periods = await catalog.getPeriods();
+      if (!mounted) return;
+      setState(() {
+        _types = types;
+        _sortofs = sortofs;
+        _periods = periods;
       });
-      fetchPeriods(context).then((value) {
-        setState(() {
-          _periods = value;
-        });
-      });
-      fetchSortof(context).then((value) {
-        setState(() {
-          _sortofs = value;
-        });
-      });
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 
@@ -81,68 +76,39 @@ class _PlaceFormState extends State<PlaceForm> {
     super.dispose();
   }
 
-  void _submitForm(BuildContext context) async {
-    List<Future<http.StreamedResponse>> uploadFutures = [];
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+    final repository = context.read<PlacesRepository>();
 
-    if (_formKey.currentState!.validate()) {
-      Map<String, String> formData = {
-        'place_name': _nameController.text,
-        'lat': widget.position.latitude.toString(),
-        'lng': widget.position.longitude.toString(),
-        'type': _selectedType,
-        'sortof': _selectedSortof,
-        'period': _selectedPeriod,
-        'description': _descriptionController.text,
-        'wiki_link': _wikiLinkController.text,
-        'topic_link': _topicLinkController.text,
-        'user': _user!.id.toString(),
-      };
+    final wikiLink = _wikiLinkController.text.trim();
+    final topicLink = _topicLinkController.text.trim();
+    final draft = PlaceDraft(
+      placeName: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      lng: widget.position.longitude,
+      lat: widget.position.latitude,
+      typeId: _selectedType!,
+      sortofId: _selectedSortof!,
+      periodId: _selectedPeriod!,
+      wikiLink: wikiLink.isEmpty ? null : wikiLink,
+      topicLink: topicLink.isEmpty ? null : topicLink,
+    );
 
-      try {
-        var response = await http.post(
-          Uri.parse(ApiConstants.placesEndpoint),
-          body: formData,
-        );
-
-        if (response.statusCode == 200) {
-          Map<String, dynamic> responseData = jsonDecode(response.body);
-          String id = responseData['id'].toString();
-          for (final image in _selectedImages) {
-            var request = http.MultipartRequest(
-                'POST', Uri.parse(ApiConstants.placeImageEndpoint));
-
-            request.fields['place'] = id;
-
-            var multipartFile = http.MultipartFile(
-              'img',
-              http.ByteStream(image.openRead()),
-              await image.length(),
-              filename: path.basename(image.path),
-            );
-
-            request.files.add(multipartFile);
-            uploadFutures.add(request.send());
-          }
-
-          var responses = await Future.wait(uploadFutures);
-          bool allSuccessful =
-              responses.every((response) => response.statusCode == 200);
-
-          if (allSuccessful) {
-            showSuccesToast(LocaleKeys.place_added_succes.tr());
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const InternetChecker()),
-            );
-          } else {
-            throw CustomException(LocaleKeys.alert_error.tr());
-          }
-        } else {
-          throw CustomException(LocaleKeys.alert_error.tr());
+    try {
+      await runWithBusyOverlay(context, () async {
+        final id = await repository.create(draft);
+        if (_selectedImages.isNotEmpty) {
+          await repository.uploadImages(id, _selectedImages);
         }
-      } on CustomException catch (error) {
-        showErrorToast(error.toString());
-      }
+      });
+      if (!mounted) return;
+      showSuccesToast(LocaleKeys.place_added_succes.tr());
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const InternetChecker()),
+      );
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 
@@ -254,7 +220,7 @@ class _PlaceFormState extends State<PlaceForm> {
                   },
                   onChanged: (Type? newValue) {
                     setState(() {
-                      _selectedType = newValue!.id.toString();
+                      _selectedType = newValue!.id;
                     });
                   },
                   items: _types.map<DropdownMenuItem<Type>>((Type type) {
@@ -302,7 +268,7 @@ class _PlaceFormState extends State<PlaceForm> {
                   },
                   onChanged: (Sortof? newValue) {
                     setState(() {
-                      _selectedSortof = newValue!.id.toString();
+                      _selectedSortof = newValue!.id;
                     });
                   },
                   items:
@@ -351,7 +317,7 @@ class _PlaceFormState extends State<PlaceForm> {
                   },
                   onChanged: (Period? newValue) {
                     setState(() {
-                      _selectedPeriod = newValue!.id.toString();
+                      _selectedPeriod = newValue!.id;
                     });
                   },
                   items:
@@ -397,7 +363,7 @@ class _PlaceFormState extends State<PlaceForm> {
                 ),
                 const SizedBox(height: 35),
                 CustomButton(
-                  onPressed: () => _submitForm(context),
+                  onPressed: _submitForm,
                   text: LocaleKeys.save.tr(),
                 ),
               ],

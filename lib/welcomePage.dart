@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memo_places_mobile/formWidgets/customButton.dart';
 import 'package:memo_places_mobile/mainPage.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -43,7 +44,11 @@ class WelcomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   CustomButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        // Persist only on explicit continue — not during build.
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('welcomePageDisplayed', true);
+                        if (!context.mounted) return;
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
