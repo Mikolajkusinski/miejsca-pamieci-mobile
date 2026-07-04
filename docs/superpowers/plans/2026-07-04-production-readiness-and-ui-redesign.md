@@ -10,6 +10,32 @@
 
 ---
 
+## Execution Log (state for continuing in a new session)
+
+**Decisions (confirmed with product owner 2026-07-04):**
+- Backend: **Option A** (.NET API + Cognito). Cognito pool **not deployed yet** → app built against placeholder config; real ids go into `env/dev.json`/`env/prod.json` via `--dart-define-from-file` (see README "Configuration").
+- Dev API base is `http://10.0.2.2:5158` (BackendDotNet's local port per the web repo, not the 5000 the plan guessed).
+- Android application ID: `pl.memoryplaces.mobile` (confirmed).
+
+**Branches/PRs (one per phase, stacked):**
+- Phase 0 → branch `phase-0-toolchain-build-health`, PR #1.
+- Phase 1 → branch `phase-1-api-auth` (stacked on phase-0).
+
+**Deviations from the written plan:**
+- `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
+- Kotlin **2.2.20** instead of 2.1.20 (2.1.x K2 compiler crashes on google_maps_flutter_android's generated code).
+- `minSdkVersion flutter.minSdkVersion` (owner's adjustment) instead of hardcoded 23.
+- `carousel_slider` → plain `PageView` already in Task 0.4 (compilation forced it; Phase 4 still restyles).
+- `googleSignInApi.dart` rewritten for google_sign_in 7.x to keep compiling; still deleted in Task 2.4 as planned.
+- `apiConstants.dart` kept with a deprecation banner (old constants still have compiling-but-dead callers); shrinks/deletes as Phases 2/4 migrate screens.
+- Locale keys `session_expired`/`no_connection_error` added during Task 1.3 (needed earlier than planned).
+- `AuthService` exposes `isConfigured` (mirrors web's `isAmplifyConfigured`): with empty Cognito ids the app runs in anonymous map-browsing mode instead of crashing.
+- `Session.user` from Cognito attributes carries `id: 0`; the backend numeric user id comes from `GET /api/v1/users/me` when needed (list filtering uses OData `$filter=userId eq N`).
+- Repositories enrich models with category display values (id → localization key) via a cached `CatalogRepository`, because the .NET DTOs carry only ids and screens render `*Value` fields.
+- Places/paths list endpoints are OData-paged (PageSize 25, MaxTop 100): repositories page with `$top=100&$skip=N`.
+
+---
+
 ## Audit Summary (what the deep scan found)
 
 ### 🔴 Blockers — the app cannot ship as-is
@@ -304,10 +330,10 @@ Run configs become `flutter run --dart-define-from-file=env/dev.json`. Document 
 - `Future<void> AuthService.resetPassword(String email)`
 - `Future<String?> AuthService.currentAccessToken()` — returns a fresh token (Amplify auto-refreshes), null when signed out
 
-- [ ] **Step 1:** Add `amplify_flutter: ^2.6.0`, `amplify_auth_cognito: ^2.6.0` to pubspec.
-- [ ] **Step 2:** Implement `AuthService` wrapping `Amplify.Auth`; every method maps Amplify exceptions to `ApiException` (Task 1.4) with localized messages (`LocaleKeys.bad_credentials`, `LocaleKeys.account_exist`, `LocaleKeys.alert_error`).
-- [ ] **Step 3:** Manual verification against the dev user pool: sign in with a test user, print `currentAccessToken()`, call `GET /api/v1/places` with it via curl → 200.
-- [ ] **Step 4:** Commit: `feat: Cognito auth via Amplify, replacing custom JWT + google_sign_in flows`
+- [x] **Step 1:** Add `amplify_flutter: ^2.6.0`, `amplify_auth_cognito: ^2.6.0` to pubspec.
+- [x] **Step 2:** Implement `AuthService` wrapping `Amplify.Auth`; every method maps Amplify exceptions to `ApiException` (Task 1.4) with localized messages (`LocaleKeys.bad_credentials`, `LocaleKeys.account_exist`, `LocaleKeys.alert_error`).
+- [ ] **Step 3:** Manual verification against the dev user pool: sign in with a test user, print `currentAccessToken()`, call `GET /api/v1/places` with it via curl → 200. *(BLOCKED 2026-07-04: Cognito pool not deployed yet — app runs with empty Cognito ids in anonymous mode; run this once real ids exist in `env/*.json`.)*
+- [x] **Step 4:** Commit: `feat: Cognito auth via Amplify, replacing custom JWT + google_sign_in flows`
 
 > **Option B fallback:** skip Amplify; `AuthService` keeps POSTing to the Django token endpoint but stores tokens via `SessionStore`, checks `isExpired` before each request, and signs the user out (with a toast) on expiry.
 
@@ -325,10 +351,10 @@ Run configs become `flutter run --dart-define-from-file=env/dev.json`. Document 
 - Success = `statusCode >= 200 && < 300` (fixes the ubiquitous `== 200` checks; the .NET API returns 201/204).
 - Failure mapping: `401` → clear session + throw `ApiException(LocaleKeys.session_expired.tr(), 401)`; RFC 7807 body → use its `detail`/`title`; `SocketException`/`TimeoutException` → `ApiException(LocaleKeys.no_connection_error.tr())`.
 
-- [ ] **Step 1:** Write failing tests: adds Bearer header when logged in; omits it when logged out; throws `ApiException` with problem-details message on 400; throws localized network error on `SocketException`; treats 201 and 204 as success.
-- [ ] **Step 2:** Implement; run tests → PASS.
-- [ ] **Step 3:** Add new locale keys `session_expired`, `no_connection_error` to all four files in `lib/assets/translations/` and regenerate (`dart run easy_localization:generate -S lib/assets/translations -O lib/translations -o locale_keys.g.dart -f keys`).
-- [ ] **Step 4:** Commit: `feat: ApiClient with timeouts, bearer auth, typed errors, 2xx handling`
+- [x] **Step 1:** Write failing tests: adds Bearer header when logged in; omits it when logged out; throws `ApiException` with problem-details message on 400; throws localized network error on `SocketException`; treats 201 and 204 as success.
+- [x] **Step 2:** Implement; run tests → PASS.
+- [x] **Step 3:** Add new locale keys `session_expired`, `no_connection_error` to all four files in `lib/assets/translations/` and regenerate (`dart run easy_localization:generate -S lib/assets/translations -O lib/translations -o locale_keys.g.dart -f keys`).
+- [x] **Step 4:** Commit: `feat: ApiClient with timeouts, bearer auth, typed errors, 2xx handling`
 
 ### Task 1.5: Repositories against `/api/v1`
 
@@ -343,9 +369,9 @@ Run configs become `flutter run --dart-define-from-file=env/dev.json`. Document 
 - Symmetric `TrailsRepository` for `/api/v1/paths`.
 - `PlaceDraft` = the create/update body matching `CreatePlaceBody` (PlaceName, Description, Lng, Lat, TypeId, SortofId, PeriodId, WikiLink, TopicLink). **The user id is no longer sent — the backend derives it from the token.**
 
-- [ ] **Step 1:** For each repository: failing MockClient test (correct path + verb + body shape, DTO parsing from a captured real response) → implement → pass.
-- [ ] **Step 2:** Update `lib/Objects/place.dart`, `trail.dart`, etc. `fromJson` to the .NET DTO field casing (check `PlaceDetailDto` in the backend source; add tests with real JSON fixtures in `test/fixtures/`).
-- [ ] **Step 3:** Commit per repository.
+- [x] **Step 1:** For each repository: failing MockClient test (correct path + verb + body shape, DTO parsing from a captured real response) → implement → pass.
+- [x] **Step 2:** Update `lib/Objects/place.dart`, `trail.dart`, etc. `fromJson` to the .NET DTO field casing (check `PlaceDetailDto` in the backend source; add tests with real JSON fixtures in `test/fixtures/`).
+- [x] **Step 3:** Commit per repository.
 
 ---
 
