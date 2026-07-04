@@ -90,7 +90,7 @@ Confirm Option A/B with the product owner before starting Phase 1. Phases 0, 2, 
 **Files:**
 - Modify: `lib/Theme/theme.dart:27-28`, `lib/Theme/theme.dart:54-55`
 
-- [ ] **Step 1:** Replace both occurrences:
+- [x] **Step 1:** Replace both occurrences:
 
 ```dart
 // before (both light and dark themes):
@@ -103,8 +103,8 @@ dialogTheme: DialogThemeData(surfaceTintColor: lightColorScheme.scrim),
 
 (and `darkColorScheme.scrim` in the dark theme block).
 
-- [ ] **Step 2:** Run `flutter analyze | grep error` → expected: no output.
-- [ ] **Step 3:** Commit: `fix: replace deprecated DialogTheme with DialogThemeData`
+- [x] **Step 2:** Run `flutter analyze | grep error` → expected: no output.
+- [x] **Step 3:** Commit: `fix: replace deprecated DialogTheme with DialogThemeData`
 
 > Note: this file is fully replaced in Phase 3; this fix just unblocks builds until then.
 
@@ -113,7 +113,7 @@ dialogTheme: DialogThemeData(surfaceTintColor: lightColorScheme.scrim),
 **Files:**
 - Modify: `android/app/src/main/AndroidManifest.xml`
 
-- [ ] **Step 1:** Add INTERNET and remove obsolete storage permissions. The permission block becomes exactly:
+- [x] **Step 1:** Add INTERNET and remove obsolete storage permissions. The permission block becomes exactly:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
@@ -123,21 +123,21 @@ dialogTheme: DialogThemeData(surfaceTintColor: lightColorScheme.scrim),
 
 (delete `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE` — `image_picker` uses the system photo picker on modern Android and scoped storage elsewhere.)
 
-- [ ] **Step 2:** Build and install a **release** APK on a device/emulator (`flutter build apk --release`, `adb install ...`), open the app, confirm network calls fire (they will 4xx/timeout against localhost — that's fine, they must not fail with a permission error).
-- [ ] **Step 3:** Commit: `fix(android): declare INTERNET in main manifest, drop legacy storage permissions`
+- [x] **Step 2:** Build and install a **release** APK on a device/emulator (`flutter build apk --release`, `adb install ...`), open the app, confirm network calls fire (they will 4xx/timeout against localhost — that's fine, they must not fail with a permission error).
+- [x] **Step 3:** Commit: `fix(android): declare INTERNET in main manifest, drop legacy storage permissions`
 
 ### Task 0.3: Upgrade the Android toolchain
 
 **Files:**
 - Modify: `android/settings.gradle`, `android/gradle/wrapper/gradle-wrapper.properties`, `android/app/build.gradle`, `android/gradle.properties`
 
-- [ ] **Step 1:** `android/gradle/wrapper/gradle-wrapper.properties`:
+- [x] **Step 1:** `android/gradle/wrapper/gradle-wrapper.properties`:
 
 ```properties
 distributionUrl=https\://services.gradle.org/distributions/gradle-8.12-all.zip
 ```
 
-- [ ] **Step 2:** `android/settings.gradle` plugins block:
+- [x] **Step 2:** `android/settings.gradle` plugins block:
 
 ```groovy
 plugins {
@@ -147,7 +147,7 @@ plugins {
 }
 ```
 
-- [ ] **Step 3:** `android/app/build.gradle` — new `android {}` core:
+- [x] **Step 3:** `android/app/build.gradle` — new `android {}` core:
 
 ```groovy
 android {
@@ -172,16 +172,16 @@ android {
 }
 ```
 
-- [ ] **Step 4:** Delete `android/app/mykey.jks` from the repo and add `*.jks` + `key.properties` to `.gitignore`. (The old keystore is debug-grade with a public password — treat it as compromised; a fresh upload key is created in Task 6.4.)
-- [ ] **Step 5:** `flutter clean && flutter build apk --release` → BUILD SUCCESSFUL.
-- [ ] **Step 6:** Commit: `chore(android): AGP 8.9 / Gradle 8.12 / Kotlin 2.1, SDK 36/35, real application id`
+- [x] **Step 4:** Delete `android/app/mykey.jks` from the repo and add `*.jks` + `key.properties` to `.gitignore`. (The old keystore is debug-grade with a public password — treat it as compromised; a fresh upload key is created in Task 6.4.)
+- [x] **Step 5:** `flutter clean && flutter build apk --release` → BUILD SUCCESSFUL.
+- [x] **Step 6:** Commit: `chore(android): AGP 8.9 / Gradle 8.12 / Kotlin 2.1, SDK 36/35, real application id`
 
 ### Task 0.4: Dependency cleanup and upgrades
 
 **Files:**
 - Modify: `pubspec.yaml`, `ios/Runner/AppDelegate.swift`, `ios/Podfile`
 
-- [ ] **Step 1:** Rewrite the dependency blocks:
+- [x] **Step 1:** Rewrite the dependency blocks:
 
 ```yaml
 environment:
@@ -224,8 +224,8 @@ dev_dependencies:
 
 Removed: `flutter_config` (abandoned), `carousel_slider` (discontinued → replace usages with Flutter's built-in `CarouselView` or a plain `PageView` in Phase 4), `dartdoc` and `cross_file` (unused as direct deps).
 
-- [ ] **Step 2:** `flutter pub get` → resolves. Fix any breaking-change compile errors it surfaces (notably `google_sign_in` 7.x: the singleton is `GoogleSignIn.instance`, init via `initialize(clientId: ...)`, sign-in via `authenticate()` — rewrite `lib/services/googleSignInApi.dart` accordingly; `geolocator` 14: `desiredAccuracy` → `LocationSettings`).
-- [ ] **Step 3:** iOS: remove `import flutter_config` from `ios/Runner/AppDelegate.swift` and replace the key lookup:
+- [x] **Step 2:** `flutter pub get` → resolves. Fix any breaking-change compile errors it surfaces (notably `google_sign_in` 7.x: the singleton is `GoogleSignIn.instance`, init via `initialize(clientId: ...)`, sign-in via `authenticate()` — rewrite `lib/services/googleSignInApi.dart` accordingly; `geolocator` 14: `desiredAccuracy` → `LocationSettings`).
+- [x] **Step 3:** iOS: remove `import flutter_config` from `ios/Runner/AppDelegate.swift` and replace the key lookup:
 
 ```swift
 GMSServices.provideAPIKey(
@@ -234,8 +234,8 @@ GMSServices.provideAPIKey(
 
 Add to `ios/Runner/Info.plist`: `<key>GMSApiKey</key><string>$(GOOGLE_MAPS_API_KEY)</string>` and define `GOOGLE_MAPS_API_KEY` in a git-ignored `ios/Flutter/Secrets.xcconfig` included from `Debug.xcconfig`/`Release.xcconfig`. Set `platform :ios, '14.0'` in `ios/Podfile`; run `pod install`.
 
-- [ ] **Step 4:** `flutter analyze` (no new errors), `flutter build ios --no-codesign` and `flutter build apk --release` both succeed.
-- [ ] **Step 5:** Commit: `chore(deps): upgrade to maintained packages, drop flutter_config/carousel_slider, secure iOS key injection`
+- [x] **Step 4:** `flutter analyze` (no new errors), `flutter build ios --no-codesign` and `flutter build apk --release` both succeed.
+- [x] **Step 5:** Commit: `chore(deps): upgrade to maintained packages, drop flutter_config/carousel_slider, secure iOS key injection`
 
 ---
 
@@ -249,7 +249,7 @@ Add to `ios/Runner/Info.plist`: `<key>GMSApiKey</key><string>$(GOOGLE_MAPS_API_K
 - Create: `lib/config/app_config.dart`
 - Create: `env/dev.json`, `env/prod.json` (git-ignored prod values)
 
-- [ ] **Step 1:**
+- [x] **Step 1:**
 
 ```dart
 class AppConfig {
@@ -271,7 +271,7 @@ class AppConfig {
 
 Run configs become `flutter run --dart-define-from-file=env/dev.json`. Document both in `README.md`.
 
-- [ ] **Step 2:** Write test `test/UnitTests/app_config_test.dart` asserting the default value, run it, commit: `feat: environment-based API configuration via dart-define`
+- [x] **Step 2:** Write test `test/UnitTests/app_config_test.dart` asserting the default value, run it, commit: `feat: environment-based API configuration via dart-define`
 
 ### Task 1.2: SessionStore — secure token handling
 
@@ -285,10 +285,10 @@ Run configs become `flutter run --dart-define-from-file=env/dev.json`. Document 
 - `Future<void> SessionStore.clear()`
 - `class Session { final String accessToken; final String refreshToken; final User user; bool get isExpired; }` (`isExpired` uses `JwtDecoder.isExpired(accessToken)`)
 
-- [ ] **Step 1:** Write failing tests: save→load round-trip (mock `FlutterSecureStorage` with an in-memory map), `load()` returns null when empty, `isExpired` true for an expired JWT literal.
-- [ ] **Step 2:** Implement with `FlutterSecureStorage` keys `session.access`, `session.refresh`, `session.user` (user JSON may stay in shared_preferences — it's not secret; tokens must not).
-- [ ] **Step 3:** Migration: on first `load()`, if legacy `SharedPreferences` key `user` exists, import its token into secure storage and delete the legacy key.
-- [ ] **Step 4:** Tests pass → commit: `feat: SessionStore with secure token storage and legacy migration`
+- [x] **Step 1:** Write failing tests: save→load round-trip (mock `FlutterSecureStorage` with an in-memory map), `load()` returns null when empty, `isExpired` true for an expired JWT literal.
+- [x] **Step 2:** Implement with `FlutterSecureStorage` keys `session.access`, `session.refresh`, `session.user` (user JSON may stay in shared_preferences — it's not secret; tokens must not).
+- [x] **Step 3:** Migration: on first `load()`, if legacy `SharedPreferences` key `user` exists, import its token into secure storage and delete the legacy key.
+- [x] **Step 4:** Tests pass → commit: `feat: SessionStore with secure token storage and legacy migration`
 
 ### Task 1.3: Cognito auth (amplify_flutter)
 
