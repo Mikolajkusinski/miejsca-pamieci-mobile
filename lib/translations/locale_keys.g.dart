@@ -153,5 +153,12 @@ abstract class  LocaleKeys {
   static const refresh = 'refresh';
   static const session_expired = 'session_expired';
   static const no_connection_error = 'no_connection_error';
+  static const location_services_off = 'location_services_off';
+  static const open_settings = 'open_settings';
+  static const sync_result = 'sync_result';
+  static const recording_notification_title = 'recording_notification_title';
+  static const recording_notification_text = 'recording_notification_text';
+  static const keep_app_open_info = 'keep_app_open_info';
+  static const invalid_email = 'invalid_email';
 
 }

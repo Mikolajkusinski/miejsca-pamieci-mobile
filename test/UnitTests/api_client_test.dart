@@ -7,7 +7,6 @@ import 'package:http/testing.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
-import 'package:memo_places_mobile/services/session_store.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
 class StubAuthService implements AuthService {

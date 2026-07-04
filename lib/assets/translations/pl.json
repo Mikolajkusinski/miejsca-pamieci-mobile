@@ -148,5 +148,12 @@
   "permissions_permanently_denied": "Dostęp do uprawnień lokalizacji został trwale odmówiony",
   "refresh": "Odśwież",
   "session_expired": "Twoja sesja wygasła. Zaloguj się ponownie.",
-  "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie."
+  "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie.",
+  "location_services_off": "Usługi lokalizacji są wyłączone na tym urządzeniu.",
+  "open_settings": "Otwórz ustawienia",
+  "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}",
+  "recording_notification_title": "Nagrywanie trasy",
+  "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
+  "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę.",
+  "invalid_email": "Podaj poprawny adres e-mail"
 }

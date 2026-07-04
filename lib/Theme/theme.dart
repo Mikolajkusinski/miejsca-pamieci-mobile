@@ -3,13 +3,13 @@ import 'package:memo_places_mobile/Theme/colors.dart';
 
 var lightTheme = ThemeData().copyWith(
   colorScheme: lightColorScheme,
-  scaffoldBackgroundColor: lightColorScheme.background,
+  scaffoldBackgroundColor: lightColorScheme.surface,
   appBarTheme: const AppBarTheme().copyWith(
     centerTitle: true,
     surfaceTintColor: lightColorScheme.tertiary,
-    backgroundColor: lightColorScheme.background,
+    backgroundColor: lightColorScheme.surface,
     titleTextStyle: TextStyle(
-      color: lightColorScheme.onBackground,
+      color: lightColorScheme.onSurface,
       fontWeight: FontWeight.bold,
       fontSize: 32,
     ),
@@ -22,20 +22,20 @@ var lightTheme = ThemeData().copyWith(
       )),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
       backgroundColor: lightColorScheme.secondary,
-      unselectedItemColor: lightColorScheme.onBackground,
+      unselectedItemColor: lightColorScheme.onSurface,
       selectedItemColor: lightColorScheme.scrim),
   dialogTheme: DialogThemeData(surfaceTintColor: lightColorScheme.scrim),
 );
 
 var darkTheme = ThemeData.dark().copyWith(
   colorScheme: darkColorScheme,
-  scaffoldBackgroundColor: darkColorScheme.background,
+  scaffoldBackgroundColor: darkColorScheme.surface,
   appBarTheme: const AppBarTheme().copyWith(
     centerTitle: true,
     surfaceTintColor: darkColorScheme.tertiary,
-    backgroundColor: darkColorScheme.background,
+    backgroundColor: darkColorScheme.surface,
     titleTextStyle: TextStyle(
-      color: darkColorScheme.onBackground,
+      color: darkColorScheme.onSurface,
       fontWeight: FontWeight.bold,
       fontSize: 32,
     ),
@@ -48,7 +48,7 @@ var darkTheme = ThemeData.dark().copyWith(
       )),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
       backgroundColor: darkColorScheme.secondary,
-      unselectedItemColor: darkColorScheme.onBackground,
+      unselectedItemColor: darkColorScheme.onSurface,
       selectedItemColor: darkColorScheme.scrim),
   dialogTheme: DialogThemeData(surfaceTintColor: darkColorScheme.scrim),
 );

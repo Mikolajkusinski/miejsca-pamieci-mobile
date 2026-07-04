@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+// Interim palette — fully replaced by lib/theme tokens in Phase 3.
 ColorScheme lightColorScheme = const ColorScheme.light().copyWith(
-    background: Colors.grey.shade300,
-    onBackground: Colors.black,
+    surface: Colors.grey.shade300,
+    onSurface: Colors.black,
     primary: Colors.grey.shade300,
     secondary: Colors.grey.shade400,
     tertiary: Colors.grey.shade700,
@@ -10,8 +11,8 @@ ColorScheme lightColorScheme = const ColorScheme.light().copyWith(
     shadow: Colors.black26);
 
 ColorScheme darkColorScheme = const ColorScheme.dark().copyWith(
-  background: const Color.fromRGBO(23, 23, 23, 1),
-  onBackground: const Color.fromRGBO(255, 255, 255, 1),
+  surface: const Color.fromRGBO(23, 23, 23, 1),
+  onSurface: const Color.fromRGBO(255, 255, 255, 1),
   primary: const Color.fromRGBO(23, 23, 23, 1),
   secondary: const Color.fromRGBO(38, 38, 38, 1),
   tertiary: const Color.fromRGBO(64, 64, 64, 1),
