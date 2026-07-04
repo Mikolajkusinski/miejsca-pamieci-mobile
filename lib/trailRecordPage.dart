@@ -1,40 +1,49 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_android/geolocator_android.dart';
+import 'package:geolocator_apple/geolocator_apple.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:memo_places_mobile/Theme/theme.dart';
 import 'package:memo_places_mobile/Theme/themeProvider.dart';
 import 'package:memo_places_mobile/TrailRecordPageWidgets/recordMenu.dart';
+import 'package:memo_places_mobile/services/location_service.dart';
+import 'package:memo_places_mobile/services/trail_math.dart';
 import 'package:memo_places_mobile/trailForm.dart';
+import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class TrailRecordPage extends StatefulWidget {
   final LatLng startLocation;
+  final LocationService locationService;
 
-  const TrailRecordPage({super.key, required this.startLocation});
+  const TrailRecordPage(
+      {super.key,
+      required this.startLocation,
+      this.locationService = const LocationService()});
 
   @override
   State<StatefulWidget> createState() => _TrailRecordState();
 }
 
 class _TrailRecordState extends State<TrailRecordPage> {
-  late GoogleMapController _mapController;
+  GoogleMapController? _mapController;
   late String _mapStyleString = '';
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
   late LatLng _currentPosition;
-  late List<LatLng> _trailsPoints = [];
+  final List<LatLng> _trailsPoints = [];
   bool _isRecording = false;
   StreamSubscription<Position>? _positionStreamSubscription;
-  double _totalDistanceKm = 0.0;
-  Timer? _timer;
-  int _hours = 0;
-  int _minutes = 0;
-  int _seconds = 0;
+  TrailAccumulator _accumulator = TrailAccumulator();
+  final Stopwatch _stopwatch = Stopwatch();
+  Timer? _ticker;
 
   @override
   void initState() {
@@ -47,7 +56,9 @@ class _TrailRecordState extends State<TrailRecordPage> {
   @override
   void dispose() {
     _positionStreamSubscription?.cancel();
-    _timer?.cancel();
+    _ticker?.cancel();
+    WakelockPlus.disable();
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -55,16 +66,42 @@ class _TrailRecordState extends State<TrailRecordPage> {
     _mapController = controller;
   }
 
+  /// A foreground-service notification keeps Android streaming while the app
+  /// stays visible; full background recording is intentionally out of scope.
+  LocationSettings _recordingSettings() {
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+        foregroundNotificationConfig: ForegroundNotificationConfig(
+          notificationTitle: LocaleKeys.recording_notification_title.tr(),
+          notificationText: LocaleKeys.recording_notification_text.tr(),
+          enableWakeLock: true,
+        ),
+      );
+    }
+    if (Platform.isIOS || Platform.isMacOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+        activityType: ActivityType.fitness,
+      );
+    }
+    return const LocationSettings(
+        accuracy: LocationAccuracy.high, distanceFilter: 5);
+  }
+
   void _startLocationUpdates() {
-    _positionStreamSubscription =
-        Geolocator.getPositionStream().listen((Position position) {
+    _positionStreamSubscription = widget.locationService
+        .positionStream(settings: _recordingSettings())
+        .listen((Position position) {
+      if (!mounted) return;
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
         _updateUserMarker();
-        if (_isRecording == true) {
+        if (_isRecording && _accumulator.add(position)) {
           _trailsPoints.add(LatLng(position.latitude, position.longitude));
           _updateRecordedPolyline();
-          _updateDistance();
         }
       });
     });
@@ -94,6 +131,7 @@ class _TrailRecordState extends State<TrailRecordPage> {
       ),
     });
 
+    if (!mounted) return;
     setState(() {
       _markers = updatedMarkers;
     });
@@ -126,66 +164,38 @@ class _TrailRecordState extends State<TrailRecordPage> {
     });
   }
 
-  void _updateDistance() {
-    if (_trailsPoints.length > 1) {
-      double distance = _calculateDistance(
-          _trailsPoints[_trailsPoints.length - 2], _trailsPoints.last);
-      _totalDistanceKm += distance;
-    }
-  }
-
-  double _calculateDistance(LatLng start, LatLng end) {
-    const double earthRadius = 6371.0;
-
-    double lat1 = start.latitude * pi / 180.0;
-    double lon1 = start.longitude * pi / 180.0;
-    double lat2 = end.latitude * pi / 180.0;
-    double lon2 = end.longitude * pi / 180.0;
-
-    double dLat = lat2 - lat1;
-    double dLon = lon2 - lon1;
-
-    double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    double distance = earthRadius * c;
-    return distance;
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _seconds++;
-        if (_seconds == 60) {
-          _seconds = 0;
-          _minutes++;
-          if (_minutes == 60) {
-            _minutes = 0;
-            _hours++;
-          }
-        }
-      });
-    });
-  }
-
   String _formatTime(int time) {
     return time.toString().padLeft(2, '0');
   }
 
+  /// Wall-clock recording time from the stopwatch — immune to ticker drift.
   String get _formattedTime {
-    return '${_formatTime(_hours)}:${_formatTime(_minutes)}:${_formatTime(_seconds)}';
+    final elapsed = _stopwatch.elapsed;
+    return '${_formatTime(elapsed.inHours)}:'
+        '${_formatTime(elapsed.inMinutes % 60)}:'
+        '${_formatTime(elapsed.inSeconds % 60)}';
   }
 
   void _startRecording() {
-    _startTimer();
+    _accumulator = TrailAccumulator();
+    _trailsPoints.clear();
+    _stopwatch
+      ..reset()
+      ..start();
+    // Refresh the clock display once a second; time comes from the stopwatch.
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+    WakelockPlus.enable();
     setState(() {
       _isRecording = true;
     });
   }
 
   void _endRecording() {
-    _timer?.cancel();
+    _stopwatch.stop();
+    _ticker?.cancel();
+    WakelockPlus.disable();
     setState(() {
       _isRecording = false;
     });
@@ -194,7 +204,7 @@ class _TrailRecordState extends State<TrailRecordPage> {
       MaterialPageRoute(
           builder: (context) => TrailForm(
                 trailCoordinates: _trailsPoints,
-                distance: _totalDistanceKm.toStringAsFixed(3),
+                distance: _accumulator.totalKm.toStringAsFixed(3),
                 time: _formattedTime,
               )),
     );
@@ -218,8 +228,24 @@ class _TrailRecordState extends State<TrailRecordPage> {
                 initialCameraPosition:
                     CameraPosition(target: _currentPosition, zoom: 16),
               ),
+              if (_isRecording)
+                Positioned(
+                  top: 80,
+                  left: 16,
+                  right: 16,
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        LocaleKeys.keep_app_open_info.tr(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ),
+                ),
               RecordMenu(
-                distance: _totalDistanceKm.toStringAsFixed(3),
+                distance: _accumulator.totalKm.toStringAsFixed(3),
                 isRecording: _isRecording,
                 time: _formattedTime,
                 startRecording: _startRecording,
@@ -231,7 +257,7 @@ class _TrailRecordState extends State<TrailRecordPage> {
                 child: FloatingActionButton(
                   heroTag: 'locateMe',
                   onPressed: () {
-                    _mapController.animateCamera(
+                    _mapController?.animateCamera(
                       CameraUpdate.newLatLng(_trailsPoints.isEmpty
                           ? widget.startLocation
                           : _trailsPoints.last),

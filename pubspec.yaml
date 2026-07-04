@@ -33,6 +33,7 @@ dependencies:
   provider: ^6.1.0
   path_provider: ^2.1.5
   google_fonts: ^6.3.0              # Manrope display face (Phase 3)
+  wakelock_plus: ^1.5.2
 
 # device_info_plus >= 12.4.0 calls isiOSAppOnVision, declared only in the
 # iOS 26.1 SDK — it does not compile with Xcode 26.0. 12.3.0 predates that

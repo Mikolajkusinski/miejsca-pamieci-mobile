@@ -167,7 +167,10 @@ class CodegenLoader extends AssetLoader{
   "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut.",
   "location_services_off": "Die Ortungsdienste sind auf diesem Gerät deaktiviert.",
   "open_settings": "Einstellungen öffnen",
-  "sync_result": "Offline-Synchronisierung: {ok} hochgeladen, {failed} für erneuten Versuch behalten"
+  "sync_result": "Offline-Synchronisierung: {ok} hochgeladen, {failed} für erneuten Versuch behalten",
+  "recording_notification_title": "Route wird aufgezeichnet",
+  "recording_notification_text": "Memory Places verfolgt deine Route.",
+  "keep_app_open_info": "Lass die App während der Aufzeichnung geöffnet — beim Schließen stoppt die Route."
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -322,7 +325,10 @@ static const Map<String,dynamic> _ru = {
   "no_connection_error": "Нет соединения. Проверьте интернет и попробуйте снова.",
   "location_services_off": "Службы геолокации отключены на этом устройстве.",
   "open_settings": "Открыть настройки",
-  "sync_result": "Офлайн-синхронизация: загружено {ok}, осталось {failed}"
+  "sync_result": "Офлайн-синхронизация: загружено {ok}, осталось {failed}",
+  "recording_notification_title": "Запись маршрута",
+  "recording_notification_text": "Memory Places отслеживает ваш маршрут.",
+  "keep_app_open_info": "Держите приложение открытым во время записи — при закрытии маршрут остановится."
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -477,7 +483,10 @@ static const Map<String,dynamic> _pl = {
   "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie.",
   "location_services_off": "Usługi lokalizacji są wyłączone na tym urządzeniu.",
   "open_settings": "Otwórz ustawienia",
-  "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}"
+  "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}",
+  "recording_notification_title": "Nagrywanie trasy",
+  "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
+  "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę."
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -632,7 +641,10 @@ static const Map<String,dynamic> _en = {
   "no_connection_error": "No connection. Check your internet and try again.",
   "location_services_off": "Location services are turned off on this device.",
   "open_settings": "Open settings",
-  "sync_result": "Offline sync: {ok} uploaded, {failed} kept for retry"
+  "sync_result": "Offline sync: {ok} uploaded, {failed} kept for retry",
+  "recording_notification_title": "Recording trail",
+  "recording_notification_text": "Memory Places is tracking your route.",
+  "keep_app_open_info": "Keep the app open while recording — the trail stops if you close it."
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }
