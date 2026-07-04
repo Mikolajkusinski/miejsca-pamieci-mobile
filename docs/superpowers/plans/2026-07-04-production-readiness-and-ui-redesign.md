@@ -19,7 +19,8 @@
 
 **Branches/PRs (one per phase, stacked):**
 - Phase 0 → branch `phase-0-toolchain-build-health`, PR #1.
-- Phase 1 → branch `phase-1-api-auth` (stacked on phase-0).
+- Phase 1 → branch `phase-1-api-auth`, PR #2 (stacked on phase-0).
+- Phase 2 → branch `phase-2-bugfixes-hardening`, PR #3 (stacked on phase-1). **Phases 0–2 complete; next session starts Phase 3 (Task 3.1) branched from phase-2.**
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
@@ -33,6 +34,17 @@
 - `Session.user` from Cognito attributes carries `id: 0`; the backend numeric user id comes from `GET /api/v1/users/me` when needed (list filtering uses OData `$filter=userId eq N`).
 - Repositories enrich models with category display values (id → localization key) via a cached `CatalogRepository`, because the .NET DTOs carry only ids and screens render `*Value` fields.
 - Places/paths list endpoints are OData-paged (PageSize 25, MaxTop 100): repositories page with `$top=100&$skip=N`.
+
+**Phase 2 deviations:**
+- `mainPage.dart` → `main_page.dart` (not `main_shell.dart` — Phase 3 introduces `lib/map/map_shell.dart` as its replacement anyway).
+- `custom_exception.dart` kept (renamed): the legacy edit/offline forms and `home.dart` still throw it; it dies with them in Phases 3/4.
+- `test/UnitTests/distance_algorythm_test.dart` deleted in favor of `trail_math_test.dart` (tests `filterAndAccumulate` + `TrailAccumulator` in `lib/services/trail_math.dart`).
+- Detail screens no longer render the "added by {username}" row — the .NET DTOs don't expose usernames.
+- `POST_NOTIFICATIONS` added alongside the FOREGROUND_SERVICE permissions (Android 13+ requires it for the recording notification).
+- Offline sync: when create succeeds but image upload fails, the place is NOT requeued (would duplicate); local image files are kept, photos re-addable from edit. Summary toast uses `sync_result`.
+- Contact form sends the signed-in user's email or empty string for guests (Phase 4.4 adds a proper email field).
+- Analyzer is at **0 issues** (beat the <20-infos target); no analyzer excludes were needed.
+- New locale keys added ×4 languages: `location_services_off`, `open_settings`, `sync_result`, `recording_notification_title/text`, `keep_app_open_info`, `invalid_email`.
 
 ---
 
@@ -383,7 +395,7 @@ Run configs become `flutter run --dart-define-from-file=env/dev.json`. Document 
 
 **Files:** Create `lib/shared/busy_overlay.dart`; modify `lib/signIn.dart`, `lib/signUp.dart`, `lib/forgotPasswordPage.dart`, `lib/contactUsForm.dart`
 
-- [ ] **Step 1:** Implement one helper used everywhere:
+- [x] **Step 1:** Implement one helper used everywhere:
 
 ```dart
 Future<T> runWithBusyOverlay<T>(
@@ -400,7 +412,7 @@ Future<T> runWithBusyOverlay<T>(
 }
 ```
 
-- [ ] **Step 2:** Rewrite `_login`/`_signUp`/submit handlers as:
+- [x] **Step 2:** Rewrite `_login`/`_signUp`/submit handlers as:
 
 ```dart
 try {
@@ -417,8 +429,8 @@ try {
 
 (no more `setState` around navigation, no more uncaught `SocketException`, `mounted` checked after every await).
 
-- [ ] **Step 3:** Widget test: pump SignIn with an AuthService stub that throws `ApiException`; tap sign-in; assert no dialog remains (`find.byType(CircularProgressIndicator)` is empty) and screen is still interactive.
-- [ ] **Step 4:** Commit: `fix: loading overlays always dismissed; auth errors surfaced`
+- [x] **Step 3:** Widget test: pump SignIn with an AuthService stub that throws `ApiException`; tap sign-in; assert no dialog remains (`find.byType(CircularProgressIndicator)` is empty) and screen is still interactive.
+- [x] **Step 4:** Commit: `fix: loading overlays always dismissed; auth errors surfaced`
 
 ### Task 2.2: Location permission flow that can't hang (H3, H4)
 
@@ -426,33 +438,33 @@ try {
 
 **Interfaces:** `Future<LocationResult> LocationService.getCurrent()` where `LocationResult` is a sealed class: `LocationOk(Position)`, `LocationDenied()`, `LocationDeniedForever()`, `LocationServicesOff()`.
 
-- [ ] **Step 1:** Implement `LocationService` (wraps the permission ladder currently in `home.dart:88-103`, plus `Geolocator.isLocationServiceEnabled()`; stream via `Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 5))`).
-- [ ] **Step 2:** In `Home`: make the subscription nullable (`StreamSubscription<Position>? _positionStreamSubscription;` … `_positionStreamSubscription?.cancel();`), handle each `LocationResult` case — denied shows a full-screen explainer with an "Open settings" button (`Geolocator.openAppSettings()`) instead of an infinite spinner, and the map still loads centered on Poland (`LatLng(52.06, 19.48)`, zoom 6) so the app is usable without location.
-- [ ] **Step 3:** Widget test with a stub `LocationService` returning `LocationDeniedForever` → explainer shown, no spinner after pumpAndSettle.
-- [ ] **Step 4:** Commit: `fix: location denial shows guidance, map usable without GPS, no late-init crashes`
+- [x] **Step 1:** Implement `LocationService` (wraps the permission ladder currently in `home.dart:88-103`, plus `Geolocator.isLocationServiceEnabled()`; stream via `Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 5))`).
+- [x] **Step 2:** In `Home`: make the subscription nullable (`StreamSubscription<Position>? _positionStreamSubscription;` … `_positionStreamSubscription?.cancel();`), handle each `LocationResult` case — denied shows a full-screen explainer with an "Open settings" button (`Geolocator.openAppSettings()`) instead of an infinite spinner, and the map still loads centered on Poland (`LatLng(52.06, 19.48)`, zoom 6) so the app is usable without location.
+- [x] **Step 3:** Widget test with a stub `LocationService` returning `LocationDeniedForever` → explainer shown, no spinner after pumpAndSettle.
+- [x] **Step 4:** Commit: `fix: location denial shows guidance, map usable without GPS, no late-init crashes`
 
 ### Task 2.3: Offline sync must not destroy data (H5)
 
 **Files:** Modify `lib/mainPage.dart` (extract sync into `lib/services/offline_sync_service.dart`)
 
-- [ ] **Step 1:** Test (repository stub): 2 offline places, second upload throws → service reports 1 success/1 failure and **only the successful one** is removed from local storage.
-- [ ] **Step 2:** Implement: iterate places; on success remove that single place from the persisted list (rewrite the `places` pref with the remainder) and delete its images; on failure keep it; afterwards toast a summary (`LocaleKeys.sync_result` with counts — add the key ×4 locales). Expect `201` via ApiClient (already handled).
-- [ ] **Step 3:** Commit: `fix: offline sync keeps failed uploads for retry`
+- [x] **Step 1:** Test (repository stub): 2 offline places, second upload throws → service reports 1 success/1 failure and **only the successful one** is removed from local storage.
+- [x] **Step 2:** Implement: iterate places; on success remove that single place from the persisted list (rewrite the `places` pref with the remainder) and delete its images; on failure keep it; afterwards toast a summary (`LocaleKeys.sync_result` with counts — add the key ×4 locales). Expect `201` via ApiClient (already handled).
+- [x] **Step 3:** Commit: `fix: offline sync keeps failed uploads for retry`
 
 ### Task 2.4: Session & navigation fixes (H1, H6, H8, H12, H14)
 
 **Files:** Modify `lib/profile.dart`, `lib/editProfile.dart`, `lib/mainPage.dart`; delete `lib/services/googleSignInApi.dart` (superseded by AuthService — its H6 crash disappears with it)
 
-- [ ] **Step 1:** `profile.dart`: sign-out → `await AuthService.signOut(); await SessionStore.clear();` then `Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const InternetChecker()), (r) => false);`
-- [ ] **Step 2:** `editProfile.dart`: `_resetPassword` calls `AuthService.resetPassword(email)` and shows the confirmation toast **without** clearing the session or navigating away.
-- [ ] **Step 3:** `mainPage.dart`: remove `PopScope(canPop: false)`; Android back should background the app normally from home.
-- [ ] **Step 4:** Manual check on emulator (sign out → back button does not resurrect the session; back on home exits). Commit: `fix: sign-out clears stack, reset password keeps session, restore back button`
+- [x] **Step 1:** `profile.dart`: sign-out → `await AuthService.signOut(); await SessionStore.clear();` then `Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const InternetChecker()), (r) => false);`
+- [x] **Step 2:** `editProfile.dart`: `_resetPassword` calls `AuthService.resetPassword(email)` and shows the confirmation toast **without** clearing the session or navigating away.
+- [x] **Step 3:** `mainPage.dart`: remove `PopScope(canPop: false)`; Android back should background the app normally from home.
+- [x] **Step 4:** Manual check on emulator (sign out → back button does not resurrect the session; back on home exits). Commit: `fix: sign-out clears stack, reset password keeps session, restore back button` *(commit done; the emulator pass itself is still pending — fold it into the Phase 6.5 device pass)*
 
 ### Task 2.5: Async-state discipline in screens (H7, H9, H15)
 
 **Files:** Modify `lib/internetChecker.dart`, `lib/placeDetails.dart`, `lib/trailDetails.dart`, `lib/place_form.dart`, `lib/profile.dart`, `lib/mainPage.dart`
 
-- [ ] **Step 1:** `internetChecker.dart`: replace the late-field/`FutureBuilder` race with a single future:
+- [x] **Step 1:** `internetChecker.dart`: replace the late-field/`FutureBuilder` race with a single future:
 
 ```dart
 late final Future<_StartupState> _startup = _loadStartupState();
@@ -471,28 +483,28 @@ Future<_StartupState> _loadStartupState() async {
 
 and a `FutureBuilder(future: _startup, ...)` in build. Move the `welcomePageDisplayed=true` write into `WelcomePage`'s continue button (not into build).
 
-- [ ] **Step 2:** Detail screens: replace `late Place _place; bool _isLoading` + `.then` with `late final Future<Place> _placeFuture = context.read<PlacesRepository>().getById(widget.placeId);` + `FutureBuilder` that renders a loading state, an **error state with a Retry button** (`setState(() => _placeFuture = ...)`) and the content state.
-- [ ] **Step 3:** Forms/profile: never `_user!` — screens that require a user receive it as a constructor argument from the shell (which by then knows the session), e.g. `PlaceForm(this.position, {required this.user})`.
-- [ ] **Step 4:** Widget tests: PlaceDetails with a throwing repository shows the retry state; retry with a succeeding repository shows content.
-- [ ] **Step 5:** Commit: `fix: deterministic async state — no late races, error+retry states everywhere`
+- [x] **Step 2:** Detail screens: replace `late Place _place; bool _isLoading` + `.then` with `late final Future<Place> _placeFuture = context.read<PlacesRepository>().getById(widget.placeId);` + `FutureBuilder` that renders a loading state, an **error state with a Retry button** (`setState(() => _placeFuture = ...)`) and the content state.
+- [x] **Step 3:** Forms/profile: never `_user!` — screens that require a user receive it as a constructor argument from the shell (which by then knows the session), e.g. `PlaceForm(this.position, {required this.user})`.
+- [x] **Step 4:** Widget tests: PlaceDetails with a throwing repository shows the retry state; retry with a succeeding repository shows content.
+- [x] **Step 5:** Commit: `fix: deterministic async state — no late races, error+retry states everywhere`
 
 ### Task 2.6: Trail recording correctness (H10)
 
 **Files:** Modify `lib/trailRecordPage.dart`; `android/app/src/main/AndroidManifest.xml`; `ios/Runner/Info.plist`
 
-- [ ] **Step 1:** Elapsed time from a `Stopwatch` started on record (display via a 1 s ticker reading `_stopwatch.elapsed`), not incrementing counters.
-- [ ] **Step 2:** Distance: ignore points with `position.accuracy > 25` m and jumps computed at > 30 m/s; use `Geolocator.distanceBetween` (delete the hand-rolled haversine `_calculateDistance`; keep `test/UnitTests/distance_algorythm_test.dart` but point it at a small pure helper `filterAndAccumulate(List<Position>)` in `lib/services/trail_math.dart`).
-- [ ] **Step 3:** Keep recording alive while the app is foregrounded: `WakelockPlus.enable()` during recording (`wakelock_plus: ^1.2.0`), and set `LocationSettings` per-platform (`AndroidSettings(foregroundNotificationConfig: ...)` from geolocator so Android keeps the stream alive with a visible notification; add `<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>` and `<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>`). Full background recording (screen off, app switched) is explicitly **out of scope** — show "keep the app open while recording" copy on the record screen.
-- [ ] **Step 4:** Unit tests for `filterAndAccumulate` (jitter cluster ≈ 0 m; clean 100 m track ≈ 100 m ± 1). Commit: `fix: accurate trail recording (stopwatch time, jitter filter, foreground stream)`
+- [x] **Step 1:** Elapsed time from a `Stopwatch` started on record (display via a 1 s ticker reading `_stopwatch.elapsed`), not incrementing counters.
+- [x] **Step 2:** Distance: ignore points with `position.accuracy > 25` m and jumps computed at > 30 m/s; use `Geolocator.distanceBetween` (delete the hand-rolled haversine `_calculateDistance`; keep `test/UnitTests/distance_algorythm_test.dart` but point it at a small pure helper `filterAndAccumulate(List<Position>)` in `lib/services/trail_math.dart`).
+- [x] **Step 3:** Keep recording alive while the app is foregrounded: `WakelockPlus.enable()` during recording (`wakelock_plus: ^1.2.0`), and set `LocationSettings` per-platform (`AndroidSettings(foregroundNotificationConfig: ...)` from geolocator so Android keeps the stream alive with a visible notification; add `<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>` and `<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>`). Full background recording (screen off, app switched) is explicitly **out of scope** — show "keep the app open while recording" copy on the record screen.
+- [x] **Step 4:** Unit tests for `filterAndAccumulate` (jitter cluster ≈ 0 m; clean 100 m track ≈ 100 m ± 1). Commit: `fix: accurate trail recording (stopwatch time, jitter filter, foreground stream)`
 
 ### Task 2.7: Lint zero-ing and renames
 
 **Files:** whole `lib/` tree
 
-- [ ] **Step 1:** Rename files to `snake_case` and fix typos in one mechanical commit (IDE rename-refactor): `customExeption.dart`→deleted (Task 1.4), `prewiewTrail.dart`→`preview_trail.dart`, `currnetObject.dart`→`selected_map_object.dart`, `mainPage.dart`→`main_shell.dart`, etc. Fix `fechedPlaces`→`fetchedPlaces`, `showSuccesToast`→`showSuccessToast`, `_isPaswordHidden`→`_isPasswordHidden`, and the misnamed `_incrementCounter` copies → a single `Prefs.setString` helper.
-- [ ] **Step 2:** Delete the dead Chromium license header in `internetChecker.dart:1-27`; translate the hardcoded English validator message (`lib/signUp.dart:107`) via a new locale key.
-- [ ] **Step 3:** `flutter analyze` → target: 0 errors, 0 warnings, < 20 infos (generated files may keep naming infos — add `lib/translations/**` to the analyzer excludes in `analysis_options.yaml`).
-- [ ] **Step 4:** `flutter test` all green. Commit: `chore: snake_case files, typo fixes, analyzer near-zero`
+- [x] **Step 1:** Rename files to `snake_case` and fix typos in one mechanical commit (IDE rename-refactor): `customExeption.dart`→deleted (Task 1.4), `prewiewTrail.dart`→`preview_trail.dart`, `currnetObject.dart`→`selected_map_object.dart`, `mainPage.dart`→`main_shell.dart`, etc. Fix `fechedPlaces`→`fetchedPlaces`, `showSuccesToast`→`showSuccessToast`, `_isPaswordHidden`→`_isPasswordHidden`, and the misnamed `_incrementCounter` copies → a single `Prefs.setString` helper.
+- [x] **Step 2:** Delete the dead Chromium license header in `internetChecker.dart:1-27`; translate the hardcoded English validator message (`lib/signUp.dart:107`) via a new locale key.
+- [x] **Step 3:** `flutter analyze` → target: 0 errors, 0 warnings, < 20 infos (generated files may keep naming infos — add `lib/translations/**` to the analyzer excludes in `analysis_options.yaml`).
+- [x] **Step 4:** `flutter test` all green. Commit: `chore: snake_case files, typo fixes, analyzer near-zero`
 
 ---
 
