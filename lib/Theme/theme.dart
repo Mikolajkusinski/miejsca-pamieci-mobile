@@ -24,8 +24,7 @@ var lightTheme = ThemeData().copyWith(
       backgroundColor: lightColorScheme.secondary,
       unselectedItemColor: lightColorScheme.onBackground,
       selectedItemColor: lightColorScheme.scrim),
-  dialogTheme:
-      const DialogTheme().copyWith(surfaceTintColor: lightColorScheme.scrim),
+  dialogTheme: DialogThemeData(surfaceTintColor: lightColorScheme.scrim),
 );
 
 var darkTheme = ThemeData.dark().copyWith(
@@ -51,6 +50,5 @@ var darkTheme = ThemeData.dark().copyWith(
       backgroundColor: darkColorScheme.secondary,
       unselectedItemColor: darkColorScheme.onBackground,
       selectedItemColor: darkColorScheme.scrim),
-  dialogTheme:
-      const DialogTheme().copyWith(surfaceTintColor: darkColorScheme.scrim),
+  dialogTheme: DialogThemeData(surfaceTintColor: darkColorScheme.scrim),
 );

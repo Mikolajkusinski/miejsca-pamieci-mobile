@@ -1,4 +1,4 @@
-package com.example.memo_places_mobile
+package pl.memoryplaces.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
