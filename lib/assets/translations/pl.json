@@ -150,5 +150,6 @@
   "session_expired": "Twoja sesja wygasła. Zaloguj się ponownie.",
   "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie.",
   "location_services_off": "Usługi lokalizacji są wyłączone na tym urządzeniu.",
-  "open_settings": "Otwórz ustawienia"
+  "open_settings": "Otwórz ustawienia",
+  "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}"
 }

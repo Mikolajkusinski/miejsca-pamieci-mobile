@@ -166,7 +166,8 @@ class CodegenLoader extends AssetLoader{
   "session_expired": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
   "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut.",
   "location_services_off": "Die Ortungsdienste sind auf diesem Gerät deaktiviert.",
-  "open_settings": "Einstellungen öffnen"
+  "open_settings": "Einstellungen öffnen",
+  "sync_result": "Offline-Synchronisierung: {ok} hochgeladen, {failed} für erneuten Versuch behalten"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -320,7 +321,8 @@ static const Map<String,dynamic> _ru = {
   "session_expired": "Ваша сессия истекла. Пожалуйста, войдите снова.",
   "no_connection_error": "Нет соединения. Проверьте интернет и попробуйте снова.",
   "location_services_off": "Службы геолокации отключены на этом устройстве.",
-  "open_settings": "Открыть настройки"
+  "open_settings": "Открыть настройки",
+  "sync_result": "Офлайн-синхронизация: загружено {ok}, осталось {failed}"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -474,7 +476,8 @@ static const Map<String,dynamic> _pl = {
   "session_expired": "Twoja sesja wygasła. Zaloguj się ponownie.",
   "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie.",
   "location_services_off": "Usługi lokalizacji są wyłączone na tym urządzeniu.",
-  "open_settings": "Otwórz ustawienia"
+  "open_settings": "Otwórz ustawienia",
+  "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -628,7 +631,8 @@ static const Map<String,dynamic> _en = {
   "session_expired": "Your session has expired. Please sign in again.",
   "no_connection_error": "No connection. Check your internet and try again.",
   "location_services_off": "Location services are turned off on this device.",
-  "open_settings": "Open settings"
+  "open_settings": "Open settings",
+  "sync_result": "Offline sync: {ok} uploaded, {failed} kept for retry"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }

@@ -150,5 +150,6 @@
   "session_expired": "Your session has expired. Please sign in again.",
   "no_connection_error": "No connection. Check your internet and try again.",
   "location_services_off": "Location services are turned off on this device.",
-  "open_settings": "Open settings"
+  "open_settings": "Open settings",
+  "sync_result": "Offline sync: {ok} uploaded, {failed} kept for retry"
 }

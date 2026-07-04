@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:http/http.dart' as http;
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/customExeption.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/offline_sync_service.dart';
+import 'package:memo_places_mobile/services/places_repository.dart';
 import 'package:memo_places_mobile/toasts.dart';
-import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/Objects/offlinePlace.dart';
 import 'package:memo_places_mobile/Objects/period.dart';
 import 'package:memo_places_mobile/Objects/sortof.dart';
 import 'package:memo_places_mobile/Objects/type.dart';
@@ -17,6 +14,7 @@ import 'package:memo_places_mobile/profile.dart';
 import 'package:memo_places_mobile/services/dataService.dart';
 import 'package:memo_places_mobile/signInOrSignUpPage.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Main extends StatefulWidget {
@@ -41,127 +39,53 @@ class _HomeState extends State<Main> {
     ];
     loadUserData().then(
       (value) {
-        _user = value;
+        if (!mounted) return;
+        setState(() {
+          _user = value;
+          _isLogged = _user != null;
+        });
         if (_user != null) {
-          _isLogged = true;
-          _syncTypeData();
-          _syncPeriodsData();
-          _syncSortofData();
-          _syncPlaceData(_user!.id.toString());
-        } else {
-          _isLogged = false;
+          _syncCatalogData();
+          _syncOfflinePlaces();
         }
       },
     );
   }
 
-  void _incrementCounter(String key, String value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, value);
-  }
-
-  Future<void> _syncPlaceData(String userId) async {
-    List<OfflinePlace> offlinePlaces = await loadOfflinePlacesFromDevice();
-    if (offlinePlaces.isNotEmpty) {
-      for (OfflinePlace offlinePlace in offlinePlaces) {
-        List<Future<http.StreamedResponse>> uploadFutures = [];
-
-        Map<String, String> placeData = {
-          'place_name': offlinePlace.placeName,
-          'lat': offlinePlace.lat.toString(),
-          'lng': offlinePlace.lng.toString(),
-          'type': offlinePlace.type.toString(),
-          'sortof': offlinePlace.sortof.toString(),
-          'period': offlinePlace.period.toString(),
-          'description': offlinePlace.description,
-          'wiki_link': offlinePlace.wikiLink,
-          'topic_link': offlinePlace.topicLink,
-          'user': userId,
-        };
-        try {
-          var response = await http.post(
-            Uri.parse(ApiConstants.placesEndpoint),
-            body: placeData,
-          );
-
-          if (response.statusCode == 200 && offlinePlace.imagesPaths != null) {
-            List<File> images = offlinePlace.imagesPaths!
-                .map((imagePath) => File.fromUri(Uri.parse(imagePath)))
-                .toList();
-
-            Map<String, dynamic> responseData = jsonDecode(response.body);
-            String id = responseData['id'].toString();
-            for (final image in images) {
-              if (await image.exists()) {
-                var request = http.MultipartRequest(
-                    'POST', Uri.parse(ApiConstants.placeImageEndpoint));
-
-                request.fields['place'] = id;
-
-                var multipartFile = http.MultipartFile(
-                  'img',
-                  http.ByteStream(image.openRead()),
-                  await image.length(),
-                  filename: path.basename(image.path),
-                );
-
-                request.files.add(multipartFile);
-                uploadFutures.add(request.send());
-              }
-            }
-
-            var responses = await Future.wait(uploadFutures);
-            bool allSuccessful =
-                responses.every((response) => response.statusCode == 200);
-
-            if (allSuccessful) {
-              for (final image in images) {
-                if (await image.exists()) {
-                  image.delete();
-                }
-              }
-              showSuccesToast(LocaleKeys.place_added_succes.tr());
-            } else {
-              throw CustomException(LocaleKeys.alert_error.tr());
-            }
-          } else if (response.statusCode == 200) {
-            showSuccesToast(LocaleKeys.place_added_succes.tr());
-          } else {
-            throw CustomException(LocaleKeys.alert_error.tr());
-          }
-        } on CustomException catch (error) {
-          showErrorToast(error.toString());
-        }
-      }
-      deleteLocalData('places');
-      setState(() {});
+  Future<void> _syncOfflinePlaces() async {
+    final service = OfflineSyncService(context.read<PlacesRepository>());
+    final report = await service.syncPlaces();
+    if (report.total == 0) return;
+    if (report.failed == 0) {
+      showSuccesToast(LocaleKeys.stored_places_upload_succes.tr());
     } else {
-      return;
+      showErrorToast(LocaleKeys.sync_result.tr(namedArgs: {
+        'ok': report.succeeded.toString(),
+        'failed': report.failed.toString(),
+      }));
     }
   }
 
-  Future<void> _syncTypeData() async {
-    List<Type> cloudTypes = await fetchTypes(context);
-    List<Map<String, dynamic>> typesJsonList =
-        cloudTypes.map((type) => type.toJson()).toList();
-
-    _incrementCounter("types", jsonEncode(typesJsonList));
-  }
-
-  Future<void> _syncPeriodsData() async {
-    List<Period> cloudPeriods = await fetchPeriods(context);
-    List<Map<String, dynamic>> periodsJsonList =
-        cloudPeriods.map((period) => period.toJson()).toList();
-
-    _incrementCounter("periods", jsonEncode(periodsJsonList));
-  }
-
-  Future<void> _syncSortofData() async {
-    List<Sortof> cloudSortof = await fetchSortof(context);
-    List<Map<String, dynamic>> sortofJsonList =
-        cloudSortof.map((sortof) => sortof.toJson()).toList();
-
-    _incrementCounter("sortofs", jsonEncode(sortofJsonList));
+  /// Caches types/sortofs/periods for offline forms; failures are non-fatal
+  /// (the previously cached catalogs stay in place).
+  Future<void> _syncCatalogData() async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      if (!mounted) return;
+      final List<Type> types = await fetchTypes(context);
+      await prefs.setString(
+          'types', jsonEncode([for (final t in types) t.toJson()]));
+      if (!mounted) return;
+      final List<Period> periods = await fetchPeriods(context);
+      await prefs.setString(
+          'periods', jsonEncode([for (final p in periods) p.toJson()]));
+      if (!mounted) return;
+      final List<Sortof> sortofs = await fetchSortof(context);
+      await prefs.setString(
+          'sortofs', jsonEncode([for (final s in sortofs) s.toJson()]));
+    } on ApiException {
+      // Offline or backend unavailable — keep the cached catalogs.
+    }
   }
 
   @override

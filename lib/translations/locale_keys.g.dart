@@ -155,5 +155,6 @@ abstract class  LocaleKeys {
   static const no_connection_error = 'no_connection_error';
   static const location_services_off = 'location_services_off';
   static const open_settings = 'open_settings';
+  static const sync_result = 'sync_result';
 
 }
