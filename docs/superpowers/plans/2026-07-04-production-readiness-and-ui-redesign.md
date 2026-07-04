@@ -17,10 +17,12 @@
 - Dev API base is `http://10.0.2.2:5158` (BackendDotNet's local port per the web repo, not the 5000 the plan guessed).
 - Android application ID: `pl.memoryplaces.mobile` (confirmed).
 
-**Branches/PRs (one per phase, stacked):**
-- Phase 0 → branch `phase-0-toolchain-build-health`, PR #1.
-- Phase 1 → branch `phase-1-api-auth`, PR #2 (stacked on phase-0).
-- Phase 2 → branch `phase-2-bugfixes-hardening`, PR #3 (stacked on phase-1). **Phases 0–2 complete; next session starts Phase 3 (Task 3.1) branched from phase-2.**
+**Branches/PRs (one per phase; stacking corrected 2026-07-04):**
+- Phase 0 → PR #1 (squash-merged to main).
+- Phase 1 → PR #2 was merged into the *phase-0 branch* (stacked-PR mishap), not main.
+- Phase 2 → PR #3 was merged into the *phase-1 branch*, not main.
+- Recovery: PR #4 (`phase-1-api-auth` → main) carries **Phases 1+2 together**; main was tied in with an `-s ours` merge (main's squashed Phase 0 tree verified byte-identical to commit aa84fce in this branch's history — nothing lost). After PR #4 merges, all phase branches are fully contained in main and deleted.
+- **Phases 0–2 complete; next session starts Phase 3 (Task 3.1) branched from `main`. Future phase PRs: base each on the previous phase branch only while unmerged; merge bottom-up (oldest first) and re-target the next PR to main after each merge — or simply merge each phase before starting the next.**
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
