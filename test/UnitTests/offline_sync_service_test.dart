@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:memo_places_mobile/Objects/offlinePlace.dart';
+import 'package:memo_places_mobile/Objects/offline_place.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';

@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInSignUpSwitchButton.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_switch_button.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
 void main() {

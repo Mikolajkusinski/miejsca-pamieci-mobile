@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:memo_places_mobile/Objects/offlinePlace.dart';
+import 'package:memo_places_mobile/Objects/offline_place.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/places_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';

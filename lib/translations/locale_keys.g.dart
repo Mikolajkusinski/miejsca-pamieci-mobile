@@ -159,5 +159,6 @@ abstract class  LocaleKeys {
   static const recording_notification_title = 'recording_notification_title';
   static const recording_notification_text = 'recording_notification_text';
   static const keep_app_open_info = 'keep_app_open_info';
+  static const invalid_email = 'invalid_email';
 
 }

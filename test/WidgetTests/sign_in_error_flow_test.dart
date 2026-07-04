@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInSignUpButton.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
 import 'package:memo_places_mobile/services/session_store.dart';
-import 'package:memo_places_mobile/signIn.dart';
+import 'package:memo_places_mobile/sign_in.dart';
 import 'package:provider/provider.dart';
 
 class ThrowingAuthService implements AuthService {

@@ -170,7 +170,8 @@ class CodegenLoader extends AssetLoader{
   "sync_result": "Offline-Synchronisierung: {ok} hochgeladen, {failed} für erneuten Versuch behalten",
   "recording_notification_title": "Route wird aufgezeichnet",
   "recording_notification_text": "Memory Places verfolgt deine Route.",
-  "keep_app_open_info": "Lass die App während der Aufzeichnung geöffnet — beim Schließen stoppt die Route."
+  "keep_app_open_info": "Lass die App während der Aufzeichnung geöffnet — beim Schließen stoppt die Route.",
+  "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -328,7 +329,8 @@ static const Map<String,dynamic> _ru = {
   "sync_result": "Офлайн-синхронизация: загружено {ok}, осталось {failed}",
   "recording_notification_title": "Запись маршрута",
   "recording_notification_text": "Memory Places отслеживает ваш маршрут.",
-  "keep_app_open_info": "Держите приложение открытым во время записи — при закрытии маршрут остановится."
+  "keep_app_open_info": "Держите приложение открытым во время записи — при закрытии маршрут остановится.",
+  "invalid_email": "Введите корректный адрес электронной почты"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -486,7 +488,8 @@ static const Map<String,dynamic> _pl = {
   "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}",
   "recording_notification_title": "Nagrywanie trasy",
   "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
-  "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę."
+  "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę.",
+  "invalid_email": "Podaj poprawny adres e-mail"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -644,7 +647,8 @@ static const Map<String,dynamic> _en = {
   "sync_result": "Offline sync: {ok} uploaded, {failed} kept for retry",
   "recording_notification_title": "Recording trail",
   "recording_notification_text": "Memory Places is tracking your route.",
-  "keep_app_open_info": "Keep the app open while recording — the trail stops if you close it."
+  "keep_app_open_info": "Keep the app open while recording — the trail stops if you close it.",
+  "invalid_email": "Please enter a valid email address"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }

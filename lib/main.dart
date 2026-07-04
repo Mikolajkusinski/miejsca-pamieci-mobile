@@ -1,8 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/Theme/themeProvider.dart';
-import 'package:memo_places_mobile/internetChecker.dart';
+import 'package:memo_places_mobile/Theme/theme_provider.dart';
+import 'package:memo_places_mobile/internet_checker.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';

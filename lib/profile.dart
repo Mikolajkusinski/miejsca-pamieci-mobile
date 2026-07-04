@@ -1,17 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/Objects/buttonData.dart';
+import 'package:memo_places_mobile/Objects/button_data.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/ProfileWidgets/profileButton.dart';
-import 'package:memo_places_mobile/ProfileWidgets/profileInfoBox.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInSignUpButton.dart';
-import 'package:memo_places_mobile/contactUsForm.dart';
-import 'package:memo_places_mobile/editProfile.dart';
-import 'package:memo_places_mobile/internetChecker.dart';
-import 'package:memo_places_mobile/myPlaces.dart';
-import 'package:memo_places_mobile/myTrails.dart';
+import 'package:memo_places_mobile/ProfileWidgets/profile_button.dart';
+import 'package:memo_places_mobile/ProfileWidgets/profile_info_box.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
+import 'package:memo_places_mobile/contact_us_form.dart';
+import 'package:memo_places_mobile/edit_profile.dart';
+import 'package:memo_places_mobile/internet_checker.dart';
+import 'package:memo_places_mobile/my_places.dart';
+import 'package:memo_places_mobile/my_trails.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
-import 'package:memo_places_mobile/services/dataService.dart';
+import 'package:memo_places_mobile/services/data_service.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 

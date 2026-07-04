@@ -7,12 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:memo_places_mobile/Objects/period.dart';
 import 'package:memo_places_mobile/Objects/sortof.dart';
 import 'package:memo_places_mobile/Objects/type.dart';
-import 'package:memo_places_mobile/formWidgets/customButton.dart';
-import 'package:memo_places_mobile/formWidgets/customFormInput.dart';
-import 'package:memo_places_mobile/formWidgets/customTitle.dart';
-import 'package:memo_places_mobile/formWidgets/formPictureSlider.dart';
-import 'package:memo_places_mobile/formWidgets/imageInput.dart';
-import 'package:memo_places_mobile/internetChecker.dart';
+import 'package:memo_places_mobile/formWidgets/custom_button.dart';
+import 'package:memo_places_mobile/formWidgets/custom_form_input.dart';
+import 'package:memo_places_mobile/formWidgets/custom_title.dart';
+import 'package:memo_places_mobile/formWidgets/form_picture_slider.dart';
+import 'package:memo_places_mobile/formWidgets/image_input.dart';
+import 'package:memo_places_mobile/internet_checker.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';
 import 'package:memo_places_mobile/services/places_repository.dart';
@@ -102,7 +102,7 @@ class _PlaceFormState extends State<PlaceForm> {
         }
       });
       if (!mounted) return;
-      showSuccesToast(LocaleKeys.place_added_succes.tr());
+      showSuccessToast(LocaleKeys.place_added_succes.tr());
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const InternetChecker()),
@@ -207,11 +207,11 @@ class _PlaceFormState extends State<PlaceForm> {
                       ),
                     ),
                     labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
                   ),
-                  value: null,
+                  initialValue: null,
                   validator: (value) {
                     if (value == null) {
                       return LocaleKeys.pls_select_type.tr();
@@ -255,11 +255,11 @@ class _PlaceFormState extends State<PlaceForm> {
                       ),
                     ),
                     labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
                   ),
-                  value: null,
+                  initialValue: null,
                   validator: (value) {
                     if (value == null) {
                       return LocaleKeys.pls_select_sortof.tr();
@@ -304,11 +304,11 @@ class _PlaceFormState extends State<PlaceForm> {
                       ),
                     ),
                     labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
                   ),
-                  value: null,
+                  initialValue: null,
                   validator: (value) {
                     if (value == null) {
                       return LocaleKeys.pls_select_period.tr();

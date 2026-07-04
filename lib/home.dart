@@ -6,18 +6,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:memo_places_mobile/AppNavigation/addingButton.dart';
-import 'package:memo_places_mobile/MainPageWidgets/previewPlace.dart';
-import 'package:memo_places_mobile/MainPageWidgets/prewiewTrail.dart';
-import 'package:memo_places_mobile/Objects/currnetObject.dart';
+import 'package:memo_places_mobile/AppNavigation/adding_button.dart';
+import 'package:memo_places_mobile/MainPageWidgets/preview_place.dart';
+import 'package:memo_places_mobile/MainPageWidgets/preview_trail.dart';
+import 'package:memo_places_mobile/Objects/selected_map_object.dart';
 import 'package:memo_places_mobile/Objects/place.dart';
 import 'package:memo_places_mobile/Objects/trail.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
 import 'package:memo_places_mobile/Theme/theme.dart';
-import 'package:memo_places_mobile/Theme/themeProvider.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/customExeption.dart';
-import 'package:memo_places_mobile/services/dataService.dart';
+import 'package:memo_places_mobile/Theme/theme_provider.dart';
+import 'package:memo_places_mobile/api_constants.dart';
+import 'package:memo_places_mobile/custom_exception.dart';
+import 'package:memo_places_mobile/services/data_service.dart';
 import 'package:memo_places_mobile/services/location_service.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
@@ -53,10 +53,10 @@ class _GoogleMapsState extends State<Home> {
   LocationResult? _locationResult;
   bool _isSelectedPlace = false;
   Set<Marker> _markers = {};
-  Set<Polyline> _polylines = {};
+  final Set<Polyline> _polylines = {};
   List<Place> _places = [];
   List<Trail> _trails = [];
-  late CurrentObject _selectedObject;
+  late SelectedMapObject _selectedObject;
   StreamSubscription<Position>? _positionStreamSubscription;
   late ThemeProvider _themeProvider;
 
@@ -129,7 +129,7 @@ class _GoogleMapsState extends State<Home> {
       Marker(
           markerId: const MarkerId("user_location"),
           position: _position,
-          icon: BitmapDescriptor.fromBytes(markerIcon),
+          icon: BitmapDescriptor.bytes(markerIcon),
           anchor: const Offset(0.5, 0.5)),
     });
 
@@ -152,9 +152,9 @@ class _GoogleMapsState extends State<Home> {
     setState(() {
       _isSelectedPlace = true;
       if (place == null) {
-        _selectedObject = CurrentObject(null, trail);
+        _selectedObject = SelectedMapObject(null, trail);
       } else {
-        _selectedObject = CurrentObject(place, null);
+        _selectedObject = SelectedMapObject(place, null);
       }
     });
   }
@@ -173,19 +173,19 @@ class _GoogleMapsState extends State<Home> {
         List<dynamic> jsonData = jsonDecode(utf8.decode(response.bodyBytes));
         final Uint8List markerIcon = await _getBytesFromAsset(
             'lib/assets/markers/unknown_marker.PNG', 150);
-        var fechedPlaces = <Place>[];
+        var fetchedPlaces = <Place>[];
         for (var data in jsonData) {
           var place = Place.fromJson(data);
-          fechedPlaces.add(place);
+          fetchedPlaces.add(place);
         }
 
         setState(() {
-          _places = fechedPlaces;
+          _places = fetchedPlaces;
           _markers.addAll(_places.map((place) {
             return Marker(
               markerId: MarkerId(place.id.toString()),
               position: LatLng(place.lat, place.lng),
-              icon: BitmapDescriptor.fromBytes(markerIcon),
+              icon: BitmapDescriptor.bytes(markerIcon),
               consumeTapEvents: true,
               onTap: () => _setObject(place, null),
             );
@@ -208,14 +208,14 @@ class _GoogleMapsState extends State<Home> {
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(utf8.decode(response.bodyBytes));
-        var fechedTrails = <Trail>[];
+        var fetchedTrails = <Trail>[];
         for (var data in jsonData) {
           var trail = Trail.fromJson(data);
-          fechedTrails.add(trail);
+          fetchedTrails.add(trail);
         }
 
         setState(() {
-          _trails = fechedTrails;
+          _trails = fetchedTrails;
           _polylines.addAll(_trails.map((trail) {
             return Polyline(
               polylineId: PolylineId(trail.id.toString()),

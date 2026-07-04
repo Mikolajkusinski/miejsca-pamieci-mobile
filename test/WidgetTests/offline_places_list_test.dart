@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memo_places_mobile/Objects/offlinePlace.dart';
-import 'package:memo_places_mobile/offlineWidgets/offlinePlacesList.dart';
+import 'package:memo_places_mobile/Objects/offline_place.dart';
+import 'package:memo_places_mobile/offlineWidgets/offline_places_list.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

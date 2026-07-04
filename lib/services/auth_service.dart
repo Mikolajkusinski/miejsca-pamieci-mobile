@@ -1,5 +1,4 @@
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart'
-    hide ApiException;
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart' hide ApiException;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
@@ -189,7 +188,7 @@ class CognitoAuthService implements AuthService {
 
     final result = Session(
       accessToken: tokens.accessToken.raw,
-      refreshToken: tokens.refreshToken ?? '',
+      refreshToken: tokens.refreshToken,
       // Backend user id comes from /users/me when needed; auth only knows
       // the Cognito identity.
       user: User(

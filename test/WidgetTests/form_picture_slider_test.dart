@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memo_places_mobile/formWidgets/formPictureSlider.dart';
+import 'package:memo_places_mobile/formWidgets/form_picture_slider.dart';
 
 void main() {
   group('FormPictureSlider', () {

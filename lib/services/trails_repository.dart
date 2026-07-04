@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:memo_places_mobile/Objects/shortTrail.dart';
+import 'package:memo_places_mobile/Objects/short_trail.dart';
 import 'package:memo_places_mobile/Objects/trail.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';

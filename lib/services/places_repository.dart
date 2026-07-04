@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:memo_places_mobile/Objects/place.dart';
-import 'package:memo_places_mobile/Objects/shortPlace.dart';
+import 'package:memo_places_mobile/Objects/short_place.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';
 
