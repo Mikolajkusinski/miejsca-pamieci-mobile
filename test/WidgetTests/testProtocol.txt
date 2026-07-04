@@ -1,0 +1,147 @@
+1. 
+Test Protocol for Widget Test: Opening and Closing Adding Buttons
+Test Name: Opening and Closing the Adding Buttons
+
+Tested By: Mikołaj Kusiński
+
+Objective:
+
+To verify the functionality of the AddingButton widget, ensuring that it correctly opens and closes the additional buttons when the main button is tapped.
+
+Setup;
+
+Dependencies:
+
+Flutter SDK
+flutter_test package
+google_maps_flutter package
+memo_places_mobile package with addingButton.dart module
+
+Test Script:
+
+Import the necessary packages:
+
+Test Execution;
+
+Initialization:
+
+The test initializes by rendering the AddingButton widget at coordinates (0,0) using LatLng.
+Initial State Verification:
+
+The test verifies that the Icons.add button is visible.
+The test verifies that Icons.close, Icons.place, and Icons.navigation buttons are not visible.
+Button Opening Verification:
+
+The test simulates a tap on the Icons.add button.
+The test verifies that the Icons.add button is replaced by the Icons.close button.
+The test verifies that the Icons.place and Icons.navigation buttons become visible.
+Button Closing Verification:
+
+The test simulates a tap on the Icons.close button.
+The test verifies that the Icons.close, Icons.place, and Icons.navigation buttons are no longer visible.
+The test verifies that the Icons.add button is visible again.
+Test Results:
+
+Step 1: Initialization: Passed
+Step 2: Initial State Verification: Passed
+Step 3: Button Opening Verification: Passed
+Step 4: Button Closing Verification: Passed
+Conclusion:
+
+The AddingButton widget correctly opens and closes the additional buttons when the main button is tapped. All expected icons appear and disappear as intended. The test has passed successfully.
+
+2.
+Test Protocol for Widget Test: CustomButton Functionality
+Test Name: CustomButton Displays Text and Triggers Function
+
+Tested By: Mikołaj Kusiński
+
+Objective:
+
+To verify that the CustomButton widget correctly displays the provided text and triggers the specified function when pressed.
+
+Setup:
+
+Dependencies:
+
+Flutter SDK
+flutter_test package
+memo_places_mobile package with customButton.dart module
+Environment:
+
+Import the necessary packages:
+
+Initialization:
+
+The test initializes by creating a CustomButton widget with the text "Test Button" and a key testKey.
+A boolean variable wasPressed is set to false and will be toggled to true when the button is pressed.
+Text Display Verification:
+
+The test verifies that the CustomButton widget displays the text "Test Button".
+Button Existence Verification:
+
+The test verifies that the CustomButton widget is present in the widget tree using the key testKey.
+Function Trigger Verification:
+
+The test simulates a tap on the CustomButton widget.
+The test verifies that the onPressed function is called and the wasPressed variable is set to true.
+Test Results:
+
+Step 1: Initialization: Passed
+Step 2: Text Display Verification: Passed
+Step 3: Button Existence Verification: Passed
+Step 4: Function Trigger Verification: Passed
+Conclusion:
+
+The CustomButton widget correctly displays the provided text and triggers the specified function when pressed. All expected behaviors were observed, and the test has passed successfully.
+
+3.
+
+Test Protocol for Widget Test: CustomButtonWithIcon Functionality
+Test Name: CustomButtonWithIcon Displays Text, Icon, and Triggers Function
+
+Tested By: Mikołaj Kusińśkio
+
+Objective:
+
+To verify that the CustomButtonWithIcon widget correctly displays the provided text and icon, and triggers the specified function when pressed.
+
+Setup:
+
+Dependencies:
+
+Flutter SDK
+flutter_test package
+memo_places_mobile package with customButtonWithIcon.dart module
+Environment:
+
+Test Script:
+
+Import the necessary packages:
+
+Test Execution:
+
+Initialization:
+
+The test initializes by creating a CustomButtonWithIcon widget with the text "Test Button", an icon Icons.add, and a key testKey.
+A boolean variable wasPressed is set to false and will be toggled to true when the button is pressed.
+Text and Icon Display Verification:
+
+The test verifies that the CustomButtonWithIcon widget displays the text "Test Button".
+The test verifies that the CustomButtonWithIcon widget displays the Icons.add icon.
+Button Existence Verification:
+
+The test verifies that the CustomButtonWithIcon widget is present in the widget tree using the key testKey.
+Function Trigger Verification:
+
+The test simulates a tap on the CustomButtonWithIcon widget.
+The test verifies that the onPressed function is called and the wasPressed variable is set to true.
+Test Results:
+
+Step 1: Initialization: Passed
+Step 2: Text and Icon Display Verification: Passed
+Step 3: Button Existence Verification: Passed
+Step 4: Function Trigger Verification: Passed
+Conclusion:
+
+The CustomButtonWithIcon widget correctly displays the provided text and icon, and triggers the specified function when pressed. All expected behaviors were observed, and the test has passed successfully.
