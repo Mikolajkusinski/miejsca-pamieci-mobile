@@ -46,6 +46,28 @@ A project aimed at preserving the memory of historical places around the world. 
 9. Click on the given mobile emulator in action section <strong>Launch this AVD in the emulator</strong>.</br>
 10. After a while you should see the app displayed on mobile emulator.</br>
 
+## Configuration
+
+The app reads its backend configuration at build time via `--dart-define-from-file`:
+
+```console
+# Development (local BackendDotNet on http://localhost:5158, Android emulator loopback):
+flutter run --dart-define-from-file=env/dev.json
+
+# Production (copy env/prod.json.example to env/prod.json and fill in real values — git-ignored):
+flutter build appbundle --release --dart-define-from-file=env/prod.json
+```
+
+Keys: `API_BASE_URL`, `PROD`, `COGNITO_USER_POOL_ID`, `COGNITO_APP_CLIENT_ID`,
+`COGNITO_REGION`, `COGNITO_DOMAIN` (Hosted UI, only needed for Google sign-in).
+When the Cognito ids are empty the app still runs — map browsing is anonymous
+and auth entry points disable themselves.
+
+Google Maps API keys live outside version control:
+
+- Android: `android/secrets.properties` (`GOOGLE_MAPS_API_KEY=...`)
+- iOS: `ios/Flutter/Secrets.xcconfig` (`GOOGLE_MAPS_API_KEY = ...`)
+
 ## Useful commands
 
 ```console

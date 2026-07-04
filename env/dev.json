@@ -1,0 +1,8 @@
+{
+  "API_BASE_URL": "http://10.0.2.2:5158",
+  "PROD": false,
+  "COGNITO_USER_POOL_ID": "",
+  "COGNITO_APP_CLIENT_ID": "",
+  "COGNITO_REGION": "eu-central-1",
+  "COGNITO_DOMAIN": ""
+}
