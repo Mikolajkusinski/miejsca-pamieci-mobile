@@ -19,7 +19,7 @@ dependencies:
   google_maps_flutter: ^2.14.0
   geolocator: ^14.0.0
   shared_preferences: ^2.5.0        # non-sensitive prefs only
-  flutter_secure_storage: ^9.2.4    # tokens live here
+  flutter_secure_storage: ^10.3.0   # tokens live here
   jwt_decoder: ^2.0.1
   flutter_svg: ^2.2.0
   url_launcher: ^6.3.0
@@ -33,6 +33,12 @@ dependencies:
   provider: ^6.1.0
   path_provider: ^2.1.5
   google_fonts: ^6.3.0              # Manrope display face (Phase 3)
+
+# device_info_plus >= 12.4.0 calls isiOSAppOnVision, declared only in the
+# iOS 26.1 SDK — it does not compile with Xcode 26.0. 12.3.0 predates that
+# call. Drop this pin once the build machine runs Xcode 26.1+.
+dependency_overrides:
+  device_info_plus: 12.3.0
 
 dev_dependencies:
   flutter_test:
