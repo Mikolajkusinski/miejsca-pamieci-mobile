@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memo_places_mobile/formWidgets/customButton.dart';
+import 'package:memo_places_mobile/formWidgets/custom_button.dart';
 
 void main() {
   Widget createWidgetForTesting({required Widget child}) {

@@ -1,0 +1,19 @@
+{
+  "id": 5,
+  "userId": 3,
+  "pathName": "Trail of the Uprising",
+  "description": "Walking route along 1944 uprising sites.",
+  "coordinates": [
+    { "lng": 16.9, "lat": 52.4 },
+    { "lng": 16.91, "lat": 52.41 },
+    { "lng": 16.92, "lat": 52.405 }
+  ],
+  "typeId": 3,
+  "periodId": 6,
+  "wikiLink": null,
+  "topicLink": null,
+  "verified": false,
+  "creationDate": "2024-07-01",
+  "verifiedDate": null,
+  "images": []
+}

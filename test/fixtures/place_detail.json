@@ -1,0 +1,28 @@
+{
+  "id": 12,
+  "userId": 3,
+  "placeName": "Fort VII",
+  "description": "Nazi concentration camp memorial site in Poznań.",
+  "lng": 16.864,
+  "lat": 52.417,
+  "typeId": 2,
+  "sortofId": 1,
+  "periodId": 6,
+  "wikiLink": "https://en.wikipedia.org/wiki/Fort_VII",
+  "topicLink": null,
+  "verified": true,
+  "creationDate": "2024-05-12",
+  "verifiedDate": "2024-05-14",
+  "images": [
+    {
+      "id": 31,
+      "imageKey": "place-images/fort7-1.jpg",
+      "url": "https://cdn.example.com/place-images/fort7-1.jpg"
+    },
+    {
+      "id": 32,
+      "imageKey": "place-images/fort7-2.jpg",
+      "url": "https://cdn.example.com/place-images/fort7-2.jpg"
+    }
+  ]
+}

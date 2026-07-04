@@ -1,6 +1,6 @@
 // DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
 
-// ignore_for_file: prefer_single_quotes, avoid_renaming_method_parameters
+// ignore_for_file: prefer_single_quotes, avoid_renaming_method_parameters, constant_identifier_names
 
 import 'dart:ui';
 
@@ -14,7 +14,7 @@ class CodegenLoader extends AssetLoader{
     return Future.value(mapLocales[locale.toString()]);
   }
 
-  static const Map<String,dynamic> de = {
+  static const Map<String,dynamic> _de = {
   "distance": "Entfernung {distance} km",
   "stop_save": "Stoppen und Speichern",
   "start": "Start",
@@ -162,9 +162,18 @@ class CodegenLoader extends AssetLoader{
   "moderntimes": "Gegenwartszeit",
   "permissions_denied": "Standortberechtigungen wurden verweigert",
   "permissions_permanently_denied": "Standortberechtigungen wurden dauerhaft verweigert",
-  "refresh": "Aktualisieren"
+  "refresh": "Aktualisieren",
+  "session_expired": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
+  "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut.",
+  "location_services_off": "Die Ortungsdienste sind auf diesem Gerät deaktiviert.",
+  "open_settings": "Einstellungen öffnen",
+  "sync_result": "Offline-Synchronisierung: {ok} hochgeladen, {failed} für erneuten Versuch behalten",
+  "recording_notification_title": "Route wird aufgezeichnet",
+  "recording_notification_text": "Memory Places verfolgt deine Route.",
+  "keep_app_open_info": "Lass die App während der Aufzeichnung geöffnet — beim Schließen stoppt die Route.",
+  "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein"
 };
-static const Map<String,dynamic> ru = {
+static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
   "stop_save": "Остановить и Сохранить",
   "start": "Начать",
@@ -312,9 +321,18 @@ static const Map<String,dynamic> ru = {
   "moderntimes": "Современный период",
   "permissions_denied": "Доступ к разрешениям на местоположение отклонен",
   "permissions_permanently_denied": "Доступ к разрешениям на местоположение навсегда отклонен",
-  "refresh": "Обновить"
+  "refresh": "Обновить",
+  "session_expired": "Ваша сессия истекла. Пожалуйста, войдите снова.",
+  "no_connection_error": "Нет соединения. Проверьте интернет и попробуйте снова.",
+  "location_services_off": "Службы геолокации отключены на этом устройстве.",
+  "open_settings": "Открыть настройки",
+  "sync_result": "Офлайн-синхронизация: загружено {ok}, осталось {failed}",
+  "recording_notification_title": "Запись маршрута",
+  "recording_notification_text": "Memory Places отслеживает ваш маршрут.",
+  "keep_app_open_info": "Держите приложение открытым во время записи — при закрытии маршрут остановится.",
+  "invalid_email": "Введите корректный адрес электронной почты"
 };
-static const Map<String,dynamic> pl = {
+static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
   "stop_save": "Zatrzymaj i zapisz",
   "start": "Start",
@@ -462,9 +480,18 @@ static const Map<String,dynamic> pl = {
   "moderntimes": "Okres współczesny",
   "permissions_denied": "Dostęp do uprawnień lokalizacji został odmówiony",
   "permissions_permanently_denied": "Dostęp do uprawnień lokalizacji został trwale odmówiony",
-  "refresh": "Odśwież"
+  "refresh": "Odśwież",
+  "session_expired": "Twoja sesja wygasła. Zaloguj się ponownie.",
+  "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie.",
+  "location_services_off": "Usługi lokalizacji są wyłączone na tym urządzeniu.",
+  "open_settings": "Otwórz ustawienia",
+  "sync_result": "Synchronizacja offline: przesłano {ok}, do ponowienia {failed}",
+  "recording_notification_title": "Nagrywanie trasy",
+  "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
+  "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę.",
+  "invalid_email": "Podaj poprawny adres e-mail"
 };
-static const Map<String,dynamic> en = {
+static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
   "stop_save": "Stop and Save",
   "start": "Start",
@@ -612,7 +639,16 @@ static const Map<String,dynamic> en = {
   "moderntimes": "Modern times",
   "permissions_denied": "Location permissions are denied",
   "permissions_permanently_denied": "Location permissions are permanently denied",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "session_expired": "Your session has expired. Please sign in again.",
+  "no_connection_error": "No connection. Check your internet and try again.",
+  "location_services_off": "Location services are turned off on this device.",
+  "open_settings": "Open settings",
+  "sync_result": "Offline sync: {ok} uploaded, {failed} kept for retry",
+  "recording_notification_title": "Recording trail",
+  "recording_notification_text": "Memory Places is tracking your route.",
+  "keep_app_open_info": "Keep the app open while recording — the trail stops if you close it.",
+  "invalid_email": "Please enter a valid email address"
 };
-static const Map<String, Map<String,dynamic>> mapLocales = {"de": de, "ru": ru, "pl": pl, "en": en};
+static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }

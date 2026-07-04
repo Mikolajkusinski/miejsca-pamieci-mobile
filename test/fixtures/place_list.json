@@ -1,0 +1,26 @@
+[
+  {
+    "id": 12,
+    "userId": 3,
+    "placeName": "Fort VII",
+    "lng": 16.864,
+    "lat": 52.417,
+    "typeId": 2,
+    "sortofId": 1,
+    "periodId": 6,
+    "verified": true,
+    "creationDate": "2024-05-12"
+  },
+  {
+    "id": 15,
+    "userId": null,
+    "placeName": "Cytadela",
+    "lng": 16.937,
+    "lat": 52.42,
+    "typeId": 1,
+    "sortofId": 2,
+    "periodId": 4,
+    "verified": true,
+    "creationDate": "2024-06-01"
+  }
+]
