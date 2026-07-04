@@ -164,7 +164,9 @@ class CodegenLoader extends AssetLoader{
   "permissions_permanently_denied": "Standortberechtigungen wurden dauerhaft verweigert",
   "refresh": "Aktualisieren",
   "session_expired": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
-  "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut."
+  "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut.",
+  "location_services_off": "Die Ortungsdienste sind auf diesem Gerät deaktiviert.",
+  "open_settings": "Einstellungen öffnen"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -316,7 +318,9 @@ static const Map<String,dynamic> _ru = {
   "permissions_permanently_denied": "Доступ к разрешениям на местоположение навсегда отклонен",
   "refresh": "Обновить",
   "session_expired": "Ваша сессия истекла. Пожалуйста, войдите снова.",
-  "no_connection_error": "Нет соединения. Проверьте интернет и попробуйте снова."
+  "no_connection_error": "Нет соединения. Проверьте интернет и попробуйте снова.",
+  "location_services_off": "Службы геолокации отключены на этом устройстве.",
+  "open_settings": "Открыть настройки"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -468,7 +472,9 @@ static const Map<String,dynamic> _pl = {
   "permissions_permanently_denied": "Dostęp do uprawnień lokalizacji został trwale odmówiony",
   "refresh": "Odśwież",
   "session_expired": "Twoja sesja wygasła. Zaloguj się ponownie.",
-  "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie."
+  "no_connection_error": "Brak połączenia. Sprawdź internet i spróbuj ponownie.",
+  "location_services_off": "Usługi lokalizacji są wyłączone na tym urządzeniu.",
+  "open_settings": "Otwórz ustawienia"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -620,7 +626,9 @@ static const Map<String,dynamic> _en = {
   "permissions_permanently_denied": "Location permissions are permanently denied",
   "refresh": "Refresh",
   "session_expired": "Your session has expired. Please sign in again.",
-  "no_connection_error": "No connection. Check your internet and try again."
+  "no_connection_error": "No connection. Check your internet and try again.",
+  "location_services_off": "Location services are turned off on this device.",
+  "open_settings": "Open settings"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }

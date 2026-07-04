@@ -148,5 +148,7 @@
   "permissions_permanently_denied": "Standortberechtigungen wurden dauerhaft verweigert",
   "refresh": "Aktualisieren",
   "session_expired": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
-  "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut."
+  "no_connection_error": "Keine Verbindung. Prüfe dein Internet und versuche es erneut.",
+  "location_services_off": "Die Ortungsdienste sind auf diesem Gerät deaktiviert.",
+  "open_settings": "Einstellungen öffnen"
 }

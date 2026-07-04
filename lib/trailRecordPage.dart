@@ -29,7 +29,7 @@ class _TrailRecordState extends State<TrailRecordPage> {
   late LatLng _currentPosition;
   late List<LatLng> _trailsPoints = [];
   bool _isRecording = false;
-  late StreamSubscription<Position> _positionStreamSubscription;
+  StreamSubscription<Position>? _positionStreamSubscription;
   double _totalDistanceKm = 0.0;
   Timer? _timer;
   int _hours = 0;
@@ -46,7 +46,7 @@ class _TrailRecordState extends State<TrailRecordPage> {
 
   @override
   void dispose() {
-    _positionStreamSubscription.cancel();
+    _positionStreamSubscription?.cancel();
     _timer?.cancel();
     super.dispose();
   }

@@ -148,5 +148,7 @@
   "permissions_permanently_denied": "Location permissions are permanently denied",
   "refresh": "Refresh",
   "session_expired": "Your session has expired. Please sign in again.",
-  "no_connection_error": "No connection. Check your internet and try again."
+  "no_connection_error": "No connection. Check your internet and try again.",
+  "location_services_off": "Location services are turned off on this device.",
+  "open_settings": "Open settings"
 }
