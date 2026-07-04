@@ -3,8 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:memo_places_mobile/Theme/themeProvider.dart';
 import 'package:memo_places_mobile/internetChecker.dart';
+import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
+import 'package:memo_places_mobile/services/catalog_repository.dart';
+import 'package:memo_places_mobile/services/contact_repository.dart';
+import 'package:memo_places_mobile/services/places_repository.dart';
 import 'package:memo_places_mobile/services/session_store.dart';
+import 'package:memo_places_mobile/services/trails_repository.dart';
 import 'package:memo_places_mobile/translations/codegen_loader.g.dart';
 import 'package:provider/provider.dart';
 
@@ -38,6 +43,30 @@ void main() async {
           Provider<SessionStore>.value(value: sessionStore),
           Provider<AuthService>(
             create: (_) => CognitoAuthService(sessionStore),
+          ),
+          Provider<ApiClient>(
+            create: (context) => ApiClient(
+              context.read<AuthService>(),
+              onUnauthorized: sessionStore.clear,
+            ),
+          ),
+          Provider<CatalogRepository>(
+            create: (context) => CatalogRepository(context.read<ApiClient>()),
+          ),
+          Provider<PlacesRepository>(
+            create: (context) => PlacesRepository(
+              context.read<ApiClient>(),
+              context.read<CatalogRepository>(),
+            ),
+          ),
+          Provider<TrailsRepository>(
+            create: (context) => TrailsRepository(
+              context.read<ApiClient>(),
+              context.read<CatalogRepository>(),
+            ),
+          ),
+          Provider<ContactRepository>(
+            create: (context) => ContactRepository(context.read<ApiClient>()),
           ),
         ],
         child: const MyApp(),

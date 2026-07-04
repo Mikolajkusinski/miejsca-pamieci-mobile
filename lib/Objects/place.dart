@@ -26,37 +26,56 @@ class Place {
     required this.lng,
     required this.lat,
     required this.user,
-    required this.username,
-    required this.sortof,
-    required this.sortofValue,
-    required this.type,
-    required this.typeValue,
-    required this.period,
-    required this.periodValue,
     required this.verified,
+    required this.sortof,
+    required this.type,
+    required this.period,
+    this.username = '',
+    this.sortofValue = '',
+    this.typeValue = '',
+    this.periodValue = '',
     this.topicLink = '',
     this.wikiLink = '',
     this.images,
   });
 
-  factory Place.fromJson(Map<String, dynamic> json) {
+  /// Parses the .NET PlaceDetailDto. Category display values are resolved
+  /// from the lookup tables (id → localization key) because the DTO only
+  /// carries ids.
+  factory Place.fromJson(
+    Map<String, dynamic> json, {
+    Map<int, String> typeValues = const {},
+    Map<int, String> sortofValues = const {},
+    Map<int, String> periodValues = const {},
+  }) {
+    final typeId = (json['typeId'] as num).toInt();
+    final sortofId = (json['sortofId'] as num).toInt();
+    final periodId = (json['periodId'] as num).toInt();
+    final images = json['images'] as List?;
+
     return Place(
-        id: json['id'] as int,
-        placeName: json['place_name'] as String,
-        description: json['description'] as String,
-        creationDate: json['creation_date'] as String,
-        lng: json['lng'] as double,
-        lat: json['lat'] as double,
-        user: json['user'] as int,
-        username: json['username'] as String,
-        sortof: json['sortof'] as int,
-        sortofValue: json['sortof_value'] as String,
-        type: json['type'] as int,
-        typeValue: json['type_value'] as String,
-        period: json['period'] as int,
-        periodValue: json['period_value'] as String,
-        topicLink: json['topic_link'] as String? ?? '',
-        wikiLink: json['wiki_link'] as String? ?? '',
-        verified: json['verified'] as bool);
+      id: (json['id'] as num).toInt(),
+      placeName: json['placeName'] as String,
+      description: json['description'] as String? ?? '',
+      creationDate: json['creationDate'] as String? ?? '',
+      lng: (json['lng'] as num).toDouble(),
+      lat: (json['lat'] as num).toDouble(),
+      user: (json['userId'] as num?)?.toInt() ?? 0,
+      sortof: sortofId,
+      sortofValue: sortofValues[sortofId] ?? '',
+      type: typeId,
+      typeValue: typeValues[typeId] ?? '',
+      period: periodId,
+      periodValue: periodValues[periodId] ?? '',
+      topicLink: json['topicLink'] as String? ?? '',
+      wikiLink: json['wikiLink'] as String? ?? '',
+      verified: json['verified'] as bool? ?? false,
+      images: images == null
+          ? null
+          : [
+              for (final image in images)
+                (image as Map<String, dynamic>)['url'] as String
+            ],
+    );
   }
 }

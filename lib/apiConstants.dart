@@ -1,3 +1,8 @@
+// DEPRECATED: these constants point at the retired Django API. All network
+// access now goes through ApiClient + the repositories in lib/services/
+// (paths under /api/v1). Remaining references are migrated and this file
+// deleted in Phases 2/4; only googleSearchByLatLng survives (it is not an
+// API endpoint).
 class ApiConstants {
   static const String baseUrl = 'http://localhost:8000/memo_places/';
 
