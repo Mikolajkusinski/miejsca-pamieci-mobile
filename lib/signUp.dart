@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInSignUpSwitchButton.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/authTile.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/hidePassword.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInAndSignUpTextField.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInSignUpButton.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/customExeption.dart';
 import 'package:memo_places_mobile/infoAfterSignUpPage.dart';
-import 'package:memo_places_mobile/services/googleSignInApi.dart';
+import 'package:memo_places_mobile/internetChecker.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/auth_service.dart';
+import 'package:memo_places_mobile/shared/busy_overlay.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
-import 'dart:convert';
+import 'package:provider/provider.dart';
 
 class SignUp extends StatefulWidget {
   final void Function() togglePages;
@@ -36,11 +36,6 @@ class _SignInState extends State<SignUp> {
   bool _isPaswordHidden = true;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _emailController.dispose();
     _usernameController.dispose();
@@ -56,47 +51,39 @@ class _SignInState extends State<SignUp> {
   }
 
   Future<void> _signUp() async {
-    String email = _emailController.text.toLowerCase();
-    String password = _passwordController.text;
-    String username = _usernameController.text;
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        });
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text;
+    final username = _usernameController.text.trim();
+    final auth = context.read<AuthService>();
 
     try {
-      var response = await http.post(
-        Uri.parse(ApiConstants.usersEndpoint),
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'username': username,
-        }),
-        headers: {'Content-Type': 'application/json'},
+      await runWithBusyOverlay(
+        context,
+        () => auth.signUp(email: email, username: username, password: password),
       );
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const InfoAfterSignUpPage()),
+      );
+      showSuccesToast(LocaleKeys.account_created_succes.tr());
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
+    }
+  }
 
-      if (response.statusCode == 200) {
-        if (mounted) {
-          Navigator.pop(context);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const InfoAfterSignUpPage()),
-          );
-        }
-        showSuccesToast(LocaleKeys.account_created_succes.tr());
-      } else if (response.statusCode == 400) {
-        Navigator.pop(context);
-        throw CustomException(LocaleKeys.account_exist.tr());
-      } else {
-        Navigator.pop(context);
-        throw CustomException(LocaleKeys.alert_error.tr());
-      }
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+  Future<void> _signUpWithGoogle() async {
+    final auth = context.read<AuthService>();
+    try {
+      await runWithBusyOverlay(context, auth.signInWithGoogle);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const InternetChecker()),
+      );
+      showSuccesToast(LocaleKeys.succes_signed_in.tr());
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 
@@ -240,9 +227,7 @@ class _SignInState extends State<SignUp> {
                   Center(
                       child: AuthTile(
                     imagePath: "lib/assets/images/googleIcon.png",
-                    onTap: () {
-                      googleSignIn(context);
-                    },
+                    onTap: _signUpWithGoogle,
                   )),
                   const SizedBox(
                     height: 30,

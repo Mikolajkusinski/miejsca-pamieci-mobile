@@ -1,14 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/customExeption.dart';
 import 'package:memo_places_mobile/formWidgets/customButton.dart';
 import 'package:memo_places_mobile/formWidgets/customTitle.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/contact_repository.dart';
 import 'package:memo_places_mobile/services/dataService.dart';
+import 'package:memo_places_mobile/shared/busy_overlay.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 
 class ContactUsForm extends StatefulWidget {
   const ContactUsForm({super.key});
@@ -23,13 +24,7 @@ class _ContactUsFormState extends State<ContactUsForm> {
   bool _isTitleEmpty = false;
   bool _isMessageEmpty = false;
 
-  late User? _user;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUserData().then((value) => _user = value);
-  }
+  late final Future<User?> _userFuture = loadUserData();
 
   @override
   void dispose() {
@@ -38,41 +33,25 @@ class _ContactUsFormState extends State<ContactUsForm> {
     super.dispose();
   }
 
-  void _sendMessage() async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.scrim),
-            ),
-          );
-        });
-
-    Map<String, String> formData = {
-      'email': _user!.email,
-      'title': _titleController.text,
-      'description': _messageController.text,
-    };
+  Future<void> _sendMessage(User? user) async {
+    final contact = context.read<ContactRepository>();
+    final title = _titleController.text.trim();
+    final description = _messageController.text.trim();
 
     try {
-      var response = await http.post(
-        Uri.parse(ApiConstants.contactUsEndpoint),
-        body: formData,
+      await runWithBusyOverlay(
+        context,
+        () => contact.send(
+          email: user?.email ?? '',
+          title: title,
+          description: description,
+        ),
       );
-
-      if (response.statusCode == 200) {
-        showSuccesToast(LocaleKeys.message_sent_succes.tr());
-        if (mounted) {
-          Navigator.pop(context);
-          Navigator.pop(context);
-        }
-      } else {
-        throw CustomException(LocaleKeys.alert_error.tr());
-      }
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+      if (!mounted) return;
+      showSuccesToast(LocaleKeys.message_sent_succes.tr());
+      Navigator.pop(context);
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 
@@ -81,7 +60,7 @@ class _ContactUsFormState extends State<ContactUsForm> {
     return Scaffold(
       appBar: AppBar(),
       body: FutureBuilder(
-        future: loadUserData(),
+        future: _userFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return SingleChildScrollView(
@@ -159,7 +138,7 @@ class _ContactUsFormState extends State<ContactUsForm> {
                             });
 
                             if (!_isTitleEmpty && !_isMessageEmpty) {
-                              _sendMessage();
+                              _sendMessage(snapshot.data);
                             }
                           },
                           text: LocaleKeys.send_message.tr())

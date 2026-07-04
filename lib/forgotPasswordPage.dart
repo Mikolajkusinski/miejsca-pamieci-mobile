@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInAndSignUpTextField.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/signInSignUpButton.dart';
-import 'package:memo_places_mobile/apiConstants.dart';
-import 'package:memo_places_mobile/customExeption.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/auth_service.dart';
+import 'package:memo_places_mobile/shared/busy_overlay.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -25,34 +26,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Future<void> _resetPassword() async {
-    String email = _emailController.text;
-
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        });
+    final email = _emailController.text.trim().toLowerCase();
+    final auth = context.read<AuthService>();
 
     try {
-      var response = await http.get(
-        Uri.parse(ApiConstants.resetPasswordByEmailEndpoint(email)),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        showSuccesToast(LocaleKeys.link_sent.tr());
-        if (mounted) Navigator.pop(context);
-      } else if (response.statusCode == 400) {
-        if (mounted) Navigator.pop(context);
-        throw CustomException(LocaleKeys.dont_have_account.tr());
-      } else {
-        if (mounted) Navigator.pop(context);
-        throw CustomException(LocaleKeys.alert_error.tr());
-      }
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+      await runWithBusyOverlay(context, () => auth.resetPassword(email));
+      if (!mounted) return;
+      showSuccesToast(LocaleKeys.link_sent.tr());
+      Navigator.pop(context);
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
   }
 
