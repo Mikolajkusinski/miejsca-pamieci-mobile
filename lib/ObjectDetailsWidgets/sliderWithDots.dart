@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
 class SliderWithDots extends StatefulWidget {
@@ -30,17 +29,16 @@ class _SliderWithDotsState extends State<SliderWithDots> {
 
     return Column(
       children: [
-        CarouselSlider(
-          items: imageSliders,
-          options: CarouselOptions(
-              enableInfiniteScroll: false,
-              aspectRatio: 2.0,
-              enlargeCenterPage: true,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _current = index;
-                });
-              }),
+        AspectRatio(
+          aspectRatio: 2.0,
+          child: PageView(
+            onPageChanged: (index) {
+              setState(() {
+                _current = index;
+              });
+            },
+            children: imageSliders,
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_places_mobile/formWidgets/formPictureSlider.dart';
@@ -33,7 +32,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(testImages.length, 2);
-      expect(find.byType(Image), findsNWidgets(testImages.length));
+      // PageView only builds the current page, so exactly one image is live.
+      expect(find.byType(Image), findsOneWidget);
     });
 
     testWidgets('updates carousel position correctly when swiped',
@@ -49,7 +49,7 @@ void main() {
         ),
       );
 
-      await tester.drag(find.byType(CarouselSlider), const Offset(-400, 0));
+      await tester.drag(find.byType(PageView), const Offset(-400, 0));
       await tester.pumpAndSettle();
 
       final currentIndicatorFinder = find.byWidgetPredicate((widget) =>
@@ -61,7 +61,7 @@ void main() {
 
       expect(currentIndicatorFinder, findsOneWidget);
 
-      await tester.drag(find.byType(CarouselSlider), const Offset(-400, 0));
+      await tester.drag(find.byType(PageView), const Offset(-400, 0));
       await tester.pumpAndSettle();
 
       expect(currentIndicatorFinder, findsOneWidget);

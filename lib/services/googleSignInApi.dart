@@ -14,32 +14,27 @@ import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+bool _googleSignInInitialized = false;
+
 Future<void> googleSignIn(BuildContext context) async {
-  if (Platform.isIOS || Platform.isMacOS) {
-    GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId:
-          "584457314127-6adiqurs38ajbmouuh326gel87hiv77l.apps.googleusercontent.com",
-      scopes: [
-        'email',
-      ],
+  final GoogleSignIn signIn = GoogleSignIn.instance;
+  if (!_googleSignInInitialized) {
+    await signIn.initialize(
+      clientId: Platform.isIOS || Platform.isMacOS
+          ? "584457314127-6adiqurs38ajbmouuh326gel87hiv77l.apps.googleusercontent.com"
+          : null,
     );
+    _googleSignInInitialized = true;
+  }
 
-    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-    if (googleAccount != null) {
-      _checkGoogleAccountInBackend(context, googleAccount);
-    }
-  } else {
-    GoogleSignIn googleSignIn = GoogleSignIn(
-      scopes: [
-        'email',
-      ],
-    );
-
-    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-
-    if (googleAccount != null) {
-      _checkGoogleAccountInBackend(context, googleAccount);
-    }
+  try {
+    final GoogleSignInAccount googleAccount =
+        await signIn.authenticate(scopeHint: const ['email']);
+    if (!context.mounted) return;
+    await _checkGoogleAccountInBackend(context, googleAccount);
+  } on GoogleSignInException {
+    // User cancelled or sign-in failed before reaching the backend.
+    return;
   }
 }
 
@@ -51,7 +46,7 @@ void _incrementCounter(String key, String value) async {
 Future<void> _checkGoogleAccountInBackend(
     BuildContext context, GoogleSignInAccount googleAccount) async {
   try {
-    final googleAuth = await googleAccount.authentication;
+    final googleAuth = googleAccount.authentication;
     final googleToken = googleAuth.idToken!;
 
     var response = await http.get(
