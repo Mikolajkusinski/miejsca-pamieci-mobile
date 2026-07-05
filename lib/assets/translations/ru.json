@@ -155,5 +155,11 @@
   "recording_notification_title": "Запись маршрута",
   "recording_notification_text": "Memory Places отслеживает ваш маршрут.",
   "keep_app_open_info": "Держите приложение открытым во время записи — при закрытии маршрут остановится.",
-  "invalid_email": "Введите корректный адрес электронной почты"
+  "invalid_email": "Введите корректный адрес электронной почты",
+  "search_places": "Поиск мест…",
+  "add_place_here": "Добавить место здесь",
+  "record_trail": "Записать маршрут",
+  "sign_in_to_contribute": "Войдите, чтобы добавлять места и записывать маршруты.",
+  "distance_away": "{distance} км от вас",
+  "map_load_failed": "Не удалось загрузить данные карты"
 }

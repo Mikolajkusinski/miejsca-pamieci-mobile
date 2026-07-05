@@ -665,10 +665,10 @@ final darkTheme = _build(Brightness.dark);
 - Create: `lib/assets/markers/` new pin set (SVG-derived PNGs @2x/@3x): `place_pin.png` (cyan teardrop, white memorial-flame glyph), `place_pin_selected.png` (larger, `#0E7490`), `user_dot.png` (cyan dot, white ring, soft halo)
 - Create: `lib/map/marker_factory.dart`
 
-- [ ] **Step 1:** Regenerate styles from Google's styling wizard: light = desaturated slate base (`#F1F5F9` land, `#CBD5E1` water tint), POI icons off, road labels minimal; dark = `#171717` base, `#262626` roads, POI off. Both must keep the map quiet so cyan pins are the loudest element.
-- [ ] **Step 2:** `MarkerFactory.load(BuildContext)` decodes each asset **once** (cache in a static; today `home.dart:115-130` re-decodes the PNG on every GPS tick) using `BitmapDescriptor.asset(const ImageConfiguration(devicePixelRatio: 3), path)`.
-- [ ] **Step 3:** Replace usages in home/record pages; user marker updates by rebuilding the one `Marker` with the cached icon (fixes the `_markers.union` stale-marker bug at `home.dart:119`).
-- [ ] **Step 4:** Visual check on device, light + dark. Commit: `feat(ui): branded map styles and cached marker set`
+- [x] **Step 1:** Regenerate styles from Google's styling wizard: light = desaturated slate base (`#F1F5F9` land, `#CBD5E1` water tint), POI icons off, road labels minimal; dark = `#171717` base, `#262626` roads, POI off. Both must keep the map quiet so cyan pins are the loudest element. *(hand-authored JSON, same effect)*
+- [x] **Step 2:** `MarkerFactory.load(BuildContext)` decodes each asset **once** (cache in a static; today `home.dart:115-130` re-decodes the PNG on every GPS tick) using `BitmapDescriptor.asset(const ImageConfiguration(devicePixelRatio: 3), path)`. *(signature is `load()` without context — rootBundle default avoids inherited-widget lookups from initState)*
+- [x] **Step 3:** Replace usages in home/record pages; user marker updates by rebuilding the one `Marker` with the cached icon (fixes the `_markers.union` stale-marker bug at `home.dart:119`).
+- [x] **Step 4:** Visual check on device, light + dark. Commit: `feat(ui): branded map styles and cached marker set` *(committed; device visual check folded into the Phase 6.5 pass — marker PNGs verified by rendered inspection)*
 
 ### Task 3.3: The MapShell — map covers everything
 

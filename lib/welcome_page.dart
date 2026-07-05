@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memo_places_mobile/formWidgets/custom_button.dart';
-import 'package:memo_places_mobile/main_page.dart';
+import 'package:memo_places_mobile/map/map_shell.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,7 +52,7 @@ class WelcomePage extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const Main(),
+                            builder: (context) => const MapShell(),
                           ),
                         );
                       },
