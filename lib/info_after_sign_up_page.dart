@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/auth_header.dart';
 import 'package:memo_places_mobile/sign_in_or_sign_up_page.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
@@ -11,31 +11,31 @@ class InfoAfterSignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Image.asset(
-                      'lib/assets/images/logo_memory_places.png',
-                      width: 300,
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const AuthHeader(),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 24),
+                    Icon(
+                      Icons.mark_email_read_outlined,
+                      size: 56,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    LocaleKeys.link_to_active_info.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
-                  ),
-                  const SizedBox(height: 20),
-                  SignInSignUpButton(
-                      onTap: () {
+                    const SizedBox(height: 16),
+                    Text(
+                      LocaleKeys.link_to_active_info.tr(),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 32),
+                    FilledButton(
+                      onPressed: () {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -43,10 +43,12 @@ class InfoAfterSignUpPage extends StatelessWidget {
                           ),
                         );
                       },
-                      buttonText: LocaleKeys.back.tr()),
-                ],
+                      child: Text(LocaleKeys.back.tr()),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

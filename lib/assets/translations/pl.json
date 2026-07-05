@@ -161,5 +161,12 @@
   "record_trail": "Nagraj trasę",
   "sign_in_to_contribute": "Zaloguj się, aby dodawać miejsca i nagrywać trasy.",
   "distance_away": "{distance} km stąd",
-  "map_load_failed": "Nie udało się wczytać danych mapy"
+  "map_load_failed": "Nie udało się wczytać danych mapy",
+  "continue_with_google": "Kontynuuj z Google",
+  "welcome_tagline": "Odkrywaj i dokumentuj miejsca pamięci — dokładnie tam, gdzie jesteś.",
+  "pass_rule_length": "Co najmniej 8 znaków, bez spacji",
+  "pass_rule_upper": "Wielka litera",
+  "pass_rule_lower": "Mała litera",
+  "pass_rule_digit": "Cyfra",
+  "pass_rule_symbol": "Znak specjalny"
 }

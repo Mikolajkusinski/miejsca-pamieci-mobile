@@ -1,10 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_switch_button.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/auth_tile.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/auth_header.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/google_auth_button.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/hide_password.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_and_sign_up_text_field.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_switch_button.dart';
 import 'package:memo_places_mobile/forgot_password_page.dart';
 import 'package:memo_places_mobile/internet_checker.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
@@ -24,9 +23,12 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordHidden = true;
+
+  static final _emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
   @override
   void dispose() {
@@ -35,13 +37,8 @@ class _SignInState extends State<SignIn> {
     super.dispose();
   }
 
-  void changeHidden() {
-    setState(() {
-      _isPasswordHidden = !_isPasswordHidden;
-    });
-  }
-
   Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
     final email = _emailController.text.trim().toLowerCase();
     final password = _passwordController.text;
     final auth = context.read<AuthService>();
@@ -77,114 +74,110 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.sign_in.tr()),
-      ),
+      appBar: AppBar(title: Text(LocaleKeys.sign_in.tr())),
       body: SafeArea(
         bottom: false,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Image.asset(
-                      'lib/assets/images/logo_memory_places.png',
-                      width: 300,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SignInAndSignUpTextField(
-                      controller: _emailController,
-                      hintText: LocaleKeys.enter_email.tr(),
-                      obscureText: false,
-                      icon: const Icon(Icons.email)),
-                  const SizedBox(height: 25),
-                  SignInAndSignUpTextField(
-                    controller: _passwordController,
-                    hintText: LocaleKeys.enter_pass.tr(),
-                    obscureText: _isPasswordHidden,
-                    icon: const Icon(Icons.lock),
-                  ),
-                  const SizedBox(height: 3),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        HidePassword(
-                          isPasswordHidden: _isPasswordHidden,
-                          onHiddenChange: changeHidden,
-                        ),
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ForgotPasswordPage()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                LocaleKeys.forgot_pass.tr(),
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary),
-                              ),
-                            ))
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SignInSignUpButton(
-                      onTap: _login, buttonText: LocaleKeys.sign_in.tr()),
-                  const SizedBox(height: 40),
-                  Row(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const AuthHeader(),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 1,
-                          color: Theme.of(context).colorScheme.secondary,
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                        decoration: InputDecoration(
+                          labelText: LocaleKeys.enter_email.tr(),
+                          prefixIcon: const Icon(Icons.email_outlined),
+                        ),
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          if (email.isEmpty) {
+                            return LocaleKeys.field_required.tr();
+                          }
+                          if (!_emailRegex.hasMatch(email)) {
+                            return LocaleKeys.invalid_email.tr();
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _isPasswordHidden,
+                        autofillHints: const [AutofillHints.password],
+                        decoration: InputDecoration(
+                          labelText: LocaleKeys.enter_pass.tr(),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: HidePassword(
+                            isPasswordHidden: _isPasswordHidden,
+                            onHiddenChange: () => setState(
+                                () => _isPasswordHidden = !_isPasswordHidden),
+                          ),
+                        ),
+                        validator: (value) => (value == null || value.isEmpty)
+                            ? LocaleKeys.field_required.tr()
+                            : null,
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ForgotPasswordPage()),
+                            );
+                          },
+                          child: Text(LocaleKeys.forgot_pass.tr()),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          LocaleKeys.or.tr(),
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 18),
-                        ),
+                      const SizedBox(height: 8),
+                      FilledButton(
+                        onPressed: _login,
+                        child: Text(LocaleKeys.sign_in.tr()),
                       ),
-                      Expanded(
-                        child: Divider(
-                          thickness: 1,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              LocaleKeys.or.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant),
+                            ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
                       ),
+                      const SizedBox(height: 24),
+                      GoogleAuthButton(onPressed: _loginWithGoogle),
+                      const SizedBox(height: 32),
+                      SignInSignUpSwitchButton(
+                          isAccountCreated: true,
+                          loginRegisterSwitch: widget.togglePages),
+                      const SizedBox(height: 16),
                     ],
                   ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                  Center(
-                      child: AuthTile(
-                    imagePath: "lib/assets/images/googleIcon.png",
-                    onTap: _loginWithGoogle,
-                  )),
-                  const SizedBox(
-                    height: 160,
-                  ),
-                  SignInSignUpSwitchButton(
-                      isAccountCreated: true,
-                      loginRegisterSwitch: widget.togglePages),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

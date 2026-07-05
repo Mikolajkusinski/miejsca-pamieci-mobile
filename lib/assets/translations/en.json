@@ -161,5 +161,12 @@
   "record_trail": "Record a trail",
   "sign_in_to_contribute": "Sign in to add places and record trails.",
   "distance_away": "{distance} km away",
-  "map_load_failed": "Couldn't load map data"
+  "map_load_failed": "Couldn't load map data",
+  "continue_with_google": "Continue with Google",
+  "welcome_tagline": "Discover and document Poland's places of memory — right where you stand.",
+  "pass_rule_length": "At least 8 characters, no spaces",
+  "pass_rule_upper": "An uppercase letter",
+  "pass_rule_lower": "A lowercase letter",
+  "pass_rule_digit": "A digit",
+  "pass_rule_symbol": "A symbol"
 }

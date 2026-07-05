@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
 import 'package:memo_places_mobile/services/session_store.dart';
 import 'package:memo_places_mobile/sign_in.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +49,7 @@ void main() {
         find.byType(TextField).first, 'user@example.com');
     await tester.enterText(find.byType(TextField).at(1), 'password');
 
-    final button = find.byType(SignInSignUpButton);
+    final button = find.byType(FilledButton);
     await tester.ensureVisible(button);
     await tester.tap(button);
     await tester.pump();

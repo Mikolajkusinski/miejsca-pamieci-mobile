@@ -166,5 +166,12 @@ abstract class  LocaleKeys {
   static const sign_in_to_contribute = 'sign_in_to_contribute';
   static const distance_away = 'distance_away';
   static const map_load_failed = 'map_load_failed';
+  static const continue_with_google = 'continue_with_google';
+  static const welcome_tagline = 'welcome_tagline';
+  static const pass_rule_length = 'pass_rule_length';
+  static const pass_rule_upper = 'pass_rule_upper';
+  static const pass_rule_lower = 'pass_rule_lower';
+  static const pass_rule_digit = 'pass_rule_digit';
+  static const pass_rule_symbol = 'pass_rule_symbol';
 
 }

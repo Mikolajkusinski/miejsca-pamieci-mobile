@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_switch_button.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/auth_tile.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/auth_header.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/google_auth_button.dart';
 import 'package:memo_places_mobile/SignInAndSignUpWidgets/hide_password.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_and_sign_up_text_field.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/password_rules_checklist.dart';
+import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_switch_button.dart';
 import 'package:memo_places_mobile/info_after_sign_up_page.dart';
 import 'package:memo_places_mobile/internet_checker.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
@@ -20,20 +20,20 @@ class SignUp extends StatefulWidget {
   const SignUp({super.key, required this.togglePages});
 
   @override
-  State<SignUp> createState() => _SignInState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _SignInState extends State<SignUp> {
+class _SignUpState extends State<SignUp> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  String? _passwordErrorMsg;
-  bool _isPasswordValid = false;
-  String? _emailErrorMsg;
-  bool _isEmailValid = false;
   bool _isPasswordHidden = true;
+  String _password = '';
+
+  static final _emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
   @override
   void dispose() {
@@ -44,13 +44,8 @@ class _SignInState extends State<SignUp> {
     super.dispose();
   }
 
-  void _changeHidden() {
-    setState(() {
-      _isPasswordHidden = !_isPasswordHidden;
-    });
-  }
-
   Future<void> _signUp() async {
+    if (!_formKey.currentState!.validate()) return;
     final email = _emailController.text.trim().toLowerCase();
     final password = _passwordController.text;
     final username = _usernameController.text.trim();
@@ -87,157 +82,142 @@ class _SignInState extends State<SignUp> {
     }
   }
 
-  void _emailValidator(String email) {
-    RegExp emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(email) || email.isEmpty) {
-      setState(() {
-        _emailErrorMsg = LocaleKeys.invalid_email.tr();
-        _isEmailValid = false;
-      });
-    } else {
-      _emailErrorMsg = null;
-      _isEmailValid = true;
-    }
-  }
-
-  void _passwordValidator(String password, String confPassword) {
-    RegExp passwordRegex =
-        RegExp(r'^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$');
-    if (!passwordRegex.hasMatch(password) || password.isEmpty) {
-      setState(() {
-        _passwordErrorMsg = LocaleKeys.password_validation.tr();
-        _isPasswordValid = false;
-      });
-    } else if (password != confPassword) {
-      setState(() {
-        _passwordErrorMsg = LocaleKeys.same_password.tr();
-        _isPasswordValid = false;
-      });
-    } else {
-      setState(() {
-        _passwordErrorMsg = null;
-        _isPasswordValid = true;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.sign_up.tr()),
-      ),
+      appBar: AppBar(title: Text(LocaleKeys.sign_up.tr())),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Image.asset(
-                      'lib/assets/images/logo_memory_places.png',
-                      width: 300,
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  SignInAndSignUpTextField(
-                      controller: _usernameController,
-                      hintText: LocaleKeys.enter_username.tr(),
-                      obscureText: false,
-                      icon: const Icon(Icons.account_circle)),
-                  const SizedBox(height: 20),
-                  SignInAndSignUpTextField(
-                      errorText: _emailErrorMsg,
-                      controller: _emailController,
-                      hintText: LocaleKeys.enter_email.tr(),
-                      obscureText: false,
-                      icon: const Icon(Icons.email)),
-                  const SizedBox(height: 20),
-                  SignInAndSignUpTextField(
-                    errorText: _passwordErrorMsg,
-                    controller: _passwordController,
-                    hintText: LocaleKeys.enter_pass.tr(),
-                    obscureText: _isPasswordHidden,
-                    icon: const Icon(Icons.lock),
-                  ),
-                  const SizedBox(height: 20),
-                  SignInAndSignUpTextField(
-                    controller: _confirmPasswordController,
-                    hintText: LocaleKeys.confirm_pass.tr(),
-                    obscureText: _isPasswordHidden,
-                    icon: const Icon(Icons.lock),
-                  ),
-                  const SizedBox(
-                    height: 3,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        HidePassword(
-                          isPasswordHidden: _isPasswordHidden,
-                          onHiddenChange: _changeHidden,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SignInSignUpButton(
-                      onTap: () {
-                        _passwordValidator(_passwordController.text,
-                            _confirmPasswordController.text);
-                        _emailValidator(_emailController.text);
-                        if (_isEmailValid && _isPasswordValid) {
-                          _signUp();
-                        }
-                      },
-                      buttonText: LocaleKeys.sign_up.tr()),
-                  const SizedBox(height: 40),
-                  Row(
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const AuthHeader(),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 1,
-                          color: Theme.of(context).colorScheme.secondary,
+                      TextFormField(
+                        controller: _usernameController,
+                        autofillHints: const [AutofillHints.newUsername],
+                        decoration: InputDecoration(
+                          labelText: LocaleKeys.enter_username.tr(),
+                          prefixIcon: const Icon(Icons.account_circle_outlined),
                         ),
+                        validator: (value) =>
+                            (value == null || value.trim().isEmpty)
+                                ? LocaleKeys.field_required.tr()
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                        decoration: InputDecoration(
+                          labelText: LocaleKeys.enter_email.tr(),
+                          prefixIcon: const Icon(Icons.email_outlined),
+                        ),
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          if (email.isEmpty) {
+                            return LocaleKeys.field_required.tr();
+                          }
+                          if (!_emailRegex.hasMatch(email)) {
+                            return LocaleKeys.invalid_email.tr();
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _isPasswordHidden,
+                        autofillHints: const [AutofillHints.newPassword],
+                        onChanged: (value) =>
+                            setState(() => _password = value),
+                        decoration: InputDecoration(
+                          labelText: LocaleKeys.enter_pass.tr(),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: HidePassword(
+                            isPasswordHidden: _isPasswordHidden,
+                            onHiddenChange: () => setState(
+                                () => _isPasswordHidden = !_isPasswordHidden),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return LocaleKeys.field_required.tr();
+                          }
+                          // The checklist below spells out which rule fails.
+                          if (!PasswordRules(value).allMet) return '';
+                          return null;
+                        },
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          LocaleKeys.or.tr(),
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 18),
-                        ),
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                        child: PasswordRulesChecklist(password: _password),
                       ),
-                      Expanded(
-                        child: Divider(
-                          thickness: 1,
-                          color: Theme.of(context).colorScheme.secondary,
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: _isPasswordHidden,
+                        autofillHints: const [AutofillHints.newPassword],
+                        decoration: InputDecoration(
+                          labelText: LocaleKeys.confirm_pass.tr(),
+                          prefixIcon: const Icon(Icons.lock_outline),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return LocaleKeys.field_required.tr();
+                          }
+                          if (value != _passwordController.text) {
+                            return LocaleKeys.same_password.tr();
+                          }
+                          return null;
+                        },
                       ),
+                      const SizedBox(height: 24),
+                      FilledButton(
+                        onPressed: _signUp,
+                        child: Text(LocaleKeys.sign_up.tr()),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              LocaleKeys.or.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant),
+                            ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      GoogleAuthButton(onPressed: _signUpWithGoogle),
+                      const SizedBox(height: 32),
+                      SignInSignUpSwitchButton(
+                          isAccountCreated: false,
+                          loginRegisterSwitch: widget.togglePages),
+                      const SizedBox(height: 16),
                     ],
                   ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Center(
-                      child: AuthTile(
-                    imagePath: "lib/assets/images/googleIcon.png",
-                    onTap: _signUpWithGoogle,
-                  )),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  SignInSignUpSwitchButton(
-                      isAccountCreated: false,
-                      loginRegisterSwitch: widget.togglePages),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
