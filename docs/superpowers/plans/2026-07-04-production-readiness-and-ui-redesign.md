@@ -22,7 +22,8 @@
 - Phase 1 → PR #2 was merged into the *phase-0 branch* (stacked-PR mishap), not main.
 - Phase 2 → PR #3 was merged into the *phase-1 branch*, not main.
 - Recovery: PR #4 (`phase-1-api-auth` → main) carries **Phases 1+2 together**; main was tied in with an `-s ours` merge (main's squashed Phase 0 tree verified byte-identical to commit aa84fce in this branch's history — nothing lost). After PR #4 merges, all phase branches are fully contained in main and deleted.
-- **Phases 0–4 complete.** Phase 3 → PR #5 (merged). Phase 4 → PR #6 (`phase-4-screen-redesign` → main). Merge it before starting Phase 5 (Task 5.1), then branch `phase-5-*` from main.
+- **Phases 0–4 complete and merged** (Phase 3 → PR #5, Phase 4 → PR #6; all phase branches deleted).
+- **Phase 5 complete** → PR #7 (`phase-5-security-and-privacy-hardening` → main). Merge it before starting Phase 6 (Task 6.1), then branch `phase-6-*` from main. Only Task 5.1's Maps-key rotation stays open as an owner action (see Phase 5 deviations).
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
