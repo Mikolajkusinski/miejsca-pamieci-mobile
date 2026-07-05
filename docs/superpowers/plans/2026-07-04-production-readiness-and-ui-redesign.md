@@ -792,8 +792,8 @@ Layout (both orientations):
 **Outcome:** observable, tested, signed, CI-verified, store-submittable.
 
 ### Task 6.1: Crash reporting & logging
-- [ ] Add `sentry_flutter: ^9.0.0`; wrap `main()` in `SentryFlutter.init` (DSN via `--dart-define`, disabled when not `isProd`); breadcrumbs from `ApiClient` (method, path, status — never bodies or tokens).
-- [ ] Replace stray `print`/silent catches with a tiny `log.dart` (`dart:developer log`) — `grep -rn "print(" lib/` → 0.
+- [x] Add `sentry_flutter: ^9.0.0`; wrap `main()` in `SentryFlutter.init` (DSN via `--dart-define`, disabled when not `isProd`); breadcrumbs from `ApiClient` (method, path, status — never bodies or tokens). *(resolved 9.23.0; `AppConfig.isCrashReportingEnabled` = `isProd && SENTRY_DSN non-empty`; breadcrumb sink injectable + unit-tested to never carry the token)*
+- [x] Replace stray `print`/silent catches with a tiny `log.dart` (`dart:developer log`) — `grep -rn "print(" lib/` → 0. *(codebase was already print-free; the five comment-only catches are deliberate documented fallbacks; main.dart's `debugPrint` → `logError` in `lib/services/log.dart`)*
 
 ### Task 6.2: Test suite to green + coverage of the new core
 - [ ] Fix/rewrite the existing tests in `test/` and `integration_test/` against the new screens (they currently target the old UI).

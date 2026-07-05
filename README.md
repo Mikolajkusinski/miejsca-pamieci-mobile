@@ -59,7 +59,9 @@ flutter build appbundle --release --dart-define-from-file=env/prod.json
 ```
 
 Keys: `API_BASE_URL`, `PROD`, `COGNITO_USER_POOL_ID`, `COGNITO_APP_CLIENT_ID`,
-`COGNITO_REGION`, `COGNITO_DOMAIN` (Hosted UI, only needed for Google sign-in).
+`COGNITO_REGION`, `COGNITO_DOMAIN` (Hosted UI, only needed for Google sign-in),
+`SENTRY_DSN` (crash reporting — active only when `PROD` is true and the DSN is
+non-empty; breadcrumbs carry request method/path/status, never bodies or tokens).
 When the Cognito ids are empty the app still runs — map browsing is anonymous
 and auth entry points disable themselves.
 

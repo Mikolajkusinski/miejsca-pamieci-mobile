@@ -4,5 +4,6 @@
   "COGNITO_USER_POOL_ID": "<from CDK stack outputs: UserPoolId>",
   "COGNITO_APP_CLIENT_ID": "<mobile app client id — create a dedicated one in the same user pool>",
   "COGNITO_REGION": "eu-central-1",
-  "COGNITO_DOMAIN": "<e.g. memory-places.auth.eu-central-1.amazoncognito.com>"
+  "COGNITO_DOMAIN": "<e.g. memory-places.auth.eu-central-1.amazoncognito.com>",
+  "SENTRY_DSN": "<sentry project DSN — leave empty to disable crash reporting>"
 }

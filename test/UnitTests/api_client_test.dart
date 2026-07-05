@@ -8,6 +8,7 @@ import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class StubAuthService implements AuthService {
   final String? token;
@@ -163,6 +164,26 @@ void main() {
 
       expect(seen!.headers['content-type'], startsWith('application/json'));
       expect(jsonDecode(seen!.body)['placeName'], 'Fort');
+    });
+
+    test('records an http breadcrumb with method, path and status only',
+        () async {
+      final crumbs = <Breadcrumb>[];
+      final client = ApiClient(
+        StubAuthService('secret-token'),
+        inner: MockClient((request) async => http.Response('[]', 200)),
+        addBreadcrumb: crumbs.add,
+      );
+
+      await client.get('/api/v1/places');
+
+      expect(crumbs, hasLength(1));
+      final data = crumbs.single.data!;
+      expect(data['method'], 'GET');
+      expect(data['url'], contains('/api/v1/places'));
+      expect(data['status_code'], 200);
+      expect(data.values.map((v) => '$v'),
+          everyElement(isNot(contains('secret-token'))));
     });
 
     group('HTTPS-only guard', () {

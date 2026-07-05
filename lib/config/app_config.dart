@@ -9,6 +9,11 @@ class AppConfig {
 
   static const bool isProd = bool.fromEnvironment('PROD', defaultValue: false);
 
+  // Sentry crash reporting. Only active in prod builds with a DSN set.
+  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+  static bool get isCrashReportingEnabled => isProd && sentryDsn.isNotEmpty;
+
   // AWS Cognito. Empty until the pool is deployed; auth entry points must
   // treat an unconfigured pool as "auth unavailable" instead of crashing.
   static const String cognitoUserPoolId =

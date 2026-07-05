@@ -8,6 +8,7 @@ import 'package:memo_places_mobile/config/app_config.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// The one way to talk to the backend: base url from [AppConfig], bearer
 /// token when signed in, 15 s timeout, 2xx success, typed localized errors.
@@ -17,13 +18,16 @@ class ApiClient {
   final AuthService _auth;
   final http.Client _inner;
   final Future<void> Function()? _onUnauthorized;
+  final void Function(Breadcrumb) _addBreadcrumb;
 
   ApiClient(
     this._auth, {
     http.Client? inner,
     Future<void> Function()? onUnauthorized,
+    void Function(Breadcrumb)? addBreadcrumb,
   })  : _inner = inner ?? http.Client(),
         _onUnauthorized = onUnauthorized,
+        _addBreadcrumb = addBreadcrumb ?? Sentry.addBreadcrumb,
         assert(
           isBaseUrlAllowed(AppConfig.apiBaseUrl, isProd: AppConfig.isProd),
           'Production builds must talk to the API over HTTPS; '
@@ -69,6 +73,7 @@ class ApiClient {
     try {
       final streamed = await _inner.send(request).timeout(_timeout);
       final response = await http.Response.fromStream(streamed);
+      _recordBreadcrumb('POST', request.url, response.statusCode);
       return _handleResponse(response);
     } on SocketException {
       throw ApiException(LocaleKeys.no_connection_error.tr());
@@ -77,6 +82,13 @@ class ApiClient {
     } on http.ClientException {
       throw ApiException(LocaleKeys.no_connection_error.tr());
     }
+  }
+
+  /// Crash-report context: method, url and status only — never request or
+  /// response bodies, and never headers (the bearer token lives there).
+  void _recordBreadcrumb(String method, Uri url, int statusCode) {
+    _addBreadcrumb(
+        Breadcrumb.http(url: url, method: method, statusCode: statusCode));
   }
 
   Future<dynamic> _send(String method, String path, {Object? body}) async {
@@ -94,6 +106,7 @@ class ApiClient {
     try {
       final streamed = await _inner.send(request).timeout(_timeout);
       final response = await http.Response.fromStream(streamed);
+      _recordBreadcrumb(method, request.url, response.statusCode);
       return _handleResponse(response);
     } on SocketException {
       throw ApiException(LocaleKeys.no_connection_error.tr());
