@@ -765,10 +765,10 @@ Layout (both orientations):
 **Outcome:** no plaintext secrets or tokens, correct platform privacy declarations, HTTPS everywhere.
 
 ### Task 5.1: Transport & token security sweep
-- [ ] Verify prod config uses `https://` only; add a debug-only assertion in `ApiClient` rejecting non-HTTPS when `AppConfig.isProd`.
-- [ ] Confirm no `usesCleartextTraffic` flag is added anywhere; Android network security config stays default (cleartext blocked).
-- [ ] `grep -rn "SharedPreferences" lib/` → no token/session reads remain outside `SessionStore`.
-- [ ] Rotate the Google Maps API keys (the old ones lived in committed config on dev machines) and restrict them: Android key by package name `pl.memoryplaces.mobile` + SHA-1, iOS key by bundle id.
+- [x] Verify prod config uses `https://` only; add a debug-only assertion in `ApiClient` rejecting non-HTTPS when `AppConfig.isProd`. *(assertion + testable `isBaseUrlAllowed` helper; prod.json.example already https-only)*
+- [x] Confirm no `usesCleartextTraffic` flag is added anywhere; Android network security config stays default (cleartext blocked). *(grep clean across android/ and ios/)*
+- [x] `grep -rn "SharedPreferences" lib/` → no token/session reads remain outside `SessionStore`. *(remaining uses are catalogs, offline queue, theme mode, welcome flag — all non-sensitive)*
+- [ ] Rotate the Google Maps API keys (the old ones lived in committed config on dev machines) and restrict them: Android key by package name `pl.memoryplaces.mobile` + SHA-1, iOS key by bundle id. *(OWNER ACTION, Google Cloud console — documented in README "Configuration"; no key was ever committed to this repo's history; Android SHA-1 restriction waits for the Task 6.4 upload keystore)*
 
 ### Task 5.2: iOS privacy compliance
 - [ ] Create `ios/Runner/PrivacyInfo.xcprivacy` declaring: location (app functionality), photos (user content), UserDefaults API category `CA92.1`, file-timestamp `C617.1` (required-reason APIs pulled in by plugins).

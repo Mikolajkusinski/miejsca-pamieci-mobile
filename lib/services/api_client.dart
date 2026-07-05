@@ -23,7 +23,17 @@ class ApiClient {
     http.Client? inner,
     Future<void> Function()? onUnauthorized,
   })  : _inner = inner ?? http.Client(),
-        _onUnauthorized = onUnauthorized;
+        _onUnauthorized = onUnauthorized,
+        assert(
+          isBaseUrlAllowed(AppConfig.apiBaseUrl, isProd: AppConfig.isProd),
+          'Production builds must talk to the API over HTTPS; '
+          'got "${AppConfig.apiBaseUrl}". Fix API_BASE_URL in env/prod.json.',
+        );
+
+  /// Production builds may only talk to the backend over HTTPS; plain http
+  /// is allowed in dev so the emulator can reach a local backend.
+  static bool isBaseUrlAllowed(String baseUrl, {required bool isProd}) =>
+      !isProd || baseUrl.startsWith('https://');
 
   Future<dynamic> get(String path) => _send('GET', path);
 

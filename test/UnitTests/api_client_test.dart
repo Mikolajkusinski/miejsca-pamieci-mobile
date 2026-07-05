@@ -164,5 +164,28 @@ void main() {
       expect(seen!.headers['content-type'], startsWith('application/json'));
       expect(jsonDecode(seen!.body)['placeName'], 'Fort');
     });
+
+    group('HTTPS-only guard', () {
+      test('allows plain http against local backends in dev builds', () {
+        expect(
+          ApiClient.isBaseUrlAllowed('http://10.0.2.2:5158', isProd: false),
+          isTrue,
+        );
+      });
+
+      test('rejects non-HTTPS base urls in prod builds', () {
+        expect(
+          ApiClient.isBaseUrlAllowed('http://api.example.com', isProd: true),
+          isFalse,
+        );
+      });
+
+      test('accepts HTTPS base urls in prod builds', () {
+        expect(
+          ApiClient.isBaseUrlAllowed('https://api.example.com', isProd: true),
+          isTrue,
+        );
+      });
+    });
   });
 }
