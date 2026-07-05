@@ -168,5 +168,7 @@
   "pass_rule_upper": "Ein Großbuchstabe",
   "pass_rule_lower": "Ein Kleinbuchstabe",
   "pass_rule_digit": "Eine Ziffer",
-  "pass_rule_symbol": "Ein Sonderzeichen"
+  "pass_rule_symbol": "Ein Sonderzeichen",
+  "retry_images": "Fotos erneut hochladen",
+  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden."
 }

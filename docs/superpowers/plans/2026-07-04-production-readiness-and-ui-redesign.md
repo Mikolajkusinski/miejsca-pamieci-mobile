@@ -725,9 +725,9 @@ Layout (both orientations):
 
 ### Task 4.1: Auth screens (`signIn.dart`, `signUp.dart`, `forgotPasswordPage.dart`, `signInOrSignUpPage.dart`, `welcomePage.dart`, `infoAfterSignUpPage.dart`)
 
-- [ ] Compact logo (120 px) on `surfaceContainer` header band; form card on `surface`; live validation (`autovalidateMode: AutovalidateMode.onUserInteraction`) replacing validate-on-submit-only; the Google button becomes a full-width outlined button "Continue with Google" (Cognito federated); welcome page gets the map as a blurred hero image with the value proposition in one sentence.
-- [ ] Password strength requirements rendered as a live checklist under the field (min 8, upper, lower, digit, symbol — matching `signUp.dart:118` regex, but as individual checks so users see *which* rule fails).
-- [ ] Update `test/WidgetTests/hide_password_test.dart`, `sign_up_switch_button_test.dart`. Commit.
+- [x] Compact logo (120 px) on `surfaceContainer` header band; form card on `surface`; live validation (`autovalidateMode: AutovalidateMode.onUserInteraction`) replacing validate-on-submit-only; the Google button becomes a full-width outlined button "Continue with Google" (Cognito federated); welcome page gets the map as a blurred hero image with the value proposition in one sentence. *(hero = stylized SVG-authored map_hero.png)*
+- [x] Password strength requirements rendered as a live checklist under the field (min 8, upper, lower, digit, symbol — matching `signUp.dart:118` regex, but as individual checks so users see *which* rule fails).
+- [x] Update `test/WidgetTests/hide_password_test.dart`, `sign_up_switch_button_test.dart`. Commit. *(switch-button test kept green unchanged; hide_password rewritten for the eye-icon suffix + PasswordRules parity tests)*
 
 ### Task 4.2: Place & trail forms (`place_form.dart`, `placeEditForm.dart`, `offlinePlaceForm.dart`, `trailForm.dart`, `trailEditForm.dart`)
 

@@ -168,5 +168,7 @@
   "pass_rule_upper": "Wielka litera",
   "pass_rule_lower": "Mała litera",
   "pass_rule_digit": "Cyfra",
-  "pass_rule_symbol": "Znak specjalny"
+  "pass_rule_symbol": "Znak specjalny",
+  "retry_images": "Ponów przesyłanie zdjęć",
+  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć."
 }

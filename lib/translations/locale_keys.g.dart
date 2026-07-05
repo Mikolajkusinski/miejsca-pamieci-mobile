@@ -173,5 +173,7 @@ abstract class  LocaleKeys {
   static const pass_rule_lower = 'pass_rule_lower';
   static const pass_rule_digit = 'pass_rule_digit';
   static const pass_rule_symbol = 'pass_rule_symbol';
+  static const retry_images = 'retry_images';
+  static const images_upload_failed = 'images_upload_failed';
 
 }

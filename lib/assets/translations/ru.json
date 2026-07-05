@@ -168,5 +168,7 @@
   "pass_rule_upper": "Заглавная буква",
   "pass_rule_lower": "Строчная буква",
   "pass_rule_digit": "Цифра",
-  "pass_rule_symbol": "Специальный символ"
+  "pass_rule_symbol": "Специальный символ",
+  "retry_images": "Повторить загрузку фото",
+  "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить."
 }

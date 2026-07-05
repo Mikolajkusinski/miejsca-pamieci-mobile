@@ -168,5 +168,7 @@
   "pass_rule_upper": "An uppercase letter",
   "pass_rule_lower": "A lowercase letter",
   "pass_rule_digit": "A digit",
-  "pass_rule_symbol": "A symbol"
+  "pass_rule_symbol": "A symbol",
+  "retry_images": "Retry photo upload",
+  "images_upload_failed": "Saved, but some photos failed to upload."
 }

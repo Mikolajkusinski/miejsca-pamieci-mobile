@@ -184,7 +184,9 @@ class CodegenLoader extends AssetLoader{
   "pass_rule_upper": "Ein Großbuchstabe",
   "pass_rule_lower": "Ein Kleinbuchstabe",
   "pass_rule_digit": "Eine Ziffer",
-  "pass_rule_symbol": "Ein Sonderzeichen"
+  "pass_rule_symbol": "Ein Sonderzeichen",
+  "retry_images": "Fotos erneut hochladen",
+  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden."
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -356,7 +358,9 @@ static const Map<String,dynamic> _ru = {
   "pass_rule_upper": "Заглавная буква",
   "pass_rule_lower": "Строчная буква",
   "pass_rule_digit": "Цифра",
-  "pass_rule_symbol": "Специальный символ"
+  "pass_rule_symbol": "Специальный символ",
+  "retry_images": "Повторить загрузку фото",
+  "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить."
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -528,7 +532,9 @@ static const Map<String,dynamic> _pl = {
   "pass_rule_upper": "Wielka litera",
   "pass_rule_lower": "Mała litera",
   "pass_rule_digit": "Cyfra",
-  "pass_rule_symbol": "Znak specjalny"
+  "pass_rule_symbol": "Znak specjalny",
+  "retry_images": "Ponów przesyłanie zdjęć",
+  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć."
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -700,7 +706,9 @@ static const Map<String,dynamic> _en = {
   "pass_rule_upper": "An uppercase letter",
   "pass_rule_lower": "A lowercase letter",
   "pass_rule_digit": "A digit",
-  "pass_rule_symbol": "A symbol"
+  "pass_rule_symbol": "A symbol",
+  "retry_images": "Retry photo upload",
+  "images_upload_failed": "Saved, but some photos failed to upload."
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }
