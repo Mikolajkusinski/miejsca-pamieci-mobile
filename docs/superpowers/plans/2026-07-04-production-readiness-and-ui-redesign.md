@@ -22,7 +22,7 @@
 - Phase 1 → PR #2 was merged into the *phase-0 branch* (stacked-PR mishap), not main.
 - Phase 2 → PR #3 was merged into the *phase-1 branch*, not main.
 - Recovery: PR #4 (`phase-1-api-auth` → main) carries **Phases 1+2 together**; main was tied in with an `-s ours` merge (main's squashed Phase 0 tree verified byte-identical to commit aa84fce in this branch's history — nothing lost). After PR #4 merges, all phase branches are fully contained in main and deleted.
-- **Phases 0–3 complete.** Phase 3 → PR #5 (`phase-3-design-system-map-shell` → main). Merge it before starting Phase 4 (Task 4.1), then branch `phase-4-*` from main.
+- **Phases 0–4 complete.** Phase 3 → PR #5 (merged). Phase 4 → PR #6 (`phase-4-screen-redesign` → main). Merge it before starting Phase 5 (Task 5.1), then branch `phase-5-*` from main.
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
@@ -58,6 +58,16 @@
 - `integration_test/add_place_test.dart` + `record_trail_test.dart` deleted (targeted AddingButton/old Home) — Task 6.2 rewrites them against MapShell. Widget tests: `home_location_denied_test.dart` → `map_shell_test.dart` (explainer assertion preserved), `adding_button_test.dart` deleted.
 - Add FAB is **hidden** for guests (per Step 5's test spec) rather than showing a sign-in prompt sheet.
 - Device screenshot passes (light/dark, sheet states) deferred to Phase 6.5 — no Android emulator available this session; markers verified by rendered-PNG inspection.
+
+**Phase 4 deviations (branch `phase-4-screen-redesign`, 2026-07-05):**
+- Manrope aside, all new strings landed as locale keys ×4 (auth: `continue_with_google`, `welcome_tagline`, 5 `pass_rule_*`; forms: `retry_images`, `images_upload_failed`; lists: `add_first_place`, `record_first_trail`; profile: `language`, `theme_mode`, `theme_system/light/dark`).
+- Welcome hero is a stylized SVG-authored `map_hero.png` (blurred + theme-aware scrim), not a live map screenshot.
+- Both **edit forms migrated off the dead Django endpoints** onto the repositories (they had survived Phase 2 untouched); My Places/My Trails deletes likewise. The backend numeric user id now comes from `GET /api/v1/users/me` (`fetchBackendUserId`) instead of the Cognito session's id 0.
+- Five form screens: 690 lines + 393 shared (vs ~1,824 before; plan target was ≤600 for the screens — the extra ~90 is the new retry-images state the old forms lacked).
+- Offline form queues `OfflinePlace` with `user: 0` (author derived from the bearer token at sync time); offline form intentionally has no mini-map (no tiles offline).
+- Empty-state CTAs pop back to the MapShell + FAB rather than deep-linking into the form (forms need a live position).
+- HidePassword became an eye suffix IconButton (same API); auth_tile/sign_in_and_sign_up_text_field/sign_in_sign_up_button/formWidgets/ProfileWidgets/button_data/offline_place_box deleted with their tests; stale integration tests re-pointed at TextFormField/FilledButton/MemoryCard so they compile until the Task 6.2 rewrite.
+- Widget tests added: place_form_fields (catalog retry, trail variant, image grid), my_places (empty CTA, card + badge), PasswordRules parity; suite at 62 green, analyze 0.
 
 ---
 
@@ -725,28 +735,28 @@ Layout (both orientations):
 
 ### Task 4.1: Auth screens (`signIn.dart`, `signUp.dart`, `forgotPasswordPage.dart`, `signInOrSignUpPage.dart`, `welcomePage.dart`, `infoAfterSignUpPage.dart`)
 
-- [ ] Compact logo (120 px) on `surfaceContainer` header band; form card on `surface`; live validation (`autovalidateMode: AutovalidateMode.onUserInteraction`) replacing validate-on-submit-only; the Google button becomes a full-width outlined button "Continue with Google" (Cognito federated); welcome page gets the map as a blurred hero image with the value proposition in one sentence.
-- [ ] Password strength requirements rendered as a live checklist under the field (min 8, upper, lower, digit, symbol — matching `signUp.dart:118` regex, but as individual checks so users see *which* rule fails).
-- [ ] Update `test/WidgetTests/hide_password_test.dart`, `sign_up_switch_button_test.dart`. Commit.
+- [x] Compact logo (120 px) on `surfaceContainer` header band; form card on `surface`; live validation (`autovalidateMode: AutovalidateMode.onUserInteraction`) replacing validate-on-submit-only; the Google button becomes a full-width outlined button "Continue with Google" (Cognito federated); welcome page gets the map as a blurred hero image with the value proposition in one sentence. *(hero = stylized SVG-authored map_hero.png)*
+- [x] Password strength requirements rendered as a live checklist under the field (min 8, upper, lower, digit, symbol — matching `signUp.dart:118` regex, but as individual checks so users see *which* rule fails).
+- [x] Update `test/WidgetTests/hide_password_test.dart`, `sign_up_switch_button_test.dart`. Commit. *(switch-button test kept green unchanged; hide_password rewritten for the eye-icon suffix + PasswordRules parity tests)*
 
 ### Task 4.2: Place & trail forms (`place_form.dart`, `placeEditForm.dart`, `offlinePlaceForm.dart`, `trailForm.dart`, `trailEditForm.dart`)
 
-- [ ] One shared `lib/forms/place_form_fields.dart` (name, type/sortof/period dropdowns fed by `CatalogRepository`, description, links, image picker grid) used by all five screens — today they are five near-copies (~1,850 lines → target ≤ 600).
-- [ ] Image picking: 3-slot grid of 96 px rounded thumbnails with an add tile and per-image remove; replaces `FormPictureSlider`+`ImageInput`.
-- [ ] Submit: busy overlay + repository + upload progress; on partial image-upload failure keep the form open with a "retry images" state (place already created — do **not** duplicate it on retry).
-- [ ] The location header shows a 120 px static mini-map snapshot of the chosen position (non-interactive `GoogleMap` with `liteModeEnabled: true` on Android) instead of raw lat/lng text. Commit per screen group.
+- [x] One shared `lib/forms/place_form_fields.dart` (name, type/sortof/period dropdowns fed by `CatalogRepository`, description, links, image picker grid) used by all five screens — today they are five near-copies (~1,850 lines → target ≤ 600). *(landed at 690 for the five screens + 393 shared; also migrated both edit forms off the dead Django endpoints onto the repositories)*
+- [x] Image picking: 3-slot grid of 96 px rounded thumbnails with an add tile and per-image remove; replaces `FormPictureSlider`+`ImageInput`.
+- [x] Submit: busy overlay + repository + upload progress; on partial image-upload failure keep the form open with a "retry images" state (place already created — do **not** duplicate it on retry).
+- [x] The location header shows a 120 px static mini-map snapshot of the chosen position (non-interactive `GoogleMap` with `liteModeEnabled: true` on Android) instead of raw lat/lng text. Commit per screen group. *(offline form intentionally skips the mini-map — no tiles offline; single commit for the group)*
 
 ### Task 4.3: My Places / My Trails (`myPlaces.dart`, `myTrails.dart`, box widgets)
 
-- [ ] Card list on `surfaceContainer` with leading 56 px thumbnail (first image), title, period chip, verification badge; swipe actions kept (flutter_slidable 4.x API) but destructive delete gets a confirm dialog; empty states get an illustration + "Add your first place" CTA that deep-links to the add flow.
-- [ ] Pull-to-refresh (`RefreshIndicator`). Commit.
+- [x] Card list on `surfaceContainer` with leading 56 px thumbnail (first image), title, period chip, verification badge; swipe actions kept (flutter_slidable 4.x API) but destructive delete gets a confirm dialog; empty states get an illustration + "Add your first place" CTA that deep-links to the add flow. *(CTA pops back to the MapShell + FAB; deletes migrated onto the repositories; user id now from /users/me)*
+- [x] Pull-to-refresh (`RefreshIndicator`). Commit.
 
 ### Task 4.4: Details, profile, contact, offline (`placeDetails.dart`, `trailDetails.dart`, `profile.dart`, `editProfile.dart`, `contactUsForm.dart`, `offlinePage.dart`, `offlinePlaceAddingPage.dart`, `offlineWidgets/`)
 
-- [ ] `placeDetails`/`trailDetails` become thin wrappers rendering the **same content widget as MemorySheet full state** (single source of truth for details UI).
-- [ ] Profile: header card (avatar initial, username, email) + settings list tiles (language picker — currently missing UI despite 4 locales!, theme mode, edit profile, my places/trails, contact, sign out in red). Add the language picker: `context.setLocale(...)` bottom sheet.
-- [ ] Offline pages: same visual system; the offline place list reuses the Task 4.3 card. Offline banner (`MaterialBanner`) appears on MapShell when `connectivity_plus` stream reports offline, instead of trapping the user on a separate page while the app is already open.
-- [ ] Delete now-unused `lib/formWidgets/`, `lib/ProfileWidgets/`, `lib/SignInAndSignUpWidgets/` leftovers; `grep -rn "Colors.grey\|scrim" lib/` returns nothing. Update remaining widget tests. Commit.
+- [x] `placeDetails`/`trailDetails` become thin wrappers rendering the **same content widget as MemorySheet full state** (single source of truth for details UI). *(lib/map/memory_detail_content.dart)*
+- [x] Profile: header card (avatar initial, username, email) + settings list tiles (language picker — currently missing UI despite 4 locales!, theme mode, edit profile, my places/trails, contact, sign out in red). Add the language picker: `context.setLocale(...)` bottom sheet.
+- [x] Offline pages: same visual system; the offline place list reuses the Task 4.3 card. Offline banner (`MaterialBanner`) appears on MapShell when `connectivity_plus` stream reports offline, instead of trapping the user on a separate page while the app is already open. *(banner also triggers a data reload when connectivity returns)*
+- [x] Delete now-unused `lib/formWidgets/`, `lib/ProfileWidgets/`, `lib/SignInAndSignUpWidgets/` leftovers; `grep -rn "Colors.grey\|scrim" lib/` returns nothing. Update remaining widget tests. Commit. *(contact form also gained the proper email field promised in the Phase 2 notes; RecordMenu restyled)*
 
 ---
 

@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:http/http.dart' as http;
-import 'package:memo_places_mobile/MyPlacesAndTrailsWidgets/my_trail_box.dart';
+import 'package:memo_places_mobile/MyPlacesAndTrailsWidgets/empty_list_state.dart';
+import 'package:memo_places_mobile/MyPlacesAndTrailsWidgets/memory_card.dart';
 import 'package:memo_places_mobile/Objects/short_trail.dart';
-import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/api_constants.dart';
-import 'package:memo_places_mobile/custom_exception.dart';
-import 'package:memo_places_mobile/formWidgets/custom_title.dart';
+import 'package:memo_places_mobile/services/api_exception.dart';
+import 'package:memo_places_mobile/services/catalog_repository.dart';
 import 'package:memo_places_mobile/services/data_service.dart';
+import 'package:memo_places_mobile/services/trails_repository.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/trail_details.dart';
 import 'package:memo_places_mobile/trail_edit_form.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 
 class MyTrails extends StatefulWidget {
   const MyTrails({super.key});
@@ -22,227 +22,189 @@ class MyTrails extends StatefulWidget {
 }
 
 class _MyTrailsState extends State<MyTrails> {
-  late List<ShortTrail> _trails = [];
-  late User? _user;
-  late bool _isLoading = true;
+  late Future<(List<ShortTrail>, Map<int, String>)> _future = _load();
 
-  @override
-  void initState() {
-    super.initState();
-    loadUserData().then(
-      (user) => setState(() {
-        _user = user;
-        try {
-          fetchUserTrails(context, _user!.id.toString()).then(
-            (trails) => setState(() {
-              _trails = trails;
-              _isLoading = false;
-            }),
-          );
-        } on CustomException catch (error) {
-          showErrorToast(error.toString());
-        }
-      }),
-    );
+  Future<(List<ShortTrail>, Map<int, String>)> _load() async {
+    final userId = await fetchBackendUserId(context);
+    if (!mounted) throw const ApiException('disposed');
+    final trails = await context.read<TrailsRepository>().getByUser(userId);
+    if (!mounted) throw const ApiException('disposed');
+    final periods = await context.read<CatalogRepository>().periodValues();
+    return (trails, periods);
   }
 
-  void _showDeleteDialog(int index) {
-    BuildContext dialogContext;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        dialogContext = context;
-
-        return AlertDialog(
-          title: Text(LocaleKeys.confirm.tr()),
-          content: Text(
-            LocaleKeys.delete_warning
-                .tr(namedArgs: {'name': _trails[index].trailName}),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: Text(
-                LocaleKeys.cancel.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                _deleteTrail(index);
-                Navigator.pop(dialogContext);
-              },
-              child: Text(
-                LocaleKeys.delete.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _refresh() async {
+    final next = _load();
+    setState(() => _future = next);
+    await next.catchError((_) => (const <ShortTrail>[], const <int, String>{}));
   }
 
-  void _showEditDialog(int index) {
-    BuildContext dialogContext;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        dialogContext = context;
-
-        return AlertDialog(
-          title: Text(LocaleKeys.confirm.tr()),
-          content: Text(LocaleKeys.edit_info.tr()),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: Text(
-                LocaleKeys.cancel.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        TrailEditForm(_trails[index].id.toString()),
-                  ),
-                );
-              },
-              child: Text(
-                LocaleKeys.ok.tr(),
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _deleteTrail(int index) async {
+  Future<void> _deleteTrail(ShortTrail trail) async {
     try {
-      final response = await http.delete(Uri.parse(
-          ApiConstants.trailByIdEndpoint(_trails[index].id.toString())));
-      if (response.statusCode == 200) {
-        showSuccessToast(LocaleKeys.trail_deleted.tr());
-        setState(() {
-          _trails.removeAt(index);
-        });
-      } else {
-        throw CustomException(LocaleKeys.alert_error.tr());
-      }
-    } on CustomException catch (error) {
-      showErrorToast(error.toString());
+      await context.read<TrailsRepository>().delete(trail.id);
+      showSuccessToast(LocaleKeys.trail_deleted.tr());
+      await _refresh();
+    } on ApiException catch (error) {
+      showErrorToast(error.message);
     }
+  }
+
+  void _confirmDelete(ShortTrail trail) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(LocaleKeys.confirm.tr()),
+        content: Text(
+            LocaleKeys.delete_warning.tr(namedArgs: {'name': trail.trailName})),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(LocaleKeys.cancel.tr()),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _deleteTrail(trail);
+            },
+            child: Text(LocaleKeys.delete.tr()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmEdit(ShortTrail trail) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(LocaleKeys.confirm.tr()),
+        content: Text(LocaleKeys.edit_info.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(LocaleKeys.cancel.tr()),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        TrailEditForm(trail.id.toString())),
+              );
+            },
+            child: Text(LocaleKeys.ok.tr()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openDetails(ShortTrail trail) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => TrailDetails(trail.id.toString())),
+    );
+  }
+
+  Widget _list(List<ShortTrail> trails, Map<int, String> periods) {
+    if (trails.isEmpty) {
+      return EmptyListState(
+        message: LocaleKeys.no_trails_added.tr(),
+        ctaLabel: LocaleKeys.record_first_trail.tr(),
+        icon: Icons.route_outlined,
+        // The record flow lives behind the map shell's + FAB.
+        onCta: () => Navigator.popUntil(context, (route) => route.isFirst),
+      );
+    }
+    return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: trails.length,
+      itemBuilder: (context, index) {
+        final trail = trails[index];
+        return Slidable(
+          key: ValueKey(trail.id),
+          endActionPane: trail.verified
+              ? null
+              : ActionPane(
+                  motion: const ScrollMotion(),
+                  children: [
+                    SlidableAction(
+                      onPressed: (_) => _confirmEdit(trail),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      icon: Icons.edit_location_alt_outlined,
+                      label: LocaleKeys.edit.tr(),
+                    ),
+                    SlidableAction(
+                      onPressed: (_) => _confirmDelete(trail),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete_outlined,
+                      label: LocaleKeys.delete.tr(),
+                    ),
+                  ],
+                ),
+          child: MemoryCard(
+            title: trail.trailName,
+            periodLabel: periods[trail.period],
+            verified: trail.verified,
+            fallbackIcon: Icons.route_outlined,
+            imagesFuture:
+                context.read<TrailsRepository>().fetchImageUrls(trail.id),
+            onTap: () => _openDetails(trail),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: _isLoading
-            ? CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary),
-              )
-            : Column(
-                children: [
-                  CustomTitle(title: LocaleKeys.your_trails.tr()),
-                  _trails.isEmpty
-                      ? Column(
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 3,
-                            ),
-                            SizedBox(
-                              width: 300,
-                              child: Text(
-                                LocaleKeys.no_trails_added.tr(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
-                                    overflow: TextOverflow.clip),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: _trails.length,
-                              itemBuilder: (context, index) {
-                                final trail = _trails[index];
-                                return Slidable(
-                                    startActionPane: ActionPane(
-                                      motion: const ScrollMotion(),
-                                      extentRatio: 0.5,
-                                      children: [
-                                        SlidableAction(
-                                          onPressed: (context) {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      TrailDetails(
-                                                          trail.id.toString())),
-                                            );
-                                          },
-                                          backgroundColor: Colors.blue,
-                                          foregroundColor: Colors.white,
-                                          icon: Icons.arrow_forward,
-                                          label: LocaleKeys.preview.tr(),
-                                        )
-                                      ],
-                                    ),
-                                    endActionPane: trail.verified
-                                        ? null
-                                        : ActionPane(
-                                            motion: const ScrollMotion(),
-                                            children: [
-                                              SlidableAction(
-                                                onPressed: (context) {
-                                                  _showEditDialog(index);
-                                                },
-                                                backgroundColor: Colors.green,
-                                                foregroundColor: Colors.white,
-                                                icon: Icons
-                                                    .edit_location_alt_outlined,
-                                                label: LocaleKeys.edit.tr(),
-                                              ),
-                                              SlidableAction(
-                                                onPressed: (context) {
-                                                  _showDeleteDialog(index);
-                                                },
-                                                backgroundColor: Colors.red,
-                                                foregroundColor: Colors.white,
-                                                icon: Icons.delete_outlined,
-                                                label: LocaleKeys.delete.tr(),
-                                              )
-                                            ],
-                                          ),
-                                    child: MyTrailBox(trail: trail));
-                              },
-                            ),
-                          ),
-                        ),
-                ],
-              ),
+      appBar: AppBar(title: Text(LocaleKeys.your_trails.tr())),
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<(List<ShortTrail>, Map<int, String>)>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              final error = snapshot.error;
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        error is ApiException
+                            ? error.message
+                            : LocaleKeys.alert_error.tr(),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _refresh,
+                      child: Text(LocaleKeys.refresh.tr()),
+                    ),
+                  ],
+                ),
+              );
+            }
+            final data = snapshot.data;
+            if (data == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: _list(data.$1, data.$2),
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -74,6 +75,9 @@ class _MapShellState extends State<MapShell> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
 
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  bool _offline = false;
+
   @override
   void initState() {
     super.initState();
@@ -85,11 +89,32 @@ class _MapShellState extends State<MapShell> {
     _loadSession();
     _resolveLocation();
     _loadMapData();
+    _watchConnectivity();
+  }
+
+  /// Offline is a banner on the map now, not a separate page — the app
+  /// stays usable and data reloads once the connection returns.
+  void _watchConnectivity() {
+    const onlineKinds = {
+      ConnectivityResult.wifi,
+      ConnectivityResult.mobile,
+      ConnectivityResult.ethernet,
+      ConnectivityResult.vpn,
+    };
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen((results) {
+      if (!mounted) return;
+      final nowOffline = !results.any(onlineKinds.contains);
+      if (nowOffline == _offline) return;
+      setState(() => _offline = nowOffline);
+      if (!nowOffline && (_loadFailed || _places.isEmpty)) _loadMapData();
+    });
   }
 
   @override
   void dispose() {
     _positionSubscription?.cancel();
+    _connectivitySubscription?.cancel();
     _mapController?.dispose();
     _themeProvider.removeListener(_loadMapStyle);
     _searchController.dispose();
@@ -463,6 +488,17 @@ class _MapShellState extends State<MapShell> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                if (_offline)
+                  MaterialBanner(
+                    leading: const Icon(Icons.wifi_off),
+                    content: Text(LocaleKeys.no_connection_error.tr()),
+                    actions: [
+                      TextButton(
+                        onPressed: _loadMapData,
+                        child: Text(LocaleKeys.refresh.tr()),
+                      ),
+                    ],
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: MapTopBar(

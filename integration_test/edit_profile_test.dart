@@ -2,9 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_and_sign_up_text_field.dart';
-import 'package:memo_places_mobile/SignInAndSignUpWidgets/sign_in_sign_up_button.dart';
-import 'package:memo_places_mobile/formWidgets/custom_button.dart';
 import 'package:memo_places_mobile/main.dart' as app;
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
@@ -15,7 +12,7 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
 
-      final continueBtn = find.byType(CustomButton);
+      final continueBtn = find.byType(FilledButton);
 
       await tester.tap(continueBtn);
       await tester.pumpAndSettle();
@@ -26,9 +23,9 @@ void main() {
       await tester.tap(profileBtn);
       await tester.pumpAndSettle();
 
-      final emailField = find.byType(SignInAndSignUpTextField).first;
-      final passwordField = find.byType(SignInAndSignUpTextField).last;
-      final signInBtn = find.byType(SignInSignUpButton);
+      final emailField = find.byType(TextFormField).first;
+      final passwordField = find.byType(TextFormField).last;
+      final signInBtn = find.byType(FilledButton).first;
 
       await tester.enterText(emailField, 'miko@wp.pl');
       await tester.enterText(passwordField, '');

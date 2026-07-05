@@ -2,42 +2,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:memo_places_mobile/ObjectDetailsWidgets/slider_with_dots.dart';
-import 'package:memo_places_mobile/api_constants.dart';
 import 'package:memo_places_mobile/map/map_selection.dart';
+import 'package:memo_places_mobile/map/memory_detail_content.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/places_repository.dart';
 import 'package:memo_places_mobile/services/trails_repository.dart';
-import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-/// Everything the sheet renders beyond the peek row, resolved from the
-/// detail endpoint (the list DTOs carry only ids).
-class _MemoryDetail {
-  final String periodValue;
-  final String typeValue;
-  final String? sortofValue;
-  final String description;
-  final String wikiLink;
-  final String topicLink;
-  final List<String> images;
-
-  const _MemoryDetail({
-    required this.periodValue,
-    required this.typeValue,
-    required this.description,
-    required this.wikiLink,
-    required this.topicLink,
-    required this.images,
-    this.sortofValue,
-  });
-}
 
 /// Draggable bottom sheet for the selected map object: peek shows title +
-/// period chip + distance from the user; half/full add the carousel and the
-/// complete details. The map stays visible behind it.
+/// distance from the user; half/full add the carousel and the complete
+/// details (same content widget as the standalone detail screens). The map
+/// stays visible behind it.
 class MemorySheet extends StatefulWidget {
   final MapSelection selection;
   final LatLng? userPosition;
@@ -55,31 +31,16 @@ class MemorySheet extends StatefulWidget {
 }
 
 class _MemorySheetState extends State<MemorySheet> {
-  late Future<_MemoryDetail> _detail = _load();
+  late Future<MemoryDetail> _detail = _load();
 
-  Future<_MemoryDetail> _load() async {
+  Future<MemoryDetail> _load() async {
     switch (widget.selection) {
       case SelectedPlace(:final place):
         final full = await context.read<PlacesRepository>().getById(place.id);
-        return _MemoryDetail(
-          periodValue: full.periodValue,
-          typeValue: full.typeValue,
-          sortofValue: full.sortofValue,
-          description: full.description,
-          wikiLink: full.wikiLink,
-          topicLink: full.topicLink,
-          images: full.images ?? const [],
-        );
+        return MemoryDetail.fromPlace(full);
       case SelectedTrail(:final trail):
         final full = await context.read<TrailsRepository>().getById(trail.id);
-        return _MemoryDetail(
-          periodValue: full.periodValue,
-          typeValue: full.typeValue,
-          description: full.description,
-          wikiLink: full.wikiLink,
-          topicLink: full.topicLink,
-          images: full.images ?? const [],
-        );
+        return MemoryDetail.fromTrail(full);
     }
   }
 
@@ -92,90 +53,6 @@ class _MemorySheetState extends State<MemorySheet> {
         1000;
     return LocaleKeys.distance_away
         .tr(namedArgs: {'distance': km.toStringAsFixed(1)});
-  }
-
-  Future<void> _openMaps() async {
-    final focus = widget.selection.focus;
-    if (focus == null) return;
-    final url = Uri.parse(
-        ApiConstants.googleSearchByLatLng(focus.latitude, focus.longitude));
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      showErrorToast(LocaleKeys.google_maps_error.tr());
-    }
-  }
-
-  Future<void> _openLink(String link) async {
-    final url = Uri.parse(link);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      showErrorToast(LocaleKeys.link_error.tr());
-    }
-  }
-
-  Widget _chip(BuildContext context, String label, {required bool primary}) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: primary ? scheme.primary : scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge!.copyWith(
-              fontSize: 13,
-              color: primary ? Colors.white : scheme.onSurface,
-            ),
-      ),
-    );
-  }
-
-  List<Widget> _detailChildren(BuildContext context, _MemoryDetail detail) {
-    final textTheme = Theme.of(context).textTheme;
-    return [
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          if (detail.periodValue.isNotEmpty)
-            _chip(context, detail.periodValue.tr(), primary: true),
-          if (detail.typeValue.isNotEmpty)
-            _chip(context, detail.typeValue.tr(), primary: false),
-          if (detail.sortofValue != null && detail.sortofValue!.isNotEmpty)
-            _chip(context, detail.sortofValue!.tr(), primary: false),
-        ],
-      ),
-      const SizedBox(height: 16),
-      if (detail.images.isNotEmpty) ...[
-        SliderWithDots(images: detail.images),
-        const SizedBox(height: 16),
-      ],
-      if (detail.description.isNotEmpty) ...[
-        Text(detail.description, style: textTheme.bodyLarge),
-        const SizedBox(height: 16),
-      ],
-      if (detail.wikiLink.isNotEmpty)
-        TextButton.icon(
-          onPressed: () => _openLink(detail.wikiLink),
-          icon: const Icon(Icons.link),
-          label: Text(LocaleKeys.wiki_link.tr()),
-        ),
-      if (detail.topicLink.isNotEmpty)
-        TextButton.icon(
-          onPressed: () => _openLink(detail.topicLink),
-          icon: const Icon(Icons.link),
-          label: Text(LocaleKeys.topic_link.tr()),
-        ),
-      const SizedBox(height: 8),
-      FilledButton(
-        onPressed: _openMaps,
-        child: Text(LocaleKeys.show_google_maps.tr()),
-      ),
-      const SizedBox(height: 24),
-    ];
   }
 
   @override
@@ -238,7 +115,7 @@ class _MemorySheetState extends State<MemorySheet> {
                         .copyWith(color: scheme.onSurfaceVariant),
                   ),
                 ),
-              FutureBuilder<_MemoryDetail>(
+              FutureBuilder<MemoryDetail>(
                 future: _detail,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -252,8 +129,9 @@ class _MemorySheetState extends State<MemorySheet> {
                           textAlign: TextAlign.center,
                         ),
                         TextButton(
-                          onPressed: () =>
-                              setState(() => _detail = _load()),
+                          onPressed: () => setState(() {
+                            _detail = _load();
+                          }),
                           child: Text(LocaleKeys.refresh.tr()),
                         ),
                       ],
@@ -266,10 +144,7 @@ class _MemorySheetState extends State<MemorySheet> {
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: _detailChildren(context, detail),
-                  );
+                  return MemoryDetailContent(detail: detail);
                 },
               ),
             ],

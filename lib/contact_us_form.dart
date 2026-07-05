@@ -1,8 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/formWidgets/custom_button.dart';
-import 'package:memo_places_mobile/formWidgets/custom_title.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/contact_repository.dart';
 import 'package:memo_places_mobile/services/data_service.dart';
@@ -19,32 +17,39 @@ class ContactUsForm extends StatefulWidget {
 }
 
 class _ContactUsFormState extends State<ContactUsForm> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
-  bool _isTitleEmpty = false;
-  bool _isMessageEmpty = false;
 
-  late final Future<User?> _userFuture = loadUserData();
+  static final _emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+
+  late final Future<User?> _userFuture = loadUserData().then((user) {
+    if (user != null && _emailController.text.isEmpty) {
+      _emailController.text = user.email;
+    }
+    return user;
+  });
 
   @override
   void dispose() {
+    _emailController.dispose();
     _titleController.dispose();
     _messageController.dispose();
     super.dispose();
   }
 
-  Future<void> _sendMessage(User? user) async {
+  Future<void> _sendMessage() async {
+    if (!_formKey.currentState!.validate()) return;
     final contact = context.read<ContactRepository>();
-    final title = _titleController.text.trim();
-    final description = _messageController.text.trim();
 
     try {
       await runWithBusyOverlay(
         context,
         () => contact.send(
-          email: user?.email ?? '',
-          title: title,
-          description: description,
+          email: _emailController.text.trim().toLowerCase(),
+          title: _titleController.text.trim(),
+          description: _messageController.text.trim(),
         ),
       );
       if (!mounted) return;
@@ -58,104 +63,79 @@ class _ContactUsFormState extends State<ContactUsForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: FutureBuilder(
-        future: _userFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+      appBar: AppBar(title: Text(LocaleKeys.contact_us.tr())),
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<User?>(
+          future: _userFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return SingleChildScrollView(
-              child: Center(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CustomTitle(title: LocaleKeys.contact_us.tr()),
-                      const SizedBox(
-                        height: 40,
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: LocaleKeys.enter_email.tr(),
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
-                      TextField(
-                        controller: _titleController,
-                        style: const TextStyle(fontSize: 20),
-                        maxLength: 50,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1.5,
-                            ),
-                          ),
-                          border: const OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                          labelText: LocaleKeys.title.tr(),
-                          hintText: LocaleKeys.enter_email.tr(),
-                          errorText:
-                              _isTitleEmpty ? LocaleKeys.field_info.tr() : null,
-                        ),
+                      validator: (value) {
+                        final email = value?.trim() ?? '';
+                        if (email.isEmpty) {
+                          return LocaleKeys.field_required.tr();
+                        }
+                        if (!_emailRegex.hasMatch(email)) {
+                          return LocaleKeys.invalid_email.tr();
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _titleController,
+                      maxLength: 50,
+                      decoration: InputDecoration(
+                        labelText: LocaleKeys.title.tr(),
+                        counterText: '',
                       ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      TextField(
-                        controller: _messageController,
-                        style: const TextStyle(fontSize: 20),
-                        maxLines: 5,
-                        maxLength: 200,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1.5,
-                            ),
-                          ),
-                          border: const OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                          labelText: LocaleKeys.message.tr(),
-                          hintText: LocaleKeys.enter_message.tr(),
-                          errorText: _isMessageEmpty
-                              ? LocaleKeys.field_info.tr()
+                      validator: (value) =>
+                          (value == null || value.trim().isEmpty)
+                              ? LocaleKeys.field_required.tr()
                               : null,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _messageController,
+                      maxLines: 5,
+                      maxLength: 200,
+                      decoration: InputDecoration(
+                        labelText: LocaleKeys.message.tr(),
+                        hintText: LocaleKeys.enter_message.tr(),
                       ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      CustomButton(
-                          onPressed: () {
-                            setState(() {
-                              _isTitleEmpty = _titleController.text.isEmpty;
-                              _isMessageEmpty = _messageController.text.isEmpty;
-                            });
-
-                            if (!_isTitleEmpty && !_isMessageEmpty) {
-                              _sendMessage(snapshot.data);
-                            }
-                          },
-                          text: LocaleKeys.send_message.tr())
-                    ],
-                  ),
+                      validator: (value) =>
+                          (value == null || value.trim().isEmpty)
+                              ? LocaleKeys.field_required.tr()
+                              : null,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: _sendMessage,
+                      child: Text(LocaleKeys.send_message.tr()),
+                    ),
+                  ],
                 ),
               ),
             );
-          } else {
-            return Scaffold(
-                body: Center(
-                    child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary),
-            )));
-          }
-        },
+          },
+        ),
       ),
     );
   }

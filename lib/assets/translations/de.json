@@ -161,5 +161,21 @@
   "record_trail": "Route aufzeichnen",
   "sign_in_to_contribute": "Melde dich an, um Orte hinzuzufügen und Routen aufzuzeichnen.",
   "distance_away": "{distance} km entfernt",
-  "map_load_failed": "Kartendaten konnten nicht geladen werden"
+  "map_load_failed": "Kartendaten konnten nicht geladen werden",
+  "continue_with_google": "Mit Google fortfahren",
+  "welcome_tagline": "Entdecke und dokumentiere Orte der Erinnerung – genau dort, wo du stehst.",
+  "pass_rule_length": "Mindestens 8 Zeichen, keine Leerzeichen",
+  "pass_rule_upper": "Ein Großbuchstabe",
+  "pass_rule_lower": "Ein Kleinbuchstabe",
+  "pass_rule_digit": "Eine Ziffer",
+  "pass_rule_symbol": "Ein Sonderzeichen",
+  "retry_images": "Fotos erneut hochladen",
+  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden.",
+  "add_first_place": "Füge deinen ersten Ort hinzu",
+  "record_first_trail": "Zeichne deine erste Route auf",
+  "language": "Sprache",
+  "theme_mode": "Design",
+  "theme_system": "System",
+  "theme_light": "Hell",
+  "theme_dark": "Dunkel"
 }

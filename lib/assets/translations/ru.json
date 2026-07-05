@@ -161,5 +161,21 @@
   "record_trail": "Записать маршрут",
   "sign_in_to_contribute": "Войдите, чтобы добавлять места и записывать маршруты.",
   "distance_away": "{distance} км от вас",
-  "map_load_failed": "Не удалось загрузить данные карты"
+  "map_load_failed": "Не удалось загрузить данные карты",
+  "continue_with_google": "Продолжить с Google",
+  "welcome_tagline": "Открывайте и документируйте места памяти — там, где вы находитесь.",
+  "pass_rule_length": "Не менее 8 символов, без пробелов",
+  "pass_rule_upper": "Заглавная буква",
+  "pass_rule_lower": "Строчная буква",
+  "pass_rule_digit": "Цифра",
+  "pass_rule_symbol": "Специальный символ",
+  "retry_images": "Повторить загрузку фото",
+  "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить.",
+  "add_first_place": "Добавьте своё первое место",
+  "record_first_trail": "Запишите свой первый маршрут",
+  "language": "Язык",
+  "theme_mode": "Тема",
+  "theme_system": "Системная",
+  "theme_light": "Светлая",
+  "theme_dark": "Тёмная"
 }

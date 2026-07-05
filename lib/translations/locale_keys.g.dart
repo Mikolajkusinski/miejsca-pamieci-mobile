@@ -166,5 +166,21 @@ abstract class  LocaleKeys {
   static const sign_in_to_contribute = 'sign_in_to_contribute';
   static const distance_away = 'distance_away';
   static const map_load_failed = 'map_load_failed';
+  static const continue_with_google = 'continue_with_google';
+  static const welcome_tagline = 'welcome_tagline';
+  static const pass_rule_length = 'pass_rule_length';
+  static const pass_rule_upper = 'pass_rule_upper';
+  static const pass_rule_lower = 'pass_rule_lower';
+  static const pass_rule_digit = 'pass_rule_digit';
+  static const pass_rule_symbol = 'pass_rule_symbol';
+  static const retry_images = 'retry_images';
+  static const images_upload_failed = 'images_upload_failed';
+  static const add_first_place = 'add_first_place';
+  static const record_first_trail = 'record_first_trail';
+  static const language = 'language';
+  static const theme_mode = 'theme_mode';
+  static const theme_system = 'theme_system';
+  static const theme_light = 'theme_light';
+  static const theme_dark = 'theme_dark';
 
 }

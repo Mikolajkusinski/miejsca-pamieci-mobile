@@ -177,7 +177,23 @@ class CodegenLoader extends AssetLoader{
   "record_trail": "Route aufzeichnen",
   "sign_in_to_contribute": "Melde dich an, um Orte hinzuzufügen und Routen aufzuzeichnen.",
   "distance_away": "{distance} km entfernt",
-  "map_load_failed": "Kartendaten konnten nicht geladen werden"
+  "map_load_failed": "Kartendaten konnten nicht geladen werden",
+  "continue_with_google": "Mit Google fortfahren",
+  "welcome_tagline": "Entdecke und dokumentiere Orte der Erinnerung – genau dort, wo du stehst.",
+  "pass_rule_length": "Mindestens 8 Zeichen, keine Leerzeichen",
+  "pass_rule_upper": "Ein Großbuchstabe",
+  "pass_rule_lower": "Ein Kleinbuchstabe",
+  "pass_rule_digit": "Eine Ziffer",
+  "pass_rule_symbol": "Ein Sonderzeichen",
+  "retry_images": "Fotos erneut hochladen",
+  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden.",
+  "add_first_place": "Füge deinen ersten Ort hinzu",
+  "record_first_trail": "Zeichne deine erste Route auf",
+  "language": "Sprache",
+  "theme_mode": "Design",
+  "theme_system": "System",
+  "theme_light": "Hell",
+  "theme_dark": "Dunkel"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -342,7 +358,23 @@ static const Map<String,dynamic> _ru = {
   "record_trail": "Записать маршрут",
   "sign_in_to_contribute": "Войдите, чтобы добавлять места и записывать маршруты.",
   "distance_away": "{distance} км от вас",
-  "map_load_failed": "Не удалось загрузить данные карты"
+  "map_load_failed": "Не удалось загрузить данные карты",
+  "continue_with_google": "Продолжить с Google",
+  "welcome_tagline": "Открывайте и документируйте места памяти — там, где вы находитесь.",
+  "pass_rule_length": "Не менее 8 символов, без пробелов",
+  "pass_rule_upper": "Заглавная буква",
+  "pass_rule_lower": "Строчная буква",
+  "pass_rule_digit": "Цифра",
+  "pass_rule_symbol": "Специальный символ",
+  "retry_images": "Повторить загрузку фото",
+  "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить.",
+  "add_first_place": "Добавьте своё первое место",
+  "record_first_trail": "Запишите свой первый маршрут",
+  "language": "Язык",
+  "theme_mode": "Тема",
+  "theme_system": "Системная",
+  "theme_light": "Светлая",
+  "theme_dark": "Тёмная"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -507,7 +539,23 @@ static const Map<String,dynamic> _pl = {
   "record_trail": "Nagraj trasę",
   "sign_in_to_contribute": "Zaloguj się, aby dodawać miejsca i nagrywać trasy.",
   "distance_away": "{distance} km stąd",
-  "map_load_failed": "Nie udało się wczytać danych mapy"
+  "map_load_failed": "Nie udało się wczytać danych mapy",
+  "continue_with_google": "Kontynuuj z Google",
+  "welcome_tagline": "Odkrywaj i dokumentuj miejsca pamięci — dokładnie tam, gdzie jesteś.",
+  "pass_rule_length": "Co najmniej 8 znaków, bez spacji",
+  "pass_rule_upper": "Wielka litera",
+  "pass_rule_lower": "Mała litera",
+  "pass_rule_digit": "Cyfra",
+  "pass_rule_symbol": "Znak specjalny",
+  "retry_images": "Ponów przesyłanie zdjęć",
+  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć.",
+  "add_first_place": "Dodaj swoje pierwsze miejsce",
+  "record_first_trail": "Nagraj swoją pierwszą trasę",
+  "language": "Język",
+  "theme_mode": "Motyw",
+  "theme_system": "Systemowy",
+  "theme_light": "Jasny",
+  "theme_dark": "Ciemny"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -672,7 +720,23 @@ static const Map<String,dynamic> _en = {
   "record_trail": "Record a trail",
   "sign_in_to_contribute": "Sign in to add places and record trails.",
   "distance_away": "{distance} km away",
-  "map_load_failed": "Couldn't load map data"
+  "map_load_failed": "Couldn't load map data",
+  "continue_with_google": "Continue with Google",
+  "welcome_tagline": "Discover and document Poland's places of memory — right where you stand.",
+  "pass_rule_length": "At least 8 characters, no spaces",
+  "pass_rule_upper": "An uppercase letter",
+  "pass_rule_lower": "A lowercase letter",
+  "pass_rule_digit": "A digit",
+  "pass_rule_symbol": "A symbol",
+  "retry_images": "Retry photo upload",
+  "images_upload_failed": "Saved, but some photos failed to upload.",
+  "add_first_place": "Add your first place",
+  "record_first_trail": "Record your first trail",
+  "language": "Language",
+  "theme_mode": "Theme",
+  "theme_system": "System",
+  "theme_light": "Light",
+  "theme_dark": "Dark"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }
