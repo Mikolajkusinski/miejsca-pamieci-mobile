@@ -731,10 +731,10 @@ Layout (both orientations):
 
 ### Task 4.2: Place & trail forms (`place_form.dart`, `placeEditForm.dart`, `offlinePlaceForm.dart`, `trailForm.dart`, `trailEditForm.dart`)
 
-- [ ] One shared `lib/forms/place_form_fields.dart` (name, type/sortof/period dropdowns fed by `CatalogRepository`, description, links, image picker grid) used by all five screens — today they are five near-copies (~1,850 lines → target ≤ 600).
-- [ ] Image picking: 3-slot grid of 96 px rounded thumbnails with an add tile and per-image remove; replaces `FormPictureSlider`+`ImageInput`.
-- [ ] Submit: busy overlay + repository + upload progress; on partial image-upload failure keep the form open with a "retry images" state (place already created — do **not** duplicate it on retry).
-- [ ] The location header shows a 120 px static mini-map snapshot of the chosen position (non-interactive `GoogleMap` with `liteModeEnabled: true` on Android) instead of raw lat/lng text. Commit per screen group.
+- [x] One shared `lib/forms/place_form_fields.dart` (name, type/sortof/period dropdowns fed by `CatalogRepository`, description, links, image picker grid) used by all five screens — today they are five near-copies (~1,850 lines → target ≤ 600). *(landed at 690 for the five screens + 393 shared; also migrated both edit forms off the dead Django endpoints onto the repositories)*
+- [x] Image picking: 3-slot grid of 96 px rounded thumbnails with an add tile and per-image remove; replaces `FormPictureSlider`+`ImageInput`.
+- [x] Submit: busy overlay + repository + upload progress; on partial image-upload failure keep the form open with a "retry images" state (place already created — do **not** duplicate it on retry).
+- [x] The location header shows a 120 px static mini-map snapshot of the chosen position (non-interactive `GoogleMap` with `liteModeEnabled: true` on Android) instead of raw lat/lng text. Commit per screen group. *(offline form intentionally skips the mini-map — no tiles offline; single commit for the group)*
 
 ### Task 4.3: My Places / My Trails (`myPlaces.dart`, `myTrails.dart`, box widgets)
 
