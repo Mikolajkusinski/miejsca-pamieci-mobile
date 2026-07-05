@@ -64,6 +64,40 @@ void main() {
     data.dispose();
   });
 
+  testWidgets('link fields reject non-http(s) schemes and accept https',
+      (tester) async {
+    final data = PlaceFormData();
+    final formKey = GlobalKey<FormState>();
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: PlaceFormFields(
+              data: data,
+              loadCatalogs: () async => _catalogs(),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    data.wikiLinkController.text = 'javascript:alert(1)';
+    data.topicLinkController.text = 'https://example.com/topic';
+    formKey.currentState!.validate();
+    await tester.pump();
+
+    expect(find.text(LocaleKeys.invalid_link), findsOneWidget);
+
+    data.wikiLinkController.text = 'https://pl.wikipedia.org/wiki/Palmiry';
+    formKey.currentState!.validate();
+    await tester.pump();
+
+    expect(find.text(LocaleKeys.invalid_link), findsNothing);
+    data.dispose();
+  });
+
   testWidgets('ImagePickerGrid caps at three images', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(

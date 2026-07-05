@@ -156,6 +156,8 @@
   "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
   "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę.",
   "invalid_email": "Podaj poprawny adres e-mail",
+  "invalid_link": "Podaj poprawny link zaczynający się od http:// lub https://",
+  "image_too_large": "Każde zdjęcie musi być mniejsze niż 10 MB.",
   "search_places": "Szukaj miejsc…",
   "add_place_here": "Dodaj miejsce tutaj",
   "record_trail": "Nagraj trasę",

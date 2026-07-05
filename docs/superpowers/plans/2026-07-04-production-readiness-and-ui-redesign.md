@@ -69,6 +69,11 @@
 - HidePassword became an eye suffix IconButton (same API); auth_tile/sign_in_and_sign_up_text_field/sign_in_sign_up_button/formWidgets/ProfileWidgets/button_data/offline_place_box deleted with their tests; stale integration tests re-pointed at TextFormField/FilledButton/MemoryCard so they compile until the Task 6.2 rewrite.
 - Widget tests added: place_form_fields (catalog retry, trail variant, image grid), my_places (empty CTA, card + badge), PasswordRules parity; suite at 62 green, analyze 0.
 
+**Phase 5 deviations (branch `phase-5-security-and-privacy-hardening`, 2026-07-05):**
+- Maps key rotation is an **owner action** (Google Cloud console), documented in README "Configuration"; history scan confirmed no key was ever committed to this repo. Android SHA-1 restriction waits for the Task 6.4 upload keystore.
+- iOS: beyond the planned keys, dropped `NSLocationAlwaysAndWhenInUseUsageDescription` and the unused `NSMicrophoneUsageDescription`; replaced the dead google_sign_in `CFBundleURLSchemes` entry with the `memoryplaces` Cognito Hosted-UI callback scheme (Android's matching intent filter lands with the blocked Task 1.3 Step 3 once the pool exists). `InfoPlist.strings` ×4 + `PrivacyInfo.xcprivacy` wired into the pbxproj by hand (variant group, knownRegions) and verified present in a built `Runner.app`.
+- Task 5.3's trim/max-length items were already satisfied by the Phase 4 forms; the new work was `parseSafeHttpUrl` (form validation + link launching) and the 10 MB per-image cap. New locale keys ×4: `invalid_link`, `image_too_large`.
+
 ---
 
 ## Audit Summary (what the deep scan found)
@@ -775,9 +780,9 @@ Layout (both orientations):
 - [x] Replace deprecated `NSLocationAlwaysUsageDescription`; keep only `NSLocationWhenInUseUsageDescription`, `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` — each rewritten to say *why* ("Your location shows nearby places of memory and records trails you walk."), localized via `ios/Runner/{en,pl,de,ru}.lproj/InfoPlist.strings`. *(also dropped `NSLocationAlwaysAndWhenInUse` + unused `NSMicrophoneUsageDescription`; swapped the dead google_sign_in URL scheme for the `memoryplaces` Cognito callback scheme; pbxproj wired by hand — variant group + knownRegions — and verified present in a built Runner.app)*
 
 ### Task 5.3: Input & content safety
-- [ ] URL fields (`wiki_link`, `topic_link`): validate scheme ∈ {http, https} before save and before `launchUrl` (currently any URI launches — `tel:`, `javascript:` etc. from server data); launch with `LaunchMode.externalApplication`.
-- [ ] Text inputs: max lengths server-parity (name 255 / description 1000 already partially done); trim before submit.
-- [ ] Image uploads: cap at 3 files ≤ 10 MB each client-side with a clear error toast.
+- [x] URL fields (`wiki_link`, `topic_link`): validate scheme ∈ {http, https} before save and before `launchUrl` (currently any URI launches — `tel:`, `javascript:` etc. from server data); launch with `LaunchMode.externalApplication`. *(shared `lib/shared/safe_url.dart` `parseSafeHttpUrl` used by the form validator and `MemoryDetailContent._openLink`; unit + widget tested)*
+- [x] Text inputs: max lengths server-parity (name 255 / description 1000 already partially done); trim before submit. *(already satisfied by the Phase 4 forms — verified by grep; passwords intentionally untrimmed)*
+- [x] Image uploads: cap at 3 files ≤ 10 MB each client-side with a clear error toast. *(3-image cap existed in `ImagePickerGrid`; added the 10 MB per-file check + `image_too_large` toast; new locale keys `invalid_link`/`image_too_large` ×4)*
 
 ---
 
