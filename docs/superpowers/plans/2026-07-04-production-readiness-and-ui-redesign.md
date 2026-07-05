@@ -796,9 +796,9 @@ Layout (both orientations):
 - [x] Replace stray `print`/silent catches with a tiny `log.dart` (`dart:developer log`) — `grep -rn "print(" lib/` → 0. *(codebase was already print-free; the five comment-only catches are deliberate documented fallbacks; main.dart's `debugPrint` → `logError` in `lib/services/log.dart`)*
 
 ### Task 6.2: Test suite to green + coverage of the new core
-- [ ] Fix/rewrite the existing tests in `test/` and `integration_test/` against the new screens (they currently target the old UI).
-- [ ] Minimum bar: unit tests for `ApiClient`, `SessionStore`, repositories, `trail_math`, `OfflineSyncService`; widget tests for MapShell selection flow, auth error flow, form validation; one happy-path integration test (sign in → map → open place → sheet full).
-- [ ] `flutter test` green; record commands in README.
+- [x] Fix/rewrite the existing tests in `test/` and `integration_test/` against the new screens (they currently target the old UI). *(the four stale live-backend integration tests deleted; `test/` was already rewritten during Phases 1–5)*
+- [x] Minimum bar: unit tests for `ApiClient`, `SessionStore`, repositories, `trail_math`, `OfflineSyncService`; widget tests for MapShell selection flow, auth error flow, form validation; one happy-path integration test (sign in → map → open place → sheet full). *(added `catalog_repository_test`; `integration_test/happy_path_test.dart` fakes the network in-process with MockClient and seeds the session into SessionStore — swap the seeding for real `AuthService.signIn` once the Cognito pool exists; verified green on the iPhone 15 Pro simulator)*
+- [x] `flutter test` green; record commands in README. *(79 tests green; README "Tests" section replaces the stale flutter_config commands)*
 
 ### Task 6.3: CI
 - [ ] Create `.github/workflows/ci.yml`: on PR/push → `flutter pub get`, `flutter analyze --fatal-warnings`, `flutter test`, `flutter build apk --debug --dart-define-from-file=env/dev.json`. Cache pub + gradle.

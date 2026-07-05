@@ -80,22 +80,18 @@ restrict the replacements — the Android key by package name
 `pl.memoryplaces.mobile` + the upload key's SHA-1 (created in the release
 signing step), the iOS key by the bundle id.
 
-## Useful commands
+## Tests
 
 ```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add google_maps_flutter
-```
+# Static analysis (CI fails on warnings):
+flutter analyze --fatal-warnings
 
-```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add flutter_config
-```
+# Unit + widget tests:
+flutter test
 
-```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add geolocator
-```
-
-```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add url_launcher
+# Happy-path integration test (needs a device or simulator; the backend is
+# faked in-process, so no server or Cognito pool is required):
+flutter test integration_test/happy_path_test.dart -d <device-id>
 ```
 
 ```console
