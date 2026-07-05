@@ -771,8 +771,8 @@ Layout (both orientations):
 - [ ] Rotate the Google Maps API keys (the old ones lived in committed config on dev machines) and restrict them: Android key by package name `pl.memoryplaces.mobile` + SHA-1, iOS key by bundle id. *(OWNER ACTION, Google Cloud console — documented in README "Configuration"; no key was ever committed to this repo's history; Android SHA-1 restriction waits for the Task 6.4 upload keystore)*
 
 ### Task 5.2: iOS privacy compliance
-- [ ] Create `ios/Runner/PrivacyInfo.xcprivacy` declaring: location (app functionality), photos (user content), UserDefaults API category `CA92.1`, file-timestamp `C617.1` (required-reason APIs pulled in by plugins).
-- [ ] Replace deprecated `NSLocationAlwaysUsageDescription`; keep only `NSLocationWhenInUseUsageDescription`, `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` — each rewritten to say *why* ("Your location shows nearby places of memory and records trails you walk."), localized via `ios/Runner/{en,pl,de,ru}.lproj/InfoPlist.strings`.
+- [x] Create `ios/Runner/PrivacyInfo.xcprivacy` declaring: location (app functionality), photos (user content), UserDefaults API category `CA92.1`, file-timestamp `C617.1` (required-reason APIs pulled in by plugins).
+- [x] Replace deprecated `NSLocationAlwaysUsageDescription`; keep only `NSLocationWhenInUseUsageDescription`, `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` — each rewritten to say *why* ("Your location shows nearby places of memory and records trails you walk."), localized via `ios/Runner/{en,pl,de,ru}.lproj/InfoPlist.strings`. *(also dropped `NSLocationAlwaysAndWhenInUse` + unused `NSMicrophoneUsageDescription`; swapped the dead google_sign_in URL scheme for the `memoryplaces` Cognito callback scheme; pbxproj wired by hand — variant group + knownRegions — and verified present in a built Runner.app)*
 
 ### Task 5.3: Input & content safety
 - [ ] URL fields (`wiki_link`, `topic_link`): validate scheme ∈ {http, https} before save and before `launchUrl` (currently any URI launches — `tel:`, `javascript:` etc. from server data); launch with `LaunchMode.externalApplication`.

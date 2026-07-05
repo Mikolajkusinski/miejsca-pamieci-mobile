@@ -1,0 +1,3 @@
+"NSLocationWhenInUseUsageDescription" = "Your location shows nearby places of memory on the map and records the trail you walk.";
+"NSCameraUsageDescription" = "The camera lets you photograph a place of memory when adding or editing it.";
+"NSPhotoLibraryUsageDescription" = "Your photo library lets you attach existing photos to a place of memory.";

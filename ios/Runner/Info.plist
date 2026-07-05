@@ -46,7 +46,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.584457314127-6adiqurs38ajbmouuh326gel87hiv77l</string>
+				<string>memoryplaces</string>
 			</array>
 		</dict>
 	</array>
@@ -62,17 +62,11 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to camera</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to location.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location.</string>
+	<string>The camera lets you photograph a place of memory when adding or editing it.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to microphone</string>
+	<string>Your location shows nearby places of memory on the map and records the trail you walk.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to photo library</string>
+	<string>Your photo library lets you attach existing photos to a place of memory.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>

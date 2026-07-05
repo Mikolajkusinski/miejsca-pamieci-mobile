@@ -1,0 +1,3 @@
+"NSLocationWhenInUseUsageDescription" = "Twoja lokalizacja pokazuje pobliskie miejsca pamięci na mapie i pozwala rejestrować przebytą trasę.";
+"NSCameraUsageDescription" = "Aparat pozwala sfotografować miejsce pamięci podczas dodawania lub edycji.";
+"NSPhotoLibraryUsageDescription" = "Biblioteka zdjęć pozwala dołączyć istniejące zdjęcia do miejsca pamięci.";
