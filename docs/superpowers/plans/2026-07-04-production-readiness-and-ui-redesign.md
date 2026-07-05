@@ -59,6 +59,16 @@
 - Add FAB is **hidden** for guests (per Step 5's test spec) rather than showing a sign-in prompt sheet.
 - Device screenshot passes (light/dark, sheet states) deferred to Phase 6.5 — no Android emulator available this session; markers verified by rendered-PNG inspection.
 
+**Phase 4 deviations (branch `phase-4-screen-redesign`, 2026-07-05):**
+- Manrope aside, all new strings landed as locale keys ×4 (auth: `continue_with_google`, `welcome_tagline`, 5 `pass_rule_*`; forms: `retry_images`, `images_upload_failed`; lists: `add_first_place`, `record_first_trail`; profile: `language`, `theme_mode`, `theme_system/light/dark`).
+- Welcome hero is a stylized SVG-authored `map_hero.png` (blurred + theme-aware scrim), not a live map screenshot.
+- Both **edit forms migrated off the dead Django endpoints** onto the repositories (they had survived Phase 2 untouched); My Places/My Trails deletes likewise. The backend numeric user id now comes from `GET /api/v1/users/me` (`fetchBackendUserId`) instead of the Cognito session's id 0.
+- Five form screens: 690 lines + 393 shared (vs ~1,824 before; plan target was ≤600 for the screens — the extra ~90 is the new retry-images state the old forms lacked).
+- Offline form queues `OfflinePlace` with `user: 0` (author derived from the bearer token at sync time); offline form intentionally has no mini-map (no tiles offline).
+- Empty-state CTAs pop back to the MapShell + FAB rather than deep-linking into the form (forms need a live position).
+- HidePassword became an eye suffix IconButton (same API); auth_tile/sign_in_and_sign_up_text_field/sign_in_sign_up_button/formWidgets/ProfileWidgets/button_data/offline_place_box deleted with their tests; stale integration tests re-pointed at TextFormField/FilledButton/MemoryCard so they compile until the Task 6.2 rewrite.
+- Widget tests added: place_form_fields (catalog retry, trail variant, image grid), my_places (empty CTA, card + badge), PasswordRules parity; suite at 62 green, analyze 0.
+
 ---
 
 ## Audit Summary (what the deep scan found)
@@ -743,10 +753,10 @@ Layout (both orientations):
 
 ### Task 4.4: Details, profile, contact, offline (`placeDetails.dart`, `trailDetails.dart`, `profile.dart`, `editProfile.dart`, `contactUsForm.dart`, `offlinePage.dart`, `offlinePlaceAddingPage.dart`, `offlineWidgets/`)
 
-- [ ] `placeDetails`/`trailDetails` become thin wrappers rendering the **same content widget as MemorySheet full state** (single source of truth for details UI).
-- [ ] Profile: header card (avatar initial, username, email) + settings list tiles (language picker — currently missing UI despite 4 locales!, theme mode, edit profile, my places/trails, contact, sign out in red). Add the language picker: `context.setLocale(...)` bottom sheet.
-- [ ] Offline pages: same visual system; the offline place list reuses the Task 4.3 card. Offline banner (`MaterialBanner`) appears on MapShell when `connectivity_plus` stream reports offline, instead of trapping the user on a separate page while the app is already open.
-- [ ] Delete now-unused `lib/formWidgets/`, `lib/ProfileWidgets/`, `lib/SignInAndSignUpWidgets/` leftovers; `grep -rn "Colors.grey\|scrim" lib/` returns nothing. Update remaining widget tests. Commit.
+- [x] `placeDetails`/`trailDetails` become thin wrappers rendering the **same content widget as MemorySheet full state** (single source of truth for details UI). *(lib/map/memory_detail_content.dart)*
+- [x] Profile: header card (avatar initial, username, email) + settings list tiles (language picker — currently missing UI despite 4 locales!, theme mode, edit profile, my places/trails, contact, sign out in red). Add the language picker: `context.setLocale(...)` bottom sheet.
+- [x] Offline pages: same visual system; the offline place list reuses the Task 4.3 card. Offline banner (`MaterialBanner`) appears on MapShell when `connectivity_plus` stream reports offline, instead of trapping the user on a separate page while the app is already open. *(banner also triggers a data reload when connectivity returns)*
+- [x] Delete now-unused `lib/formWidgets/`, `lib/ProfileWidgets/`, `lib/SignInAndSignUpWidgets/` leftovers; `grep -rn "Colors.grey\|scrim" lib/` returns nothing. Update remaining widget tests. Commit. *(contact form also gained the proper email field promised in the Phase 2 notes; RecordMenu restyled)*
 
 ---
 
