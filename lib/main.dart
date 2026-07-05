@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memo_places_mobile/config/app_config.dart';
 import 'package:memo_places_mobile/theme/app_theme.dart';
 import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/internet_checker.dart';
@@ -7,13 +8,32 @@ import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';
 import 'package:memo_places_mobile/services/contact_repository.dart';
+import 'package:memo_places_mobile/services/log.dart';
 import 'package:memo_places_mobile/services/places_repository.dart';
 import 'package:memo_places_mobile/services/session_store.dart';
 import 'package:memo_places_mobile/services/trails_repository.dart';
 import 'package:memo_places_mobile/translations/codegen_loader.g.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
+  if (AppConfig.isCrashReportingEnabled) {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = AppConfig.sentryDsn;
+        options.environment = 'production';
+        // Breadcrumbs come from ApiClient (method/path/status only);
+        // never attach request/response bodies.
+        options.sendDefaultPii = false;
+      },
+      appRunner: _run,
+    );
+  } else {
+    await _run();
+  }
+}
+
+Future<void> _run() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
@@ -21,7 +41,7 @@ void main() async {
     await CognitoAuthService.configure();
   } on Exception catch (e) {
     // Auth stays unavailable but the map must still work.
-    debugPrint('Amplify configuration failed: $e');
+    logError('Amplify configuration failed', error: e, name: 'auth');
   }
 
   const sessionStore = SessionStore();

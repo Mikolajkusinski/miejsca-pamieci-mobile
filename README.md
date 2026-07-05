@@ -59,7 +59,9 @@ flutter build appbundle --release --dart-define-from-file=env/prod.json
 ```
 
 Keys: `API_BASE_URL`, `PROD`, `COGNITO_USER_POOL_ID`, `COGNITO_APP_CLIENT_ID`,
-`COGNITO_REGION`, `COGNITO_DOMAIN` (Hosted UI, only needed for Google sign-in).
+`COGNITO_REGION`, `COGNITO_DOMAIN` (Hosted UI, only needed for Google sign-in),
+`SENTRY_DSN` (crash reporting — active only when `PROD` is true and the DSN is
+non-empty; breadcrumbs carry request method/path/status, never bodies or tokens).
 When the Cognito ids are empty the app still runs — map browsing is anonymous
 and auth entry points disable themselves.
 
@@ -78,23 +80,61 @@ restrict the replacements — the Android key by package name
 `pl.memoryplaces.mobile` + the upload key's SHA-1 (created in the release
 signing step), the iOS key by the bundle id.
 
-## Useful commands
+## Tests
 
 ```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add google_maps_flutter
+# Static analysis (CI fails on warnings):
+flutter analyze --fatal-warnings
+
+# Unit + widget tests:
+flutter test
+
+# Happy-path integration test (needs a device or simulator; the backend is
+# faked in-process, so no server or Cognito pool is required):
+flutter test integration_test/happy_path_test.dart -d <device-id>
 ```
 
-```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add flutter_config
+## Release builds
+
+Android release builds are signed with an upload keystore that lives **outside
+the repo** (e.g. `~/keystores/memoryplaces-upload.jks`), referenced from the
+git-ignored `android/key.properties`:
+
+```properties
+storeFile=/absolute/path/to/memoryplaces-upload.jks
+storePassword=...
+keyPassword=...
+keyAlias=upload
 ```
 
-```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add geolocator
-```
+Back the keystore and passwords up in a password manager — with Play App
+Signing enabled, a lost *upload* key can be reset with Google, but treat it as
+production-critical anyway. Without `key.properties`, release builds fall back
+to debug signing (installable locally, not publishable).
 
 ```console
-PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add url_launcher
+# Android app bundle for the Play Store:
+flutter build appbundle --release --dart-define-from-file=env/prod.json
+
+# iOS (requires the team's signing certificates in Xcode):
+flutter build ipa --dart-define-from-file=env/prod.json
 ```
+
+**Version bumps:** edit `version:` in `pubspec.yaml` — `1.2.3+45` is
+versionName `1.2.3` / versionCode `45`. Every store upload needs a higher
+`+build` number; bump the semver part for user-visible releases.
+
+**Store submission checklist** (owner actions, once per release cycle):
+- Rotate/restrict Google Maps API keys (see "Configuration" above).
+- Launcher icons: regenerate with `dart run flutter_launcher_icons` after
+  changing `lib/assets/images/app_logo.png` (keep it 1024×1024; iOS alpha is
+  stripped automatically).
+- Screenshots: map light/dark, memory sheet, trail recording.
+- Privacy policy URL (coordinate with the web team) — required by both stores.
+- Play Data Safety form: location — collected, not shared, app functionality;
+  photos — user-provided content; no tracking/ads.
+- App Store privacy labels must match `ios/Runner/PrivacyInfo.xcprivacy`
+  (precise location + photos, app functionality, no tracking).
 
 ```console
 PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add carousel_slider

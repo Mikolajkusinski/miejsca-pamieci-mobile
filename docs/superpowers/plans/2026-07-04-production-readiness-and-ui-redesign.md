@@ -23,7 +23,8 @@
 - Phase 2 → PR #3 was merged into the *phase-1 branch*, not main.
 - Recovery: PR #4 (`phase-1-api-auth` → main) carries **Phases 1+2 together**; main was tied in with an `-s ours` merge (main's squashed Phase 0 tree verified byte-identical to commit aa84fce in this branch's history — nothing lost). After PR #4 merges, all phase branches are fully contained in main and deleted.
 - **Phases 0–4 complete and merged** (Phase 3 → PR #5, Phase 4 → PR #6; all phase branches deleted).
-- **Phase 5 complete** → PR #7 (`phase-5-security-and-privacy-hardening` → main). Merge it before starting Phase 6 (Task 6.1), then branch `phase-6-*` from main. Only Task 5.1's Maps-key rotation stays open as an owner action (see Phase 5 deviations).
+- **Phase 5 complete and merged** (PR #7). Only Task 5.1's Maps-key rotation stays open as an owner action (see Phase 5 deviations).
+- **Phase 6 complete** → PR #8 (`phase-6-production-readiness` → main). All agent-executable plan work is done after it merges; what remains is the owner-action list in the Phase 6 deviations (device passes, TestFlight, key rotation, real prod config, Cognito pool).
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
@@ -74,6 +75,13 @@
 - Maps key rotation is an **owner action** (Google Cloud console), documented in README "Configuration"; history scan confirmed no key was ever committed to this repo. Android SHA-1 restriction waits for the Task 6.4 upload keystore.
 - iOS: beyond the planned keys, dropped `NSLocationAlwaysAndWhenInUseUsageDescription` and the unused `NSMicrophoneUsageDescription`; replaced the dead google_sign_in `CFBundleURLSchemes` entry with the `memoryplaces` Cognito Hosted-UI callback scheme (Android's matching intent filter lands with the blocked Task 1.3 Step 3 once the pool exists). `InfoPlist.strings` ×4 + `PrivacyInfo.xcprivacy` wired into the pbxproj by hand (variant group, knownRegions) and verified present in a built `Runner.app`.
 - Task 5.3's trim/max-length items were already satisfied by the Phase 4 forms; the new work was `parseSafeHttpUrl` (form validation + link launching) and the 10 MB per-image cap. New locale keys ×4: `invalid_link`, `image_too_large`.
+
+**Phase 6 deviations (branch `phase-6-production-readiness`, 2026-07-05):**
+- The codebase was already `print`-free with only deliberate, comment-documented catch fallbacks — `log.dart` exists (`logInfo`/`logError`) and main.dart's `debugPrint` moved onto it; nothing else needed replacing.
+- The happy-path integration test fakes the network **in-process** (MockClient serving backend-shaped JSON) and seeds the session straight into `SessionStore` — the plan's "sign in" leg is impossible until the Cognito pool exists; swap the seeding for `AuthService.signIn` then. Verified on the iPhone 15 Pro **simulator** (no Android emulator on this machine).
+- Release signing falls back to debug signing when `key.properties` is absent, so CI and fresh clones still build; the upload keystore + credentials live on the owner's machine (`~/keystores/`, git-ignored `android/key.properties`) and must be backed up.
+- The 750 px icon master was upscaled to 1024 px (`sips`) rather than re-authored; `remove_alpha_ios: true` keeps the App Store icon alpha-free.
+- Still open as OWNER ACTIONS: Maps key rotation/restriction (Task 5.1, now unblocked by the upload key's existence), real `env/prod.json` values, `flutter build ipa` + TestFlight, the Task 6.5 physical-device passes and screenshot review.
 
 ---
 
@@ -792,29 +800,29 @@ Layout (both orientations):
 **Outcome:** observable, tested, signed, CI-verified, store-submittable.
 
 ### Task 6.1: Crash reporting & logging
-- [ ] Add `sentry_flutter: ^9.0.0`; wrap `main()` in `SentryFlutter.init` (DSN via `--dart-define`, disabled when not `isProd`); breadcrumbs from `ApiClient` (method, path, status — never bodies or tokens).
-- [ ] Replace stray `print`/silent catches with a tiny `log.dart` (`dart:developer log`) — `grep -rn "print(" lib/` → 0.
+- [x] Add `sentry_flutter: ^9.0.0`; wrap `main()` in `SentryFlutter.init` (DSN via `--dart-define`, disabled when not `isProd`); breadcrumbs from `ApiClient` (method, path, status — never bodies or tokens). *(resolved 9.23.0; `AppConfig.isCrashReportingEnabled` = `isProd && SENTRY_DSN non-empty`; breadcrumb sink injectable + unit-tested to never carry the token)*
+- [x] Replace stray `print`/silent catches with a tiny `log.dart` (`dart:developer log`) — `grep -rn "print(" lib/` → 0. *(codebase was already print-free; the five comment-only catches are deliberate documented fallbacks; main.dart's `debugPrint` → `logError` in `lib/services/log.dart`)*
 
 ### Task 6.2: Test suite to green + coverage of the new core
-- [ ] Fix/rewrite the existing tests in `test/` and `integration_test/` against the new screens (they currently target the old UI).
-- [ ] Minimum bar: unit tests for `ApiClient`, `SessionStore`, repositories, `trail_math`, `OfflineSyncService`; widget tests for MapShell selection flow, auth error flow, form validation; one happy-path integration test (sign in → map → open place → sheet full).
-- [ ] `flutter test` green; record commands in README.
+- [x] Fix/rewrite the existing tests in `test/` and `integration_test/` against the new screens (they currently target the old UI). *(the four stale live-backend integration tests deleted; `test/` was already rewritten during Phases 1–5)*
+- [x] Minimum bar: unit tests for `ApiClient`, `SessionStore`, repositories, `trail_math`, `OfflineSyncService`; widget tests for MapShell selection flow, auth error flow, form validation; one happy-path integration test (sign in → map → open place → sheet full). *(added `catalog_repository_test`; `integration_test/happy_path_test.dart` fakes the network in-process with MockClient and seeds the session into SessionStore — swap the seeding for real `AuthService.signIn` once the Cognito pool exists; verified green on the iPhone 15 Pro simulator)*
+- [x] `flutter test` green; record commands in README. *(79 tests green; README "Tests" section replaces the stale flutter_config commands)*
 
 ### Task 6.3: CI
-- [ ] Create `.github/workflows/ci.yml`: on PR/push → `flutter pub get`, `flutter analyze --fatal-warnings`, `flutter test`, `flutter build apk --debug --dart-define-from-file=env/dev.json`. Cache pub + gradle.
+- [x] Create `.github/workflows/ci.yml`: on PR/push → `flutter pub get`, `flutter analyze --fatal-warnings`, `flutter test`, `flutter build apk --debug --dart-define-from-file=env/dev.json`. Cache pub + gradle. *(two jobs — analyze+test, then the APK build; Flutter pinned to 3.38.4 with SDK/pub caching via subosito/flutter-action, gradle cache via setup-java; Maps key falls back to the committed `local.defaults.properties`; will run for real on this phase's PR)*
 
 ### Task 6.4: Release signing & store packaging
-- [ ] Generate a fresh upload keystore **outside the repo**; `android/key.properties` (git-ignored) + standard `signingConfigs.release` block reading it; `buildTypes.release { signingConfig signingConfigs.release; minifyEnabled true; shrinkResources true }` with `proguard-rules.pro` keeping `com.google.android.gms.maps.**`.
-- [ ] `flutter build appbundle --release --dart-define-from-file=env/prod.json` succeeds; `flutter build ipa` with the team's certs.
-- [ ] Version bump flow documented: `version: 1.0.0+2` etc.
-- [ ] Store checklist: app icons regenerated (`flutter_launcher_icons` — verify the 1024 px master has no alpha for iOS), splash screens, screenshots (map light/dark, sheet, record), privacy policy URL (must exist — coordinate with web team), Play Data Safety form (location: collected, not shared; photos: user-provided content), App Store privacy nutrition labels matching `PrivacyInfo.xcprivacy`.
+- [x] Generate a fresh upload keystore **outside the repo**; `android/key.properties` (git-ignored) + standard `signingConfigs.release` block reading it; `buildTypes.release { signingConfig signingConfigs.release; minifyEnabled true; shrinkResources true }` with `proguard-rules.pro` keeping `com.google.android.gms.maps.**`. *(keystore at `~/keystores/memoryplaces-upload.jks`, creds in git-ignored `android/key.properties` — OWNER: back both up in a password manager; builds fall back to debug signing when key.properties is absent so CI keeps working)*
+- [x] `flutter build appbundle --release --dart-define-from-file=env/prod.json` succeeds; `flutter build ipa` with the team's certs. *(AAB builds minified+shrunk and verifies as signed by the upload key; `env/prod.json` created locally with placeholder https host — OWNER: fill real values; `flutter build ipa` is an OWNER ACTION — needs Apple team certs)*
+- [x] Version bump flow documented: `version: 1.0.0+2` etc. *(README "Release builds")*
+- [x] Store checklist: app icons regenerated (`flutter_launcher_icons` — verify the 1024 px master has no alpha for iOS), splash screens, screenshots (map light/dark, sheet, record), privacy policy URL (must exist — coordinate with web team), Play Data Safety form (location: collected, not shared; photos: user-provided content), App Store privacy nutrition labels matching `PrivacyInfo.xcprivacy`. *(icons regenerated from a 1024 px master with `remove_alpha_ios`; the per-release owner checklist — screenshots, privacy policy URL, Data Safety form, privacy labels — is recorded in README "Release builds")*
 
 ### Task 6.5: Final verification gate (superpowers:verification-before-completion)
-- [ ] `flutter analyze --fatal-warnings` → clean
-- [ ] `flutter test` → all green
-- [ ] Release build installed on a physical Android device: full pass through sign-up → add place with photos → record trail → offline add → resync → sign out.
-- [ ] Same pass on iOS (TestFlight build).
-- [ ] Dark + light screenshots reviewed against the web app side by side.
+- [x] `flutter analyze --fatal-warnings` → clean
+- [x] `flutter test` → all green *(79 tests; plus the happy-path integration test green on the iPhone 15 Pro simulator)*
+- [ ] Release build installed on a physical Android device: full pass through sign-up → add place with photos → record trail → offline add → resync → sign out. *(OWNER ACTION — no Android device available to the agent; sign-up leg also needs the Cognito pool deployed)*
+- [ ] Same pass on iOS (TestFlight build). *(OWNER ACTION — needs Apple team certs)*
+- [ ] Dark + light screenshots reviewed against the web app side by side. *(OWNER ACTION — needs a device with a real Maps key; the committed key placeholders render blank tiles)*
 
 ---
 

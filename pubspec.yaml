@@ -35,6 +35,7 @@ dependencies:
   google_fonts: ^6.3.0              # Manrope display face (Phase 3)
   wakelock_plus: ^1.5.2
   path: ^1.9.1
+  sentry_flutter: ^9.0.0
 
 # device_info_plus >= 12.4.0 calls isiOSAppOnVision, declared only in the
 # iOS 26.1 SDK — it does not compile with Xcode 26.0. 12.3.0 predates that
@@ -55,6 +56,9 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "lib/assets/images/app_logo.png"
+  # App Store rejects alpha in the 1024 px marketing icon.
+  remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"
 
 flutter:
   generate: true
