@@ -801,7 +801,7 @@ Layout (both orientations):
 - [x] `flutter test` green; record commands in README. *(79 tests green; README "Tests" section replaces the stale flutter_config commands)*
 
 ### Task 6.3: CI
-- [ ] Create `.github/workflows/ci.yml`: on PR/push → `flutter pub get`, `flutter analyze --fatal-warnings`, `flutter test`, `flutter build apk --debug --dart-define-from-file=env/dev.json`. Cache pub + gradle.
+- [x] Create `.github/workflows/ci.yml`: on PR/push → `flutter pub get`, `flutter analyze --fatal-warnings`, `flutter test`, `flutter build apk --debug --dart-define-from-file=env/dev.json`. Cache pub + gradle. *(two jobs — analyze+test, then the APK build; Flutter pinned to 3.38.4 with SDK/pub caching via subosito/flutter-action, gradle cache via setup-java; Maps key falls back to the committed `local.defaults.properties`; will run for real on this phase's PR)*
 
 ### Task 6.4: Release signing & store packaging
 - [ ] Generate a fresh upload keystore **outside the repo**; `android/key.properties` (git-ignored) + standard `signingConfigs.release` block reading it; `buildTypes.release { signingConfig signingConfigs.release; minifyEnabled true; shrinkResources true }` with `proguard-rules.pro` keeping `com.google.android.gms.maps.**`.
