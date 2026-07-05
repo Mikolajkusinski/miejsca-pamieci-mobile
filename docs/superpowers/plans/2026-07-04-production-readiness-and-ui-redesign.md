@@ -738,8 +738,8 @@ Layout (both orientations):
 
 ### Task 4.3: My Places / My Trails (`myPlaces.dart`, `myTrails.dart`, box widgets)
 
-- [ ] Card list on `surfaceContainer` with leading 56 px thumbnail (first image), title, period chip, verification badge; swipe actions kept (flutter_slidable 4.x API) but destructive delete gets a confirm dialog; empty states get an illustration + "Add your first place" CTA that deep-links to the add flow.
-- [ ] Pull-to-refresh (`RefreshIndicator`). Commit.
+- [x] Card list on `surfaceContainer` with leading 56 px thumbnail (first image), title, period chip, verification badge; swipe actions kept (flutter_slidable 4.x API) but destructive delete gets a confirm dialog; empty states get an illustration + "Add your first place" CTA that deep-links to the add flow. *(CTA pops back to the MapShell + FAB; deletes migrated onto the repositories; user id now from /users/me)*
+- [x] Pull-to-refresh (`RefreshIndicator`). Commit.
 
 ### Task 4.4: Details, profile, contact, offline (`placeDetails.dart`, `trailDetails.dart`, `profile.dart`, `editProfile.dart`, `contactUsForm.dart`, `offlinePage.dart`, `offlinePlaceAddingPage.dart`, `offlineWidgets/`)
 
