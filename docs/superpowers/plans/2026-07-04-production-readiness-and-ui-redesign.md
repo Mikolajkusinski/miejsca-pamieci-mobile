@@ -75,6 +75,13 @@
 - iOS: beyond the planned keys, dropped `NSLocationAlwaysAndWhenInUseUsageDescription` and the unused `NSMicrophoneUsageDescription`; replaced the dead google_sign_in `CFBundleURLSchemes` entry with the `memoryplaces` Cognito Hosted-UI callback scheme (Android's matching intent filter lands with the blocked Task 1.3 Step 3 once the pool exists). `InfoPlist.strings` ×4 + `PrivacyInfo.xcprivacy` wired into the pbxproj by hand (variant group, knownRegions) and verified present in a built `Runner.app`.
 - Task 5.3's trim/max-length items were already satisfied by the Phase 4 forms; the new work was `parseSafeHttpUrl` (form validation + link launching) and the 10 MB per-image cap. New locale keys ×4: `invalid_link`, `image_too_large`.
 
+**Phase 6 deviations (branch `phase-6-production-readiness`, 2026-07-05):**
+- The codebase was already `print`-free with only deliberate, comment-documented catch fallbacks — `log.dart` exists (`logInfo`/`logError`) and main.dart's `debugPrint` moved onto it; nothing else needed replacing.
+- The happy-path integration test fakes the network **in-process** (MockClient serving backend-shaped JSON) and seeds the session straight into `SessionStore` — the plan's "sign in" leg is impossible until the Cognito pool exists; swap the seeding for `AuthService.signIn` then. Verified on the iPhone 15 Pro **simulator** (no Android emulator on this machine).
+- Release signing falls back to debug signing when `key.properties` is absent, so CI and fresh clones still build; the upload keystore + credentials live on the owner's machine (`~/keystores/`, git-ignored `android/key.properties`) and must be backed up.
+- The 750 px icon master was upscaled to 1024 px (`sips`) rather than re-authored; `remove_alpha_ios: true` keeps the App Store icon alpha-free.
+- Still open as OWNER ACTIONS: Maps key rotation/restriction (Task 5.1, now unblocked by the upload key's existence), real `env/prod.json` values, `flutter build ipa` + TestFlight, the Task 6.5 physical-device passes and screenshot review.
+
 ---
 
 ## Audit Summary (what the deep scan found)
@@ -810,11 +817,11 @@ Layout (both orientations):
 - [x] Store checklist: app icons regenerated (`flutter_launcher_icons` — verify the 1024 px master has no alpha for iOS), splash screens, screenshots (map light/dark, sheet, record), privacy policy URL (must exist — coordinate with web team), Play Data Safety form (location: collected, not shared; photos: user-provided content), App Store privacy nutrition labels matching `PrivacyInfo.xcprivacy`. *(icons regenerated from a 1024 px master with `remove_alpha_ios`; the per-release owner checklist — screenshots, privacy policy URL, Data Safety form, privacy labels — is recorded in README "Release builds")*
 
 ### Task 6.5: Final verification gate (superpowers:verification-before-completion)
-- [ ] `flutter analyze --fatal-warnings` → clean
-- [ ] `flutter test` → all green
-- [ ] Release build installed on a physical Android device: full pass through sign-up → add place with photos → record trail → offline add → resync → sign out.
-- [ ] Same pass on iOS (TestFlight build).
-- [ ] Dark + light screenshots reviewed against the web app side by side.
+- [x] `flutter analyze --fatal-warnings` → clean
+- [x] `flutter test` → all green *(79 tests; plus the happy-path integration test green on the iPhone 15 Pro simulator)*
+- [ ] Release build installed on a physical Android device: full pass through sign-up → add place with photos → record trail → offline add → resync → sign out. *(OWNER ACTION — no Android device available to the agent; sign-up leg also needs the Cognito pool deployed)*
+- [ ] Same pass on iOS (TestFlight build). *(OWNER ACTION — needs Apple team certs)*
+- [ ] Dark + light screenshots reviewed against the web app side by side. *(OWNER ACTION — needs a device with a real Maps key; the committed key placeholders render blank tiles)*
 
 ---
 
