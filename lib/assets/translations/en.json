@@ -172,5 +172,10 @@
   "retry_images": "Retry photo upload",
   "images_upload_failed": "Saved, but some photos failed to upload.",
   "add_first_place": "Add your first place",
-  "record_first_trail": "Record your first trail"
+  "record_first_trail": "Record your first trail",
+  "language": "Language",
+  "theme_mode": "Theme",
+  "theme_system": "System",
+  "theme_light": "Light",
+  "theme_dark": "Dark"
 }

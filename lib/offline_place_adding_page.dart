@@ -1,130 +1,115 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:memo_places_mobile/formWidgets/custom_button_with_icon.dart';
 import 'package:memo_places_mobile/internet_checker.dart';
-import 'package:memo_places_mobile/offline_place_form.dart';
 import 'package:memo_places_mobile/offlineWidgets/offline_places_list.dart';
+import 'package:memo_places_mobile/offline_place_form.dart';
+import 'package:memo_places_mobile/services/location_service.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
+/// Shown at startup when the device is offline but a user is signed in:
+/// places can still be captured and queue for the next sync.
 class OfflinePlaceAddingPage extends StatefulWidget {
-  const OfflinePlaceAddingPage({super.key});
+  final LocationService locationService;
+
+  const OfflinePlaceAddingPage(
+      {super.key, this.locationService = const LocationService()});
 
   @override
   State<OfflinePlaceAddingPage> createState() => _OfflinePlaceAddingPageState();
 }
 
 class _OfflinePlaceAddingPageState extends State<OfflinePlaceAddingPage> {
-  late LatLng _position;
+  LatLng? _position;
   bool _isLoading = true;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
-
-    _getCurrentLocation().then((location) => {
-          if (mounted)
-            {
-              setState(() {
-                _position = LatLng(location.latitude, location.longitude);
-                _isLoading = false;
-              })
-            }
-        });
+    _resolveLocation();
   }
 
-  Future<Position> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+  Future<void> _resolveLocation() async {
+    final result = await widget.locationService.getCurrent();
+    if (!mounted) return;
+    setState(() {
+      if (result is LocationOk) {
+        _position =
+            LatLng(result.position.latitude, result.position.longitude);
       }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied');
-    }
-
-    return await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high));
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final position = _position;
+
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: _isLoading
-              ? CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary),
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
-                      Icons.wifi_off,
-                      size: 100,
-                    ),
+                    const SizedBox(height: 16),
+                    Icon(Icons.wifi_off,
+                        size: 64, color: scheme.onSurfaceVariant),
+                    const SizedBox(height: 12),
                     Text(
                       LocaleKeys.oops.tr(),
-                      style: const TextStyle(fontSize: 32),
-                    ),
-                    Text(
-                      LocaleKeys.no_internet_info.tr(),
-                      style: const TextStyle(fontSize: 20),
                       textAlign: TextAlign.center,
+                      style: textTheme.titleLarge,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Text(
-                      LocaleKeys.but.tr(),
-                      style: const TextStyle(fontSize: 20),
+                      '${LocaleKeys.no_internet_info.tr()} '
+                      '${LocaleKeys.still_add_places.tr()}',
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyMedium!
+                          .copyWith(color: scheme.onSurfaceVariant),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      LocaleKeys.still_add_places.tr(),
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    CustomButtonWithIcon(
+                    const SizedBox(height: 20),
+                    if (position != null)
+                      FilledButton.icon(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    OfflinePlaceForm(_position)),
+                                    OfflinePlaceForm(position)),
                           );
                         },
-                        icon: Icons.add_location_alt_outlined,
-                        text: LocaleKeys.add_place.tr()),
-                    const SizedBox(
-                      height: 30,
-                    ),
+                        icon: const Icon(Icons.add_location_alt_outlined),
+                        label: Text(LocaleKeys.add_place.tr()),
+                      ),
+                    const SizedBox(height: 16),
                     const Expanded(child: OfflinePlacesList()),
-                    const SizedBox(
-                      height: 20,
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const InternetChecker()),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28)),
+                      ),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(LocaleKeys.refresh.tr()),
                     ),
-                    CustomButtonWithIcon(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const InternetChecker()),
-                          );
-                        },
-                        icon: Icons.refresh,
-                        text: LocaleKeys.refresh.tr()),
-                    const SizedBox(
-                      height: 20,
-                    )
                   ],
                 ),
-        ),
+              ),
       ),
     );
   }

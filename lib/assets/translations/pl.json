@@ -172,5 +172,10 @@
   "retry_images": "Ponów przesyłanie zdjęć",
   "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć.",
   "add_first_place": "Dodaj swoje pierwsze miejsce",
-  "record_first_trail": "Nagraj swoją pierwszą trasę"
+  "record_first_trail": "Nagraj swoją pierwszą trasę",
+  "language": "Język",
+  "theme_mode": "Motyw",
+  "theme_system": "Systemowy",
+  "theme_light": "Jasny",
+  "theme_dark": "Ciemny"
 }

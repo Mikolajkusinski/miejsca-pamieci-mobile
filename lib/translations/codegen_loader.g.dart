@@ -188,7 +188,12 @@ class CodegenLoader extends AssetLoader{
   "retry_images": "Fotos erneut hochladen",
   "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden.",
   "add_first_place": "Füge deinen ersten Ort hinzu",
-  "record_first_trail": "Zeichne deine erste Route auf"
+  "record_first_trail": "Zeichne deine erste Route auf",
+  "language": "Sprache",
+  "theme_mode": "Design",
+  "theme_system": "System",
+  "theme_light": "Hell",
+  "theme_dark": "Dunkel"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -364,7 +369,12 @@ static const Map<String,dynamic> _ru = {
   "retry_images": "Повторить загрузку фото",
   "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить.",
   "add_first_place": "Добавьте своё первое место",
-  "record_first_trail": "Запишите свой первый маршрут"
+  "record_first_trail": "Запишите свой первый маршрут",
+  "language": "Язык",
+  "theme_mode": "Тема",
+  "theme_system": "Системная",
+  "theme_light": "Светлая",
+  "theme_dark": "Тёмная"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -540,7 +550,12 @@ static const Map<String,dynamic> _pl = {
   "retry_images": "Ponów przesyłanie zdjęć",
   "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć.",
   "add_first_place": "Dodaj swoje pierwsze miejsce",
-  "record_first_trail": "Nagraj swoją pierwszą trasę"
+  "record_first_trail": "Nagraj swoją pierwszą trasę",
+  "language": "Język",
+  "theme_mode": "Motyw",
+  "theme_system": "Systemowy",
+  "theme_light": "Jasny",
+  "theme_dark": "Ciemny"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -716,7 +731,12 @@ static const Map<String,dynamic> _en = {
   "retry_images": "Retry photo upload",
   "images_upload_failed": "Saved, but some photos failed to upload.",
   "add_first_place": "Add your first place",
-  "record_first_trail": "Record your first trail"
+  "record_first_trail": "Record your first trail",
+  "language": "Language",
+  "theme_mode": "Theme",
+  "theme_system": "System",
+  "theme_light": "Light",
+  "theme_dark": "Dark"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }

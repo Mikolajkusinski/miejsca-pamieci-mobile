@@ -172,5 +172,10 @@
   "retry_images": "Fotos erneut hochladen",
   "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden.",
   "add_first_place": "Füge deinen ersten Ort hinzu",
-  "record_first_trail": "Zeichne deine erste Route auf"
+  "record_first_trail": "Zeichne deine erste Route auf",
+  "language": "Sprache",
+  "theme_mode": "Design",
+  "theme_system": "System",
+  "theme_light": "Hell",
+  "theme_dark": "Dunkel"
 }

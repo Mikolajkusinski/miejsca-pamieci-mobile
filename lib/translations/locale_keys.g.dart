@@ -177,5 +177,10 @@ abstract class  LocaleKeys {
   static const images_upload_failed = 'images_upload_failed';
   static const add_first_place = 'add_first_place';
   static const record_first_trail = 'record_first_trail';
+  static const language = 'language';
+  static const theme_mode = 'theme_mode';
+  static const theme_system = 'theme_system';
+  static const theme_light = 'theme_light';
+  static const theme_dark = 'theme_dark';
 
 }

@@ -1,8 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/formWidgets/custom_button.dart';
-import 'package:memo_places_mobile/formWidgets/custom_title.dart';
 import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/auth_service.dart';
@@ -20,8 +18,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
-  final bool _isUsernameEmpty = false;
 
   @override
   void initState() {
@@ -50,6 +48,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> _saveUserData() async {
+    if (!_formKey.currentState!.validate()) return;
     final api = context.read<ApiClient>();
     final username = _usernameController.text.trim();
     try {
@@ -67,86 +66,56 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            CustomTitle(title: LocaleKeys.edit_profile.tr()),
-            const SizedBox(
-              height: 40,
-            ),
-            Text(
-              LocaleKeys.change_pass.tr(),
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            CustomButton(
-              onPressed: _resetPassword,
-              text: LocaleKeys.send_link.tr(),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Divider(),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              LocaleKeys.change_username.tr(),
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
-                controller: _usernameController,
-                style: const TextStyle(fontSize: 20),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 1.5,
-                    ),
+      appBar: AppBar(title: Text(LocaleKeys.edit_profile.tr())),
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(LocaleKeys.change_username.tr(),
+                    style: textTheme.titleMedium),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: LocaleKeys.username.tr(),
+                    prefixIcon: const Icon(Icons.account_circle_outlined),
                   ),
-                  border: const OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
-                  labelText: LocaleKeys.username.tr(),
-                  errorText:
-                      _isUsernameEmpty ? LocaleKeys.field_info.tr() : null,
+                  validator: (value) =>
+                      (value == null || value.trim().isEmpty)
+                          ? LocaleKeys.field_required.tr()
+                          : null,
                 ),
-              ),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: _saveUserData,
+                  child: Text(LocaleKeys.save.tr()),
+                ),
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 24),
+                Text(LocaleKeys.change_pass.tr(),
+                    style: textTheme.titleMedium),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: _resetPassword,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28)),
+                  ),
+                  child: Text(LocaleKeys.send_link.tr()),
+                ),
+              ],
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            CustomButton(
-              onPressed: _saveUserData,
-              text: LocaleKeys.save.tr(),
-            ),
-            const SizedBox(
-              height: 20,
-            )
-          ],
+          ),
         ),
       ),
     );

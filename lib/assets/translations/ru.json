@@ -172,5 +172,10 @@
   "retry_images": "Повторить загрузку фото",
   "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить.",
   "add_first_place": "Добавьте своё первое место",
-  "record_first_trail": "Запишите свой первый маршрут"
+  "record_first_trail": "Запишите свой первый маршрут",
+  "language": "Язык",
+  "theme_mode": "Тема",
+  "theme_system": "Системная",
+  "theme_light": "Светлая",
+  "theme_dark": "Тёмная"
 }

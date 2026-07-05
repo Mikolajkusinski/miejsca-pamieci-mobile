@@ -1,9 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:memo_places_mobile/formWidgets/custom_button.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
-class RecordMenu extends StatefulWidget {
+class RecordMenu extends StatelessWidget {
   final String distance;
   final bool isRecording;
   final String time;
@@ -19,59 +18,52 @@ class RecordMenu extends StatefulWidget {
       required this.endRecording});
 
   @override
-  State<StatefulWidget> createState() => _RecordMenuState();
-}
-
-class _RecordMenuState extends State<RecordMenu> {
-  @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final hasDistance =
+        (double.tryParse(distance.split(' ').first) ?? 0.0) > 0.0;
+
     return Positioned(
       right: 0,
       left: 0,
       bottom: 0,
       child: Container(
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.all(10),
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(202, 0, 0, 0),
-          borderRadius: BorderRadius.all(
-            Radius.circular(15),
-          ),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: scheme.surface.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: scheme.outlineVariant),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.time,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold),
+                  time,
+                  style: textTheme.titleLarge!
+                      .copyWith(color: scheme.primary),
                 ),
                 Text(
-                  LocaleKeys.distance
-                      .tr(namedArgs: {'distance': widget.distance}),
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                )
+                  LocaleKeys.distance.tr(namedArgs: {'distance': distance}),
+                  style: textTheme.titleMedium!
+                      .copyWith(color: scheme.onSurfaceVariant, fontSize: 15),
+                ),
               ],
             ),
-            widget.isRecording
-                ? CustomButton(
-                    onPressed:
-                        (double.tryParse(widget.distance.split(' ').first) ??
-                                    0.0) ==
-                                0.0
-                            ? () {}
-                            : widget.endRecording,
-                    text: LocaleKeys.stop_save.tr())
-                : CustomButton(
-                    onPressed: widget.startRecording,
-                    text: LocaleKeys.start.tr())
+            const SizedBox(height: 12),
+            isRecording
+                ? FilledButton(
+                    onPressed: hasDistance ? endRecording : null,
+                    child: Text(LocaleKeys.stop_save.tr()),
+                  )
+                : FilledButton(
+                    onPressed: startRecording,
+                    child: Text(LocaleKeys.start.tr()),
+                  ),
           ],
         ),
       ),
