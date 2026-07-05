@@ -80,10 +80,10 @@ class _ContactUsFormState extends State<ContactUsForm> {
                         maxLength: 50,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Theme.of(context).colorScheme.onPrimary,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.scrim,
+                              color: Theme.of(context).colorScheme.primary,
                               width: 1.5,
                             ),
                           ),
@@ -108,10 +108,10 @@ class _ContactUsFormState extends State<ContactUsForm> {
                         maxLength: 200,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Theme.of(context).colorScheme.onPrimary,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.scrim,
+                              color: Theme.of(context).colorScheme.primary,
                               width: 1.5,
                             ),
                           ),
@@ -152,7 +152,7 @@ class _ContactUsFormState extends State<ContactUsForm> {
                 body: Center(
                     child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.scrim),
+                  Theme.of(context).colorScheme.primary),
             )));
           }
         },

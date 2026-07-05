@@ -35,7 +35,7 @@ class SignInAndSignUpTextField extends StatelessWidget {
             borderSide:
                 BorderSide(color: Theme.of(context).colorScheme.tertiary),
           ),
-          fillColor: Theme.of(context).colorScheme.onPrimary,
+          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           filled: true),
       obscureText: obscureText,
     );

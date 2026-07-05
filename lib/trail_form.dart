@@ -253,10 +253,10 @@ class _TrailFormState extends State<TrailForm> {
                   decoration: InputDecoration(
                     labelText: LocaleKeys.select_type.tr(),
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.onPrimary,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.scrim,
+                        color: Theme.of(context).colorScheme.primary,
                         width: 1.5,
                       ),
                     ),
@@ -301,10 +301,10 @@ class _TrailFormState extends State<TrailForm> {
                   decoration: InputDecoration(
                     labelText: LocaleKeys.select_period.tr(),
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.onPrimary,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.scrim,
+                        color: Theme.of(context).colorScheme.primary,
                         width: 1.5,
                       ),
                     ),

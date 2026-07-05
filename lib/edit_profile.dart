@@ -115,10 +115,10 @@ class _EditProfileState extends State<EditProfile> {
                 style: const TextStyle(fontSize: 20),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.onPrimary,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.scrim,
+                      color: Theme.of(context).colorScheme.primary,
                       width: 1.5,
                     ),
                   ),

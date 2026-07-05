@@ -160,5 +160,11 @@ abstract class  LocaleKeys {
   static const recording_notification_text = 'recording_notification_text';
   static const keep_app_open_info = 'keep_app_open_info';
   static const invalid_email = 'invalid_email';
+  static const search_places = 'search_places';
+  static const add_place_here = 'add_place_here';
+  static const record_trail = 'record_trail';
+  static const sign_in_to_contribute = 'sign_in_to_contribute';
+  static const distance_away = 'distance_away';
+  static const map_load_failed = 'map_load_failed';
 
 }

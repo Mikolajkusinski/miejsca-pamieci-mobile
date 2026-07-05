@@ -24,7 +24,7 @@ class CustomButtonWithIcon extends StatelessWidget {
       onPressed: onPressed,
       icon: Icon(
         icon,
-        color: Theme.of(context).colorScheme.scrim,
+        color: Theme.of(context).colorScheme.primary,
         size: 24,
       ),
       label: Text(
@@ -32,7 +32,7 @@ class CustomButtonWithIcon extends StatelessWidget {
         style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.scrim),
+            color: Theme.of(context).colorScheme.primary),
       ),
     );
   }

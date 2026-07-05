@@ -12,7 +12,7 @@ class AuthTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onPrimary,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             border: Border.all(color: Theme.of(context).colorScheme.secondary),
             borderRadius: BorderRadius.circular(16)),
         child: Image.asset(

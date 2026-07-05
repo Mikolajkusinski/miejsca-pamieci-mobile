@@ -24,7 +24,7 @@ class CustomFormInput extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: Theme.of(context).colorScheme.onPrimary,
+          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
               color: Theme.of(context).colorScheme.tertiary,
@@ -33,7 +33,7 @@ class CustomFormInput extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.scrim,
+              color: Theme.of(context).colorScheme.primary,
               width: 1.5,
             ),
           ),

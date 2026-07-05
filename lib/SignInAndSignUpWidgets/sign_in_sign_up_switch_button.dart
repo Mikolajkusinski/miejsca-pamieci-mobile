@@ -34,7 +34,7 @@ class SignInSignUpSwitchButton extends StatelessWidget {
                   ? LocaleKeys.create_account.tr()
                   : LocaleKeys.sign_account.tr(),
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.scrim,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 18),
             ),

@@ -13,7 +13,7 @@ class OfflinePlaceBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onPrimary,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
           bottom: BorderSide(
               width: 4, color: Theme.of(context).colorScheme.tertiary),

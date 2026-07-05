@@ -171,7 +171,13 @@ class CodegenLoader extends AssetLoader{
   "recording_notification_title": "Route wird aufgezeichnet",
   "recording_notification_text": "Memory Places verfolgt deine Route.",
   "keep_app_open_info": "Lass die App während der Aufzeichnung geöffnet — beim Schließen stoppt die Route.",
-  "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein"
+  "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein",
+  "search_places": "Orte suchen…",
+  "add_place_here": "Ort hier hinzufügen",
+  "record_trail": "Route aufzeichnen",
+  "sign_in_to_contribute": "Melde dich an, um Orte hinzuzufügen und Routen aufzuzeichnen.",
+  "distance_away": "{distance} km entfernt",
+  "map_load_failed": "Kartendaten konnten nicht geladen werden"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -330,7 +336,13 @@ static const Map<String,dynamic> _ru = {
   "recording_notification_title": "Запись маршрута",
   "recording_notification_text": "Memory Places отслеживает ваш маршрут.",
   "keep_app_open_info": "Держите приложение открытым во время записи — при закрытии маршрут остановится.",
-  "invalid_email": "Введите корректный адрес электронной почты"
+  "invalid_email": "Введите корректный адрес электронной почты",
+  "search_places": "Поиск мест…",
+  "add_place_here": "Добавить место здесь",
+  "record_trail": "Записать маршрут",
+  "sign_in_to_contribute": "Войдите, чтобы добавлять места и записывать маршруты.",
+  "distance_away": "{distance} км от вас",
+  "map_load_failed": "Не удалось загрузить данные карты"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -489,7 +501,13 @@ static const Map<String,dynamic> _pl = {
   "recording_notification_title": "Nagrywanie trasy",
   "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
   "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę.",
-  "invalid_email": "Podaj poprawny adres e-mail"
+  "invalid_email": "Podaj poprawny adres e-mail",
+  "search_places": "Szukaj miejsc…",
+  "add_place_here": "Dodaj miejsce tutaj",
+  "record_trail": "Nagraj trasę",
+  "sign_in_to_contribute": "Zaloguj się, aby dodawać miejsca i nagrywać trasy.",
+  "distance_away": "{distance} km stąd",
+  "map_load_failed": "Nie udało się wczytać danych mapy"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -648,7 +666,13 @@ static const Map<String,dynamic> _en = {
   "recording_notification_title": "Recording trail",
   "recording_notification_text": "Memory Places is tracking your route.",
   "keep_app_open_info": "Keep the app open while recording — the trail stops if you close it.",
-  "invalid_email": "Please enter a valid email address"
+  "invalid_email": "Please enter a valid email address",
+  "search_places": "Search places…",
+  "add_place_here": "Add place here",
+  "record_trail": "Record a trail",
+  "sign_in_to_contribute": "Sign in to add places and record trails.",
+  "distance_away": "{distance} km away",
+  "map_load_failed": "Couldn't load map data"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }

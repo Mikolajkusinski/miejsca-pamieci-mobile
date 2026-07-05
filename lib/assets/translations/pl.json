@@ -155,5 +155,11 @@
   "recording_notification_title": "Nagrywanie trasy",
   "recording_notification_text": "Miejsca Pamięci śledzi Twoją trasę.",
   "keep_app_open_info": "Trzymaj aplikację otwartą podczas nagrywania — zamknięcie przerwie trasę.",
-  "invalid_email": "Podaj poprawny adres e-mail"
+  "invalid_email": "Podaj poprawny adres e-mail",
+  "search_places": "Szukaj miejsc…",
+  "add_place_here": "Dodaj miejsce tutaj",
+  "record_trail": "Nagraj trasę",
+  "sign_in_to_contribute": "Zaloguj się, aby dodawać miejsca i nagrywać trasy.",
+  "distance_away": "{distance} km stąd",
+  "map_load_failed": "Nie udało się wczytać danych mapy"
 }

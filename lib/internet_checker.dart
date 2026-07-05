@@ -1,7 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
-import 'package:memo_places_mobile/main_page.dart';
+import 'package:memo_places_mobile/map/map_shell.dart';
 import 'package:memo_places_mobile/offline_page.dart';
 import 'package:memo_places_mobile/offline_place_adding_page.dart';
 import 'package:memo_places_mobile/services/data_service.dart';
@@ -66,7 +66,7 @@ class _InternetCheckerState extends State<InternetChecker> {
         if (!state.welcomeSeen) {
           return const WelcomePage();
         }
-        return const Main();
+        return const MapShell();
       },
     );
   }

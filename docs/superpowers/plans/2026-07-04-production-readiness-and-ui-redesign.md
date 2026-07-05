@@ -22,7 +22,7 @@
 - Phase 1 → PR #2 was merged into the *phase-0 branch* (stacked-PR mishap), not main.
 - Phase 2 → PR #3 was merged into the *phase-1 branch*, not main.
 - Recovery: PR #4 (`phase-1-api-auth` → main) carries **Phases 1+2 together**; main was tied in with an `-s ours` merge (main's squashed Phase 0 tree verified byte-identical to commit aa84fce in this branch's history — nothing lost). After PR #4 merges, all phase branches are fully contained in main and deleted.
-- **Phases 0–2 complete; next session starts Phase 3 (Task 3.1) branched from `main`. Future phase PRs: base each on the previous phase branch only while unmerged; merge bottom-up (oldest first) and re-target the next PR to main after each merge — or simply merge each phase before starting the next.**
+- **Phases 0–3 complete.** Phase 3 → PR #5 (`phase-3-design-system-map-shell` → main). Merge it before starting Phase 4 (Task 4.1), then branch `phase-4-*` from main.
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
@@ -47,6 +47,17 @@
 - Contact form sends the signed-in user's email or empty string for guests (Phase 4.4 adds a proper email field).
 - Analyzer is at **0 issues** (beat the <20-infos target); no analyzer excludes were needed.
 - New locale keys added ×4 languages: `location_services_off`, `open_settings`, `sync_result`, `recording_notification_title/text`, `keep_app_open_info`, `invalid_email`.
+
+**Phase 3 deviations (branch `phase-3-design-system-map-shell`, 2026-07-05):**
+- Manrope is **bundled** under `google_fonts/` (4 weights, hashes match google_fonts' expected files) so nothing is fetched at runtime — offline-safe and deterministic in tests. The `google_fonts` package still supplies the TextTheme.
+- `MarkerFactory.load()` takes no `BuildContext` (uses rootBundle) — avoids inherited-widget lookups from initState.
+- Marker PNGs authored as SVG → rasterized 1x/2x/3x via rsvg-convert; legacy `unknown_marker.PNG`/`user_marker.PNG` deleted.
+- **MapShell fully replaces `home.dart` AND `main_page.dart`** (both deleted, plus `adding_button.dart`, `preview_place/trail.dart`, `selected_map_object.dart`); Main's catalog/offline sync and Home's location explainer were ported into MapShell. `internet_checker`/`welcome_page` route to `MapShell`.
+- Trail polylines: white casing polyline under the 80 %-cyan line (zIndex layering), selected trail rendered wider in `#0E7490`.
+- Memory Sheet renders all detail content progressively (no per-snap-size gating); carousel is the existing `SliderWithDots`; min sheet size .25 with an explicit close button (drag-to-dismiss deferred).
+- `integration_test/add_place_test.dart` + `record_trail_test.dart` deleted (targeted AddingButton/old Home) — Task 6.2 rewrites them against MapShell. Widget tests: `home_location_denied_test.dart` → `map_shell_test.dart` (explainer assertion preserved), `adding_button_test.dart` deleted.
+- Add FAB is **hidden** for guests (per Step 5's test spec) rather than showing a sign-in prompt sheet.
+- Device screenshot passes (light/dark, sheet states) deferred to Phase 6.5 — no Android emulator available this session; markers verified by rendered-PNG inspection.
 
 ---
 
@@ -535,7 +546,7 @@ and a `FutureBuilder(future: _startup, ...)` in build. Move the `welcomePageDisp
 - Delete: `lib/Theme/colors.dart`, `lib/Theme/theme.dart` (keep `themeProvider.dart`, moved to `lib/theme/theme_provider.dart` with a `ThemeMode` API: system/light/dark persisted in prefs)
 - Test: `test/WidgetTests/theme_test.dart`
 
-- [ ] **Step 1:**
+- [x] **Step 1:**
 
 ```dart
 // lib/theme/app_colors.dart
@@ -654,9 +665,9 @@ final lightTheme = _build(Brightness.light);
 final darkTheme = _build(Brightness.dark);
 ```
 
-- [ ] **Step 2:** Update `ThemeProvider` to expose `ThemeMode themeMode` (persisted, defaults to `ThemeMode.system`) and update `MaterialApp` in `lib/main.dart`: `theme: lightTheme, darkTheme: darkTheme, themeMode: provider.themeMode`. Grep-fix every `colorScheme.scrim` (was abused as "brand cyan") → `colorScheme.primary`, every `colorScheme.onBackground` → `colorScheme.onSurface`, `colorScheme.onPrimary`-as-card-color → `surfaceContainerHighest`.
-- [ ] **Step 3:** Theme test: builds both themes, asserts `lightTheme.colorScheme.primary == const Color(0xFF0891B2)` and dark surface `0xFF171717`.
-- [ ] **Step 4:** App runs in light + dark; screenshot both. Commit: `feat(ui): web-parity design tokens and Material 3 theme`
+- [x] **Step 2:** Update `ThemeProvider` to expose `ThemeMode themeMode` (persisted, defaults to `ThemeMode.system`) and update `MaterialApp` in `lib/main.dart`: `theme: lightTheme, darkTheme: darkTheme, themeMode: provider.themeMode`. Grep-fix every `colorScheme.scrim` (was abused as "brand cyan") → `colorScheme.primary`, every `colorScheme.onBackground` → `colorScheme.onSurface`, `colorScheme.onPrimary`-as-card-color → `surfaceContainerHighest`.
+- [x] **Step 3:** Theme test: builds both themes, asserts `lightTheme.colorScheme.primary == const Color(0xFF0891B2)` and dark surface `0xFF171717`.
+- [x] **Step 4:** App runs in light + dark; screenshot both. Commit: `feat(ui): web-parity design tokens and Material 3 theme` *(committed; light/dark screenshot pass deferred to the Phase 6.5 device pass — no Android emulator/device available in this session)*
 
 ### Task 3.2: Map style & markers to match the brand
 
@@ -665,10 +676,10 @@ final darkTheme = _build(Brightness.dark);
 - Create: `lib/assets/markers/` new pin set (SVG-derived PNGs @2x/@3x): `place_pin.png` (cyan teardrop, white memorial-flame glyph), `place_pin_selected.png` (larger, `#0E7490`), `user_dot.png` (cyan dot, white ring, soft halo)
 - Create: `lib/map/marker_factory.dart`
 
-- [ ] **Step 1:** Regenerate styles from Google's styling wizard: light = desaturated slate base (`#F1F5F9` land, `#CBD5E1` water tint), POI icons off, road labels minimal; dark = `#171717` base, `#262626` roads, POI off. Both must keep the map quiet so cyan pins are the loudest element.
-- [ ] **Step 2:** `MarkerFactory.load(BuildContext)` decodes each asset **once** (cache in a static; today `home.dart:115-130` re-decodes the PNG on every GPS tick) using `BitmapDescriptor.asset(const ImageConfiguration(devicePixelRatio: 3), path)`.
-- [ ] **Step 3:** Replace usages in home/record pages; user marker updates by rebuilding the one `Marker` with the cached icon (fixes the `_markers.union` stale-marker bug at `home.dart:119`).
-- [ ] **Step 4:** Visual check on device, light + dark. Commit: `feat(ui): branded map styles and cached marker set`
+- [x] **Step 1:** Regenerate styles from Google's styling wizard: light = desaturated slate base (`#F1F5F9` land, `#CBD5E1` water tint), POI icons off, road labels minimal; dark = `#171717` base, `#262626` roads, POI off. Both must keep the map quiet so cyan pins are the loudest element. *(hand-authored JSON, same effect)*
+- [x] **Step 2:** `MarkerFactory.load(BuildContext)` decodes each asset **once** (cache in a static; today `home.dart:115-130` re-decodes the PNG on every GPS tick) using `BitmapDescriptor.asset(const ImageConfiguration(devicePixelRatio: 3), path)`. *(signature is `load()` without context — rootBundle default avoids inherited-widget lookups from initState)*
+- [x] **Step 3:** Replace usages in home/record pages; user marker updates by rebuilding the one `Marker` with the cached icon (fixes the `_markers.union` stale-marker bug at `home.dart:119`).
+- [x] **Step 4:** Visual check on device, light + dark. Commit: `feat(ui): branded map styles and cached marker set` *(committed; device visual check folded into the Phase 6.5 pass — marker PNGs verified by rendered inspection)*
 
 ### Task 3.3: The MapShell — map covers everything
 
@@ -699,12 +710,12 @@ Layout (both orientations):
 - No `BottomNavigationBar` anymore — the map owns the screen; Profile lives behind the avatar (guests get the sign-in page there instead).
 - The map is edge-to-edge: `Scaffold(extendBody: true)`, **no SafeArea around the GoogleMap** — SafeArea wraps only the floating controls; set `GoogleMap(padding:)` to keep Google's attribution visible above the sheet.
 
-- [ ] **Step 1:** Build `MapShell` as a `Stack`: `GoogleMap` (full bleed, `myLocationButtonEnabled:false`, `zoomControlsEnabled:false`, style per theme) + `SafeArea(child: MapTopBar(...))` + `MapFabColumn` + conditional `MemorySheet`. State: `_places`, `_trails`, `_selected` (sealed: `SelectedPlace`/`SelectedTrail`/none), loaded via repositories with the Phase 2 error/retry pattern (errors surface as a floating retry chip under the top bar, map stays usable).
-- [ ] **Step 2:** `MapTopBar`: pill `Container` (radius 28, `surface.withOpacity(.92)`, hairline `outlineVariant` border) with app glyph, a **search field** filtering loaded places by name (zooms to result on tap — this is a new capability the web app has and mobile lacked), and a `CircleAvatar` (user initial, or person icon for guests) → pushes `Profile`/`SignInOrSignUpPage`.
-- [ ] **Step 3:** `MapFabColumn`: small FABs `locate` + `theme`, and the primary cyan FAB `＋` — tap opens a bottom sheet with two actions: "Add place here" (→ `PlaceForm`) and "Record a trail" (→ `TrailRecordPage`); hidden for guests (tap shows sign-in prompt sheet instead).
-- [ ] **Step 4:** `MemorySheet`: `DraggableScrollableSheet` with snap sizes `[.25, .55, .95]`; peek shows title + period chip + distance-from-me; half adds image carousel (Flutter `CarouselView`) + description preview + "Open in Google Maps"; full is the complete details (subsumes `placeDetails.dart` content for map-opened objects). On open: `_mapController.animateCamera` so the pin sits in the top 40 % of the screen; marker swaps to `place_pin_selected`.
-- [ ] **Step 5:** Widget tests: map shell renders top bar + FABs; selecting a stub place shows the sheet at peek; guests see no add-FAB. (`GoogleMap` needs a platform view stub in tests — wrap the map in an injectable builder so tests substitute a `SizedBox`.)
-- [ ] **Step 6:** Run on device; screenshot light/dark, peek/half/full. Commit: `feat(ui): full-screen MapShell with floating controls and Memory Sheet`
+- [x] **Step 1:** Build `MapShell` as a `Stack`: `GoogleMap` (full bleed, `myLocationButtonEnabled:false`, `zoomControlsEnabled:false`, style per theme) + `SafeArea(child: MapTopBar(...))` + `MapFabColumn` + conditional `MemorySheet`. State: `_places`, `_trails`, `_selected` (sealed: `SelectedPlace`/`SelectedTrail`/none), loaded via repositories with the Phase 2 error/retry pattern (errors surface as a floating retry chip under the top bar, map stays usable).
+- [x] **Step 2:** `MapTopBar`: pill `Container` (radius 28, `surface.withOpacity(.92)`, hairline `outlineVariant` border) with app glyph, a **search field** filtering loaded places by name (zooms to result on tap — this is a new capability the web app has and mobile lacked), and a `CircleAvatar` (user initial, or person icon for guests) → pushes `Profile`/`SignInOrSignUpPage`.
+- [x] **Step 3:** `MapFabColumn`: small FABs `locate` + `theme`, and the primary cyan FAB `＋` — tap opens a bottom sheet with two actions: "Add place here" (→ `PlaceForm`) and "Record a trail" (→ `TrailRecordPage`); hidden for guests (tap shows sign-in prompt sheet instead).
+- [x] **Step 4:** `MemorySheet`: `DraggableScrollableSheet` with snap sizes `[.25, .55, .95]`; peek shows title + period chip + distance-from-me; half adds image carousel (Flutter `CarouselView`) + description preview + "Open in Google Maps"; full is the complete details (subsumes `placeDetails.dart` content for map-opened objects). On open: `_mapController.animateCamera` so the pin sits in the top 40 % of the screen; marker swaps to `place_pin_selected`. *(carousel = existing `SliderWithDots` PageView; content renders progressively rather than gating per snap size)*
+- [x] **Step 5:** Widget tests: map shell renders top bar + FABs; selecting a stub place shows the sheet at peek; guests see no add-FAB. (`GoogleMap` needs a platform view stub in tests — wrap the map in an injectable builder so tests substitute a `SizedBox`.)
+- [x] **Step 6:** Run on device; screenshot light/dark, peek/half/full. Commit: `feat(ui): full-screen MapShell with floating controls and Memory Sheet` *(committed; device screenshots folded into the Phase 6.5 pass)*
 
 ---
 

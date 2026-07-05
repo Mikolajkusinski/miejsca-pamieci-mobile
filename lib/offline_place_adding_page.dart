@@ -60,7 +60,7 @@ class _OfflinePlaceAddingPageState extends State<OfflinePlaceAddingPage> {
           child: _isLoading
               ? CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.scrim),
+                      Theme.of(context).colorScheme.primary),
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
