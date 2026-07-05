@@ -56,6 +56,9 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "lib/assets/images/app_logo.png"
+  # App Store rejects alpha in the 1024 px marketing icon.
+  remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"
 
 flutter:
   generate: true

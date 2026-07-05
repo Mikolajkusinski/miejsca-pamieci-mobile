@@ -94,6 +94,48 @@ flutter test
 flutter test integration_test/happy_path_test.dart -d <device-id>
 ```
 
+## Release builds
+
+Android release builds are signed with an upload keystore that lives **outside
+the repo** (e.g. `~/keystores/memoryplaces-upload.jks`), referenced from the
+git-ignored `android/key.properties`:
+
+```properties
+storeFile=/absolute/path/to/memoryplaces-upload.jks
+storePassword=...
+keyPassword=...
+keyAlias=upload
+```
+
+Back the keystore and passwords up in a password manager — with Play App
+Signing enabled, a lost *upload* key can be reset with Google, but treat it as
+production-critical anyway. Without `key.properties`, release builds fall back
+to debug signing (installable locally, not publishable).
+
+```console
+# Android app bundle for the Play Store:
+flutter build appbundle --release --dart-define-from-file=env/prod.json
+
+# iOS (requires the team's signing certificates in Xcode):
+flutter build ipa --dart-define-from-file=env/prod.json
+```
+
+**Version bumps:** edit `version:` in `pubspec.yaml` — `1.2.3+45` is
+versionName `1.2.3` / versionCode `45`. Every store upload needs a higher
+`+build` number; bump the semver part for user-visible releases.
+
+**Store submission checklist** (owner actions, once per release cycle):
+- Rotate/restrict Google Maps API keys (see "Configuration" above).
+- Launcher icons: regenerate with `dart run flutter_launcher_icons` after
+  changing `lib/assets/images/app_logo.png` (keep it 1024×1024; iOS alpha is
+  stripped automatically).
+- Screenshots: map light/dark, memory sheet, trail recording.
+- Privacy policy URL (coordinate with the web team) — required by both stores.
+- Play Data Safety form: location — collected, not shared, app functionality;
+  photos — user-provided content; no tracking/ads.
+- App Store privacy labels must match `ios/Runner/PrivacyInfo.xcprivacy`
+  (precise location + photos, app functionality, no tracking).
+
 ```console
 PS C:\PATH_TO_YOUR_PROJECT\memo_places_mobile> flutter pub add carousel_slider
 ```
