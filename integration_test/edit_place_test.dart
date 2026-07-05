@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:memo_places_mobile/MyPlacesAndTrailsWidgets/my_place_box.dart';
+import 'package:memo_places_mobile/MyPlacesAndTrailsWidgets/memory_card.dart';
 import 'package:memo_places_mobile/formWidgets/custom_button.dart';
 import 'package:memo_places_mobile/main.dart' as app;
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
@@ -42,7 +42,7 @@ void main() {
       await tester.tap(find.text(LocaleKeys.my_places.tr()));
       await tester.pumpAndSettle();
 
-      await tester.drag(find.byType(MyPlaceBox).first, const Offset(-500, 0));
+      await tester.drag(find.byType(MemoryCard).first, const Offset(-500, 0));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.edit_location_alt_outlined));

@@ -170,5 +170,7 @@
   "pass_rule_digit": "A digit",
   "pass_rule_symbol": "A symbol",
   "retry_images": "Retry photo upload",
-  "images_upload_failed": "Saved, but some photos failed to upload."
+  "images_upload_failed": "Saved, but some photos failed to upload.",
+  "add_first_place": "Add your first place",
+  "record_first_trail": "Record your first trail"
 }

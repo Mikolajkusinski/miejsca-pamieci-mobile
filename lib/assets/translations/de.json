@@ -170,5 +170,7 @@
   "pass_rule_digit": "Eine Ziffer",
   "pass_rule_symbol": "Ein Sonderzeichen",
   "retry_images": "Fotos erneut hochladen",
-  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden."
+  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden.",
+  "add_first_place": "Füge deinen ersten Ort hinzu",
+  "record_first_trail": "Zeichne deine erste Route auf"
 }

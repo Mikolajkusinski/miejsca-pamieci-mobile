@@ -9,6 +9,7 @@ import 'package:memo_places_mobile/Objects/sortof.dart';
 import 'package:memo_places_mobile/Objects/trail.dart';
 import 'package:memo_places_mobile/Objects/type.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
+import 'package:memo_places_mobile/services/api_client.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';
 import 'package:memo_places_mobile/services/places_repository.dart';
 import 'package:memo_places_mobile/services/session_store.dart';
@@ -28,6 +29,14 @@ Future<List<Period>> fetchPeriods(BuildContext context) =>
 
 Future<List<Sortof>> fetchSortof(BuildContext context) =>
     context.read<CatalogRepository>().getSortofs();
+
+/// The backend's numeric id for the signed-in user (Cognito sessions carry
+/// id 0). Used for OData `userId eq N` list filtering.
+Future<int> fetchBackendUserId(BuildContext context) async {
+  final json = await context.read<ApiClient>().get('/api/v1/users/me')
+      as Map<String, dynamic>;
+  return (json['id'] as num).toInt();
+}
 
 Future<List<String>> fetchPlaceImages(BuildContext context, String placeId) =>
     context.read<PlacesRepository>().fetchImageUrls(int.parse(placeId));

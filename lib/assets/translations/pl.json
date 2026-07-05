@@ -170,5 +170,7 @@
   "pass_rule_digit": "Cyfra",
   "pass_rule_symbol": "Znak specjalny",
   "retry_images": "Ponów przesyłanie zdjęć",
-  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć."
+  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć.",
+  "add_first_place": "Dodaj swoje pierwsze miejsce",
+  "record_first_trail": "Nagraj swoją pierwszą trasę"
 }

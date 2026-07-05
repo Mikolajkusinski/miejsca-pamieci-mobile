@@ -186,7 +186,9 @@ class CodegenLoader extends AssetLoader{
   "pass_rule_digit": "Eine Ziffer",
   "pass_rule_symbol": "Ein Sonderzeichen",
   "retry_images": "Fotos erneut hochladen",
-  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden."
+  "images_upload_failed": "Gespeichert, aber einige Fotos konnten nicht hochgeladen werden.",
+  "add_first_place": "Füge deinen ersten Ort hinzu",
+  "record_first_trail": "Zeichne deine erste Route auf"
 };
 static const Map<String,dynamic> _ru = {
   "distance": "Расстояние {distance} км",
@@ -360,7 +362,9 @@ static const Map<String,dynamic> _ru = {
   "pass_rule_digit": "Цифра",
   "pass_rule_symbol": "Специальный символ",
   "retry_images": "Повторить загрузку фото",
-  "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить."
+  "images_upload_failed": "Сохранено, но некоторые фото не удалось загрузить.",
+  "add_first_place": "Добавьте своё первое место",
+  "record_first_trail": "Запишите свой первый маршрут"
 };
 static const Map<String,dynamic> _pl = {
   "distance": "Dystans {distance} km",
@@ -534,7 +538,9 @@ static const Map<String,dynamic> _pl = {
   "pass_rule_digit": "Cyfra",
   "pass_rule_symbol": "Znak specjalny",
   "retry_images": "Ponów przesyłanie zdjęć",
-  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć."
+  "images_upload_failed": "Zapisano, ale nie udało się przesłać części zdjęć.",
+  "add_first_place": "Dodaj swoje pierwsze miejsce",
+  "record_first_trail": "Nagraj swoją pierwszą trasę"
 };
 static const Map<String,dynamic> _en = {
   "distance": "Distance {distance} Km",
@@ -708,7 +714,9 @@ static const Map<String,dynamic> _en = {
   "pass_rule_digit": "A digit",
   "pass_rule_symbol": "A symbol",
   "retry_images": "Retry photo upload",
-  "images_upload_failed": "Saved, but some photos failed to upload."
+  "images_upload_failed": "Saved, but some photos failed to upload.",
+  "add_first_place": "Add your first place",
+  "record_first_trail": "Record your first trail"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"de": _de, "ru": _ru, "pl": _pl, "en": _en};
 }
