@@ -1,0 +1,3 @@
+"NSLocationWhenInUseUsageDescription" = "Dein Standort zeigt Gedenkorte in deiner Nähe auf der Karte und zeichnet deine zurückgelegte Route auf.";
+"NSCameraUsageDescription" = "Mit der Kamera kannst du einen Gedenkort beim Hinzufügen oder Bearbeiten fotografieren.";
+"NSPhotoLibraryUsageDescription" = "Über die Fotomediathek kannst du vorhandene Fotos zu einem Gedenkort hinzufügen.";

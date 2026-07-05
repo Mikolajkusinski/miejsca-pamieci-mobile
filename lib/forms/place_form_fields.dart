@@ -8,6 +8,7 @@ import 'package:memo_places_mobile/Objects/type.dart';
 import 'package:memo_places_mobile/forms/image_picker_grid.dart';
 import 'package:memo_places_mobile/services/api_exception.dart';
 import 'package:memo_places_mobile/services/catalog_repository.dart';
+import 'package:memo_places_mobile/shared/safe_url.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
 /// Category lookups a form needs, already sorted by display order.
@@ -129,6 +130,13 @@ class _PlaceFormFieldsState extends State<PlaceFormFields> {
     return null;
   }
 
+  /// Links are optional, but a filled-in link must be a plain http(s) URL.
+  String? _linkValidator(String? value) {
+    final link = value?.trim() ?? '';
+    if (link.isEmpty) return null;
+    return parseSafeHttpUrl(link) == null ? LocaleKeys.invalid_link.tr() : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<FormCatalogs>(
@@ -248,12 +256,14 @@ class _PlaceFormFieldsState extends State<PlaceFormFields> {
             controller: data.wikiLinkController,
             keyboardType: TextInputType.url,
             decoration: InputDecoration(labelText: LocaleKeys.wiki_link.tr()),
+            validator: _linkValidator,
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: data.topicLinkController,
             keyboardType: TextInputType.url,
             decoration: InputDecoration(labelText: LocaleKeys.topic_link.tr()),
+            validator: _linkValidator,
           ),
         ],
       ],

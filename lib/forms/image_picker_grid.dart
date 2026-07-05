@@ -1,11 +1,15 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:memo_places_mobile/toasts.dart';
+import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 
 /// 3-slot grid of 96 px thumbnails with an add tile and per-image remove.
 class ImagePickerGrid extends StatelessWidget {
   static const maxImages = 3;
+  static const maxImageBytes = 10 * 1024 * 1024;
 
   final List<File> images;
   final VoidCallback onChanged;
@@ -16,10 +20,17 @@ class ImagePickerGrid extends StatelessWidget {
   Future<void> _pick() async {
     final picked = await ImagePicker().pickMultiImage(
         limit: maxImages - images.length, imageQuality: 50);
+    var rejected = false;
     for (final image in picked) {
       if (images.length >= maxImages) break;
-      images.add(File(image.path));
+      final file = File(image.path);
+      if (await file.length() > maxImageBytes) {
+        rejected = true;
+        continue;
+      }
+      images.add(file);
     }
+    if (rejected) showErrorToast(LocaleKeys.image_too_large.tr());
     if (picked.isNotEmpty) onChanged();
   }
 

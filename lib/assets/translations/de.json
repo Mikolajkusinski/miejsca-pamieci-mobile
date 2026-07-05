@@ -156,6 +156,8 @@
   "recording_notification_text": "Memory Places verfolgt deine Route.",
   "keep_app_open_info": "Lass die App während der Aufzeichnung geöffnet — beim Schließen stoppt die Route.",
   "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein",
+  "invalid_link": "Gib einen gültigen Link an, der mit http:// oder https:// beginnt",
+  "image_too_large": "Jedes Foto muss kleiner als 10 MB sein.",
   "search_places": "Orte suchen…",
   "add_place_here": "Ort hier hinzufügen",
   "record_trail": "Route aufzeichnen",

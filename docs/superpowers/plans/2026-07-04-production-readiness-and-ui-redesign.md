@@ -22,7 +22,8 @@
 - Phase 1 → PR #2 was merged into the *phase-0 branch* (stacked-PR mishap), not main.
 - Phase 2 → PR #3 was merged into the *phase-1 branch*, not main.
 - Recovery: PR #4 (`phase-1-api-auth` → main) carries **Phases 1+2 together**; main was tied in with an `-s ours` merge (main's squashed Phase 0 tree verified byte-identical to commit aa84fce in this branch's history — nothing lost). After PR #4 merges, all phase branches are fully contained in main and deleted.
-- **Phases 0–4 complete.** Phase 3 → PR #5 (merged). Phase 4 → PR #6 (`phase-4-screen-redesign` → main). Merge it before starting Phase 5 (Task 5.1), then branch `phase-5-*` from main.
+- **Phases 0–4 complete and merged** (Phase 3 → PR #5, Phase 4 → PR #6; all phase branches deleted).
+- **Phase 5 complete** → PR #7 (`phase-5-security-and-privacy-hardening` → main). Merge it before starting Phase 6 (Task 6.1), then branch `phase-6-*` from main. Only Task 5.1's Maps-key rotation stays open as an owner action (see Phase 5 deviations).
 
 **Deviations from the written plan:**
 - `mykey.jks` was never actually committed (B6 partly stale); the dangling signing config was removed. Release builds are **debug-signed until Task 6.4** (acknowledged on PR #1).
@@ -68,6 +69,11 @@
 - Empty-state CTAs pop back to the MapShell + FAB rather than deep-linking into the form (forms need a live position).
 - HidePassword became an eye suffix IconButton (same API); auth_tile/sign_in_and_sign_up_text_field/sign_in_sign_up_button/formWidgets/ProfileWidgets/button_data/offline_place_box deleted with their tests; stale integration tests re-pointed at TextFormField/FilledButton/MemoryCard so they compile until the Task 6.2 rewrite.
 - Widget tests added: place_form_fields (catalog retry, trail variant, image grid), my_places (empty CTA, card + badge), PasswordRules parity; suite at 62 green, analyze 0.
+
+**Phase 5 deviations (branch `phase-5-security-and-privacy-hardening`, 2026-07-05):**
+- Maps key rotation is an **owner action** (Google Cloud console), documented in README "Configuration"; history scan confirmed no key was ever committed to this repo. Android SHA-1 restriction waits for the Task 6.4 upload keystore.
+- iOS: beyond the planned keys, dropped `NSLocationAlwaysAndWhenInUseUsageDescription` and the unused `NSMicrophoneUsageDescription`; replaced the dead google_sign_in `CFBundleURLSchemes` entry with the `memoryplaces` Cognito Hosted-UI callback scheme (Android's matching intent filter lands with the blocked Task 1.3 Step 3 once the pool exists). `InfoPlist.strings` ×4 + `PrivacyInfo.xcprivacy` wired into the pbxproj by hand (variant group, knownRegions) and verified present in a built `Runner.app`.
+- Task 5.3's trim/max-length items were already satisfied by the Phase 4 forms; the new work was `parseSafeHttpUrl` (form validation + link launching) and the 10 MB per-image cap. New locale keys ×4: `invalid_link`, `image_too_large`.
 
 ---
 
@@ -765,19 +771,19 @@ Layout (both orientations):
 **Outcome:** no plaintext secrets or tokens, correct platform privacy declarations, HTTPS everywhere.
 
 ### Task 5.1: Transport & token security sweep
-- [ ] Verify prod config uses `https://` only; add a debug-only assertion in `ApiClient` rejecting non-HTTPS when `AppConfig.isProd`.
-- [ ] Confirm no `usesCleartextTraffic` flag is added anywhere; Android network security config stays default (cleartext blocked).
-- [ ] `grep -rn "SharedPreferences" lib/` → no token/session reads remain outside `SessionStore`.
-- [ ] Rotate the Google Maps API keys (the old ones lived in committed config on dev machines) and restrict them: Android key by package name `pl.memoryplaces.mobile` + SHA-1, iOS key by bundle id.
+- [x] Verify prod config uses `https://` only; add a debug-only assertion in `ApiClient` rejecting non-HTTPS when `AppConfig.isProd`. *(assertion + testable `isBaseUrlAllowed` helper; prod.json.example already https-only)*
+- [x] Confirm no `usesCleartextTraffic` flag is added anywhere; Android network security config stays default (cleartext blocked). *(grep clean across android/ and ios/)*
+- [x] `grep -rn "SharedPreferences" lib/` → no token/session reads remain outside `SessionStore`. *(remaining uses are catalogs, offline queue, theme mode, welcome flag — all non-sensitive)*
+- [ ] Rotate the Google Maps API keys (the old ones lived in committed config on dev machines) and restrict them: Android key by package name `pl.memoryplaces.mobile` + SHA-1, iOS key by bundle id. *(OWNER ACTION, Google Cloud console — documented in README "Configuration"; no key was ever committed to this repo's history; Android SHA-1 restriction waits for the Task 6.4 upload keystore)*
 
 ### Task 5.2: iOS privacy compliance
-- [ ] Create `ios/Runner/PrivacyInfo.xcprivacy` declaring: location (app functionality), photos (user content), UserDefaults API category `CA92.1`, file-timestamp `C617.1` (required-reason APIs pulled in by plugins).
-- [ ] Replace deprecated `NSLocationAlwaysUsageDescription`; keep only `NSLocationWhenInUseUsageDescription`, `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` — each rewritten to say *why* ("Your location shows nearby places of memory and records trails you walk."), localized via `ios/Runner/{en,pl,de,ru}.lproj/InfoPlist.strings`.
+- [x] Create `ios/Runner/PrivacyInfo.xcprivacy` declaring: location (app functionality), photos (user content), UserDefaults API category `CA92.1`, file-timestamp `C617.1` (required-reason APIs pulled in by plugins).
+- [x] Replace deprecated `NSLocationAlwaysUsageDescription`; keep only `NSLocationWhenInUseUsageDescription`, `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` — each rewritten to say *why* ("Your location shows nearby places of memory and records trails you walk."), localized via `ios/Runner/{en,pl,de,ru}.lproj/InfoPlist.strings`. *(also dropped `NSLocationAlwaysAndWhenInUse` + unused `NSMicrophoneUsageDescription`; swapped the dead google_sign_in URL scheme for the `memoryplaces` Cognito callback scheme; pbxproj wired by hand — variant group + knownRegions — and verified present in a built Runner.app)*
 
 ### Task 5.3: Input & content safety
-- [ ] URL fields (`wiki_link`, `topic_link`): validate scheme ∈ {http, https} before save and before `launchUrl` (currently any URI launches — `tel:`, `javascript:` etc. from server data); launch with `LaunchMode.externalApplication`.
-- [ ] Text inputs: max lengths server-parity (name 255 / description 1000 already partially done); trim before submit.
-- [ ] Image uploads: cap at 3 files ≤ 10 MB each client-side with a clear error toast.
+- [x] URL fields (`wiki_link`, `topic_link`): validate scheme ∈ {http, https} before save and before `launchUrl` (currently any URI launches — `tel:`, `javascript:` etc. from server data); launch with `LaunchMode.externalApplication`. *(shared `lib/shared/safe_url.dart` `parseSafeHttpUrl` used by the form validator and `MemoryDetailContent._openLink`; unit + widget tested)*
+- [x] Text inputs: max lengths server-parity (name 255 / description 1000 already partially done); trim before submit. *(already satisfied by the Phase 4 forms — verified by grep; passwords intentionally untrimmed)*
+- [x] Image uploads: cap at 3 files ≤ 10 MB each client-side with a clear error toast. *(3-image cap existed in `ImagePickerGrid`; added the 10 MB per-file check + `image_too_large` toast; new locale keys `invalid_link`/`image_too_large` ×4)*
 
 ---
 

@@ -63,10 +63,20 @@ Keys: `API_BASE_URL`, `PROD`, `COGNITO_USER_POOL_ID`, `COGNITO_APP_CLIENT_ID`,
 When the Cognito ids are empty the app still runs — map browsing is anonymous
 and auth entry points disable themselves.
 
+`API_BASE_URL` must be `https://` in production builds — `ApiClient` asserts
+this in debug builds when `PROD` is true, and Android/iOS block cleartext HTTP
+by default (no `usesCleartextTraffic`/ATS exceptions are configured).
+
 Google Maps API keys live outside version control:
 
 - Android: `android/secrets.properties` (`GOOGLE_MAPS_API_KEY=...`)
 - iOS: `ios/Flutter/Secrets.xcconfig` (`GOOGLE_MAPS_API_KEY = ...`)
+
+Before release (owner action, Google Cloud console): rotate any Maps key that
+previously lived in a `flutter_config` `.env` file on a dev machine, and
+restrict the replacements — the Android key by package name
+`pl.memoryplaces.mobile` + the upload key's SHA-1 (created in the release
+signing step), the iOS key by the bundle id.
 
 ## Useful commands
 

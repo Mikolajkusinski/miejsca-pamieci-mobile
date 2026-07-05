@@ -5,6 +5,7 @@ import 'package:memo_places_mobile/ObjectDetailsWidgets/slider_with_dots.dart';
 import 'package:memo_places_mobile/Objects/place.dart';
 import 'package:memo_places_mobile/Objects/trail.dart';
 import 'package:memo_places_mobile/api_constants.dart';
+import 'package:memo_places_mobile/shared/safe_url.dart';
 import 'package:memo_places_mobile/toasts.dart';
 import 'package:memo_places_mobile/translations/locale_keys.g.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -74,8 +75,9 @@ class MemoryDetailContent extends StatelessWidget {
   }
 
   Future<void> _openLink(String link) async {
-    final url = Uri.parse(link);
-    if (await canLaunchUrl(url)) {
+    // Server data is not trusted: only plain http(s) URLs may launch.
+    final url = parseSafeHttpUrl(link);
+    if (url != null && await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
       showErrorToast(LocaleKeys.link_error.tr());
