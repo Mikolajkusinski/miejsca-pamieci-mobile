@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:memo_places_mobile/map/marker_factory.dart';
+import 'package:memo_places_mobile/theme/app_colors.dart';
 import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/TrailRecordPageWidgets/record_menu.dart';
 import 'package:memo_places_mobile/services/location_service.dart';
@@ -120,32 +120,24 @@ class _TrailRecordState extends State<TrailRecordPage> {
   }
 
   void _updateUserMarker() async {
-    final Uint8List markerIcon =
-        await _getBytesFromAsset('lib/assets/markers/user_marker.PNG', 80);
-    Set<Marker> updatedMarkers = _markers.union({
-      Marker(
-        markerId: const MarkerId("user_location"),
-        position: _currentPosition,
-        icon: BitmapDescriptor.bytes(markerIcon),
-        anchor: const Offset(0.5, 0.5),
-        consumeTapEvents: true,
-      ),
-    });
-
+    await MarkerFactory.load();
     if (!mounted) return;
-    setState(() {
-      _markers = updatedMarkers;
-    });
-  }
 
-  Future<Uint8List> _getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width);
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
+    final userMarker = Marker(
+      markerId: const MarkerId("user_location"),
+      position: _currentPosition,
+      icon: MarkerFactory.userDot,
+      anchor: const Offset(0.5, 0.5),
+      consumeTapEvents: true,
+    );
+
+    setState(() {
+      // Replace (never union) so the dot moves instead of going stale.
+      _markers = {
+        ..._markers.where((m) => m.markerId != userMarker.markerId),
+        userMarker,
+      };
+    });
   }
 
   void _updateRecordedPolyline() {
@@ -154,8 +146,8 @@ class _TrailRecordState extends State<TrailRecordPage> {
           polylineId: const PolylineId("recorded_trail_polyline"),
           visible: true,
           points: _trailsPoints,
-          width: 10,
-          color: const Color.fromARGB(137, 33, 75, 243),
+          width: 5,
+          color: AppColors.trail,
           startCap: Cap.roundCap,
           endCap: Cap.roundCap),
     });

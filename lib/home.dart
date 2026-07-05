@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:memo_places_mobile/AppNavigation/adding_button.dart';
 import 'package:memo_places_mobile/MainPageWidgets/preview_place.dart';
@@ -13,6 +11,8 @@ import 'package:memo_places_mobile/Objects/selected_map_object.dart';
 import 'package:memo_places_mobile/Objects/place.dart';
 import 'package:memo_places_mobile/Objects/trail.dart';
 import 'package:memo_places_mobile/Objects/user.dart';
+import 'package:memo_places_mobile/map/marker_factory.dart';
+import 'package:memo_places_mobile/theme/app_colors.dart';
 import 'package:memo_places_mobile/theme/theme_provider.dart';
 import 'package:memo_places_mobile/api_constants.dart';
 import 'package:memo_places_mobile/custom_exception.dart';
@@ -128,30 +128,22 @@ class _GoogleMapsState extends State<Home> {
   }
 
   void _updateUserMarker() async {
-    final Uint8List markerIcon =
-        await _getBytesFromAsset('lib/assets/markers/user_marker.PNG', 80);
+    await MarkerFactory.load();
+    if (!mounted) return;
 
-    Set<Marker> updatedMarkers = _markers.union({
-      Marker(
-          markerId: const MarkerId("user_location"),
-          position: _position,
-          icon: BitmapDescriptor.bytes(markerIcon),
-          anchor: const Offset(0.5, 0.5)),
-    });
+    final userMarker = Marker(
+        markerId: const MarkerId("user_location"),
+        position: _position,
+        icon: MarkerFactory.userDot,
+        anchor: const Offset(0.5, 0.5));
 
     setState(() {
-      _markers = updatedMarkers;
+      // Replace (never union) so the dot moves instead of going stale.
+      _markers = {
+        ..._markers.where((m) => m.markerId != userMarker.markerId),
+        userMarker,
+      };
     });
-  }
-
-  Future<Uint8List> _getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width);
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
   }
 
   void _setObject(Place? place, Trail? trail) {
@@ -177,8 +169,8 @@ class _GoogleMapsState extends State<Home> {
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(utf8.decode(response.bodyBytes));
-        final Uint8List markerIcon = await _getBytesFromAsset(
-            'lib/assets/markers/unknown_marker.PNG', 150);
+        await MarkerFactory.load();
+        if (!mounted) return;
         var fetchedPlaces = <Place>[];
         for (var data in jsonData) {
           var place = Place.fromJson(data);
@@ -191,7 +183,7 @@ class _GoogleMapsState extends State<Home> {
             return Marker(
               markerId: MarkerId(place.id.toString()),
               position: LatLng(place.lat, place.lng),
-              icon: BitmapDescriptor.bytes(markerIcon),
+              icon: MarkerFactory.placePin,
               consumeTapEvents: true,
               onTap: () => _setObject(place, null),
             );
@@ -227,8 +219,8 @@ class _GoogleMapsState extends State<Home> {
               polylineId: PolylineId(trail.id.toString()),
               visible: true,
               points: trail.coordinates,
-              width: 10,
-              color: const Color.fromARGB(137, 33, 75, 243),
+              width: 5,
+              color: AppColors.trail,
               startCap: Cap.roundCap,
               endCap: Cap.roundCap,
               consumeTapEvents: true,

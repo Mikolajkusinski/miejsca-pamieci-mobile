@@ -535,7 +535,7 @@ and a `FutureBuilder(future: _startup, ...)` in build. Move the `welcomePageDisp
 - Delete: `lib/Theme/colors.dart`, `lib/Theme/theme.dart` (keep `themeProvider.dart`, moved to `lib/theme/theme_provider.dart` with a `ThemeMode` API: system/light/dark persisted in prefs)
 - Test: `test/WidgetTests/theme_test.dart`
 
-- [ ] **Step 1:**
+- [x] **Step 1:**
 
 ```dart
 // lib/theme/app_colors.dart
@@ -654,9 +654,9 @@ final lightTheme = _build(Brightness.light);
 final darkTheme = _build(Brightness.dark);
 ```
 
-- [ ] **Step 2:** Update `ThemeProvider` to expose `ThemeMode themeMode` (persisted, defaults to `ThemeMode.system`) and update `MaterialApp` in `lib/main.dart`: `theme: lightTheme, darkTheme: darkTheme, themeMode: provider.themeMode`. Grep-fix every `colorScheme.scrim` (was abused as "brand cyan") → `colorScheme.primary`, every `colorScheme.onBackground` → `colorScheme.onSurface`, `colorScheme.onPrimary`-as-card-color → `surfaceContainerHighest`.
-- [ ] **Step 3:** Theme test: builds both themes, asserts `lightTheme.colorScheme.primary == const Color(0xFF0891B2)` and dark surface `0xFF171717`.
-- [ ] **Step 4:** App runs in light + dark; screenshot both. Commit: `feat(ui): web-parity design tokens and Material 3 theme`
+- [x] **Step 2:** Update `ThemeProvider` to expose `ThemeMode themeMode` (persisted, defaults to `ThemeMode.system`) and update `MaterialApp` in `lib/main.dart`: `theme: lightTheme, darkTheme: darkTheme, themeMode: provider.themeMode`. Grep-fix every `colorScheme.scrim` (was abused as "brand cyan") → `colorScheme.primary`, every `colorScheme.onBackground` → `colorScheme.onSurface`, `colorScheme.onPrimary`-as-card-color → `surfaceContainerHighest`.
+- [x] **Step 3:** Theme test: builds both themes, asserts `lightTheme.colorScheme.primary == const Color(0xFF0891B2)` and dark surface `0xFF171717`.
+- [x] **Step 4:** App runs in light + dark; screenshot both. Commit: `feat(ui): web-parity design tokens and Material 3 theme` *(committed; light/dark screenshot pass deferred to the Phase 6.5 device pass — no Android emulator/device available in this session)*
 
 ### Task 3.2: Map style & markers to match the brand
 
